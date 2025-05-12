@@ -1,0 +1,22 @@
+.bg-upnvj {
+    background-color: #f16909 !important;
+}
+
+.text-upnvj {
+    color: #f16909 !important;
+}
+
+.btn-upnvj {
+    background-color: #f16909 !important;
+    color: #fff !important;
+}
+
+.btn-upnvj:hover {
+    background-color: #f16909 !important;
+    color: #fff !important;
+}
+
+.active {
+    background-color: #000000 !important;
+    color: #fff !important;
+}
