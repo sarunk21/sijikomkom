@@ -1,235 +1,77 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+
+use App\Http\Controllers\Admin\SkemaController;
+use App\Http\Controllers\Admin\TUKController;
+
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $lists = [
+function getMenuList($activeMenu = 'dashboard') {
+    $menus = [
         [
             'title' => 'Dashboard',
-            'url' => '/dashboard',
-            'active' => true
+            'url' => 'dashboard.admin',
+            'key' => 'dashboard',
         ],
         [
             'title' => 'Skema',
-            'url' => '/skema',
-            'active' => false
+            'url' => 'skema.index',
+            'key' => 'skema'
         ],
         [
             'title' => 'TUK',
-            'url' => '/tuk',
-            'active' => false
+            'url' => 'tuk.index',
+            'key' => 'tuk'
         ],
         [
             'title' => 'Jadwal',
-            'url' => '/jadwal',
-            'active' => false
+            'url' => null,
+            'key' => 'jadwal'
         ],
         [
             'title' => 'User',
-            'url' => '/user',
-            'active' => false
+            'url' => null,
+            'key' => 'user'
         ],
         [
             'title' => 'Pembayaran Pendaftaran',
-            'url' => '/pembayaran-pendaftaran',
-            'active' => false
+            'url' => null,
+            'key' => 'pembayaran-pendaftaran'
         ],
         [
             'title' => 'Pembayaran Asesor',
-            'url' => '/pembayaran-asesor',
-            'active' => false
+            'url' => null,
+            'key' => 'pembayaran-asesor'
         ],
         [
             'title' => 'Report',
-            'url' => '/report',
-            'active' => false
+            'url' => null,
+            'key' => 'report'
         ],
         [
             'title' => 'APL 2',
-            'url' => '/apl-2',
-            'active' => false
+            'url' => null,
+            'key' => 'apl-2'
         ],
         [
             'title' => 'Profile',
-            'url' => '/profile',
-            'active' => false
+            'url' => null,
+            'key' => 'profile'
         ]
     ];
 
-    return view('components.pages.dashboard-admin', compact('lists'));
-});
+    return collect($menus)->map(function($menu) use ($activeMenu) {
+        $menu['active'] = $menu['key'] === $activeMenu;
+        return $menu;
+    })->all();
+}
+
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard.admin');
 
 Route::get('/login', function () {
     return view('components.pages.login');
-});
+})->name('login');
 
-Route::get('/skema', function () {
-    $lists = [
-        [
-            'title' => 'Dashboard',
-            'url' => '/',
-            'active' => false
-        ],
-        [
-            'title' => 'Skema',
-            'url' => '/skema',
-            'active' => true
-        ],
-        [
-            'title' => 'TUK',
-            'url' => '/tuk',
-            'active' => false
-        ],
-        [
-            'title' => 'Jadwal',
-            'url' => '/jadwal',
-            'active' => false
-        ],
-        [
-            'title' => 'User',
-            'url' => '/user',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Pendaftaran',
-            'url' => '/pembayaran-pendaftaran',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Asesor',
-            'url' => '/pembayaran-asesor',
-            'active' => false
-        ],
-        [
-            'title' => 'Report',
-            'url' => '/report',
-            'active' => false
-        ],
-        [
-            'title' => 'APL 2',
-            'url' => '/apl-2',
-            'active' => false
-        ],
-        [
-            'title' => 'Profile',
-            'url' => '/profile',
-            'active' => false
-        ]
-    ];
-
-    return view('components.pages.admin.skema.list', compact('lists'));
-})->name('skema.index');
-
-Route::get('/skema/create', function () {
-    $lists = [
-        [
-            'title' => 'Dashboard',
-            'url' => '/',
-            'active' => false
-        ],
-        [
-            'title' => 'Skema',
-            'url' => '/skema',
-            'active' => true
-        ],
-        [
-            'title' => 'TUK',
-            'url' => '/tuk',
-            'active' => false
-        ],
-        [
-            'title' => 'Jadwal',
-            'url' => '/jadwal',
-            'active' => false
-        ],
-        [
-            'title' => 'User',
-            'url' => '/user',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Pendaftaran',
-            'url' => '/pembayaran-pendaftaran',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Asesor',
-            'url' => '/pembayaran-asesor',
-            'active' => false
-        ],
-        [
-            'title' => 'Report',
-            'url' => '/report',
-            'active' => false
-        ],
-        [
-            'title' => 'APL 2',
-            'url' => '/apl-2',
-            'active' => false
-        ],
-        [
-            'title' => 'Profile',
-            'url' => '/profile',
-            'active' => false
-        ]
-    ];
-
-    return view('components.pages.admin.skema.create', compact('lists'));
-})->name('skema.create');
-
-Route::get('/skema/edit/{id}', function () {
-    $lists = [
-        [
-            'title' => 'Dashboard',
-            'url' => '/',
-            'active' => false
-        ],
-        [
-            'title' => 'Skema',
-            'url' => '/skema',
-            'active' => true
-        ],
-        [
-            'title' => 'TUK',
-            'url' => '/tuk',
-            'active' => false
-        ],
-        [
-            'title' => 'Jadwal',
-            'url' => '/jadwal',
-            'active' => false
-        ],
-        [
-            'title' => 'User',
-            'url' => '/user',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Pendaftaran',
-            'url' => '/pembayaran-pendaftaran',
-            'active' => false
-        ],
-        [
-            'title' => 'Pembayaran Asesor',
-            'url' => '/pembayaran-asesor',
-            'active' => false
-        ],
-        [
-            'title' => 'Report',
-            'url' => '/report',
-            'active' => false
-        ],
-        [
-            'title' => 'APL 2',
-            'url' => '/apl-2',
-            'active' => false
-        ],
-        [
-            'title' => 'Profile',
-            'url' => '/profile',
-            'active' => false
-        ]
-    ];
-
-    return view('components.pages.admin.skema.edit', compact('lists'));
-})->name('skema.edit');
+Route::resource('skema', SkemaController::class);
+Route::resource('tuk', TUKController::class);

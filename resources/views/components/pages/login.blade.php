@@ -114,7 +114,8 @@
                     <input type="password" name="password" class="form-control" placeholder="Password" required>
                 </div>
 
-                <button type="submit" class="btn btn-login w-100">LOGIN</button>
+                {{-- <button type="submit" class="btn btn-login w-100">LOGIN</button> --}}
+                <a href="{{ route('dashboard.admin') }}" class="btn btn-login w-100">LOGIN</a>
             </form>
         </div>
 

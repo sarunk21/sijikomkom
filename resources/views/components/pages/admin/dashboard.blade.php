@@ -1,5 +1,6 @@
 @extends('components.templates.master-layout')
 
+@section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
 @section('content')
