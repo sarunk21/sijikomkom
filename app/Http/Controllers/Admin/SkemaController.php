@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
 class SkemaController extends Controller
 {
+    use MenuTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $lists = getMenuList('skema');
+        $lists = $this->getMenuList('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.list', compact('lists', 'activeMenu'));
     }
@@ -22,7 +25,7 @@ class SkemaController extends Controller
      */
     public function create()
     {
-        $lists = getMenuList('skema');
+        $lists = $this->getMenuList('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.create', compact('lists', 'activeMenu'));
     }
@@ -48,7 +51,7 @@ class SkemaController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = getMenuList('skema');
+        $lists = $this->getMenuList('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.edit', compact('lists', 'activeMenu'));
     }

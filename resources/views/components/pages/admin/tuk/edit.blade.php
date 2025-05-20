@@ -5,7 +5,7 @@
 
 @section('content')
 
-    <a href="{{ route('tuk.index') }}" class="d-inline-flex align-items-center text-decoration-none mb-4">
+    <a href="{{ route('admin.tuk.index') }}" class="d-inline-flex align-items-center text-decoration-none mb-4">
         <i class="fas fa-arrow-left text-orange mr-2"></i>
         <span class="text-orange">Kembali</span>
     </a>
@@ -43,8 +43,8 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('tuk.index') }}" class="btn btn-outline-danger mr-2">Batalkan</a>
-                    <button type="submit" class="btn btn-orange">Simpan Perubahan</button>
+                    <a href="{{ route('admin.tuk.index') }}" class="btn btn-outline-danger mr-2">Batalkan</a>
+                    <button type="submit" class="btn btn-orange">Simpan</button>
                 </div>
             </form>
         </div>

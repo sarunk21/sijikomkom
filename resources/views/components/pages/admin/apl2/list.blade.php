@@ -1,11 +1,11 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Informasi TUK')
-@section('page-title', 'Informasi TUK')
+@section('title', 'APL 2')
+@section('page-title', 'APL 2')
 
 @section('content')
     <div class="mb-3">
-        <a href="{{ route('admin.tuk.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah TUK</a>
+        <a href="#" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah APL 2</a>
     </div>
 
     <div class="card shadow-sm">
@@ -14,31 +14,26 @@
                 <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama TUK</th>
-                            <th>Kode</th>
-                            <th>Jenis TUK</th>
-                            <th>Alamat</th>
-                            <th class="text-center" style="width: 90px;">Aksi</th>
+                            <th>Skema</th>
+                            <th>Jumlah Soal</th>
+                            <th>Tanggal Terakhir Update</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="badge bg-primary text-white">TUK 1</span></td>
-                            <td>TUK.001</td>
-                            <td>Lab</td>
-                            <td>Jl. Raya No. 123, Jakarta</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.tuk.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
+                            <td>System Analyst</td>
+                            <td>10</td>
+                            <td>2025-01-01</td>
+                            <td>
+                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                    <i class="fas fa-pen text-primary"></i>
+                                </a>
+                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
                             </td>
                         </tr>
-                        <!-- Tambah baris lain jika perlu -->
                     </tbody>
                 </table>
             </div>

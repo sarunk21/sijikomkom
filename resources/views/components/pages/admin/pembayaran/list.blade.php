@@ -1,39 +1,45 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Informasi TUK')
-@section('page-title', 'Informasi TUK')
+@section('title', 'Informasi Pembayaran')
+@section('page-title', 'Informasi Pembayaran')
 
 @section('content')
-    <div class="mb-3">
-        <a href="{{ route('admin.tuk.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah TUK</a>
-    </div>
-
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
                 <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama TUK</th>
-                            <th>Kode</th>
-                            <th>Jenis TUK</th>
-                            <th>Alamat</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Skema</th>
+                            <th>Tanggal Pembayaran</th>
+                            <th>Bukti Pembayaran</th>
+                            <th>Status</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="badge bg-primary text-white">TUK 1</span></td>
-                            <td>TUK.001</td>
-                            <td>Lab</td>
-                            <td>Jl. Raya No. 123, Jakarta</td>
+                            <td>Asesi 1</td>
+                            <td>asesi1@gmail.com</td>
+                            <td>System Analyst</td>
+                            <td>2025-01-01</td>
+                            <td>
+                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                    <i class="fas fa-eye text-primary"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge badge-success">Dikonfirmasi</span>
+                            </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.tuk.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
+                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                        <i class="fas fa-check text-primary"></i>
                                     </a>
                                     <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
+                                        <i class="fas fa-times text-danger"></i>
                                     </a>
                                 </div>
                             </td>

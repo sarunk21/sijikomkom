@@ -1,11 +1,11 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Informasi TUK')
-@section('page-title', 'Informasi TUK')
+@section('title', 'Informasi Jadwal')
+@section('page-title', 'Informasi Jadwal')
 
 @section('content')
     <div class="mb-3">
-        <a href="{{ route('admin.tuk.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah TUK</a>
+        <a href="{{ route('admin.jadwal.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah Jadwal</a>
     </div>
 
     <div class="card shadow-sm">
@@ -14,22 +14,29 @@
                 <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama TUK</th>
-                            <th>Kode</th>
-                            <th>Jenis TUK</th>
-                            <th>Alamat</th>
+                            <th>Skema</th>
+                            <th>Asesor</th>
+                            <th>TUK</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Kuota</th>
+                            <th>Peserta</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="badge bg-primary text-white">TUK 1</span></td>
-                            <td>TUK.001</td>
-                            <td>Lab</td>
-                            <td>Jl. Raya No. 123, Jakarta</td>
+                            <td>System Analyst</td>
+                            <td>Asesor 1</td>
+                            <td>TUK 1</td>
+                            <td>2025-01-01 10:00:00</td>
+                            <td><span class="badge bg-success text-white">Aktif</span></td>
+                            <td>10</td>
+                            <td>0</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.tuk.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                    <a href="{{ route('admin.jadwal.edit', 1) }}"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                         <i class="fas fa-pen text-primary"></i>
                                     </a>
                                     <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">

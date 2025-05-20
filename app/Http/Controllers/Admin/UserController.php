@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
-class TUKController extends Controller
+class UserController extends Controller
 {
     use MenuTrait;
 
@@ -15,9 +15,9 @@ class TUKController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuList('user');
+        $activeMenu = 'user';
+        return view('components.pages.admin.user.list', compact('lists', 'activeMenu'));
     }
 
     /**
@@ -25,9 +25,7 @@ class TUKController extends Controller
      */
     public function create()
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.create', compact('lists', 'activeMenu'));
+        //
     }
 
     /**
@@ -51,9 +49,9 @@ class TUKController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.edit', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuList('user');
+        $activeMenu = 'user';
+        return view('components.pages.admin.user.edit', compact('lists', 'activeMenu'));
     }
 
     /**

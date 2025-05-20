@@ -6,18 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
-class TUKController extends Controller
+class PembayaranAsesorController extends Controller
 {
     use MenuTrait;
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuList('pembayaran-asesor');
+        $activeMenu = 'pembayaran-asesor';
+        return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'activeMenu'));
     }
 
     /**
@@ -25,9 +24,7 @@ class TUKController extends Controller
      */
     public function create()
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.create', compact('lists', 'activeMenu'));
+        //
     }
 
     /**
@@ -51,9 +48,7 @@ class TUKController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = $this->getMenuList('tuk');
-        $activeMenu = 'tuk';
-        return view('components.pages.admin.tuk.edit', compact('lists', 'activeMenu'));
+        //
     }
 
     /**

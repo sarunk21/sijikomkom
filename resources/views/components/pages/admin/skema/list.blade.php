@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-3">
-        <a href="{{ route('skema.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah Skema</a>
+        <a href="{{ route('admin.skema.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah Skema</a>
     </div>
 
     <div class="card shadow-sm">
@@ -29,7 +29,7 @@
                             <td>Sistem Informasi</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('skema.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                    <a href="{{ route('admin.skema.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                         <i class="fas fa-pen text-primary"></i>
                                     </a>
                                     <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
