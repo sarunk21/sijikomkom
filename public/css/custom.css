@@ -50,3 +50,18 @@
     background-color: #000000 !important;
     color: #fff !important;
 }
+
+/* Batasi lebar dropdown agar tidak overflow */
+.sidebar .collapse-inner {
+    max-width: 230px;
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
+}
+
+/* Atur padding agar rapi */
+.sidebar .collapse-item {
+    white-space: normal !important; /* Supaya teks bisa wrap */
+    word-break: break-word;
+    line-height: 1.4rem;
+}

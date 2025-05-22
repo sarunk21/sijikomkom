@@ -15,9 +15,8 @@ class JadwalController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('jadwal');
-        $activeMenu = 'jadwal';
-        return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('jadwal');
+        return view('components.pages.admin.jadwal.list', compact('lists'));
     }
 
     /**
@@ -25,9 +24,8 @@ class JadwalController extends Controller
      */
     public function create()
     {
-        $lists = $this->getMenuList('jadwal');
-        $activeMenu = 'jadwal';
-        return view('components.pages.admin.jadwal.create', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('jadwal');
+        return view('components.pages.admin.jadwal.create', compact('lists'));
     }
 
     /**
@@ -51,9 +49,8 @@ class JadwalController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = $this->getMenuList('jadwal');
-        $activeMenu = 'jadwal';
-        return view('components.pages.admin.jadwal.edit', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('jadwal');
+        return view('components.pages.admin.jadwal.edit', compact('lists'));
     }
 
     /**

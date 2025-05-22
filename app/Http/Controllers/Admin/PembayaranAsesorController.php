@@ -14,9 +14,8 @@ class PembayaranAsesorController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('pembayaran-asesor');
-        $activeMenu = 'pembayaran-asesor';
-        return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
+        return view('components.pages.admin.pembayaranasesor.list', compact('lists'));
     }
 
     /**

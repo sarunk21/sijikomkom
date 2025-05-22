@@ -15,9 +15,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('user');
-        $activeMenu = 'user';
-        return view('components.pages.admin.user.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('user');
+        return view('components.pages.admin.user.list', compact('lists'));
     }
 
     /**
@@ -49,9 +48,8 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = $this->getMenuList('user');
-        $activeMenu = 'user';
-        return view('components.pages.admin.user.edit', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('user');
+        return view('components.pages.admin.user.edit', compact('lists'));
     }
 
     /**

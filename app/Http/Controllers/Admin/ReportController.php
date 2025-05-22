@@ -14,9 +14,8 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('report');
-        $activeMenu = 'report';
-        return view('components.pages.admin.report.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('report');
+        return view('components.pages.admin.report.list', compact('lists'));
     }
 
     /**

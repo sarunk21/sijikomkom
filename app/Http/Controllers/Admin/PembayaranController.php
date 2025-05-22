@@ -14,7 +14,7 @@ class PembayaranController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('pembayaran');
+        $lists = $this->getMenuListAdmin('pembayaran-asesi');
         $activeMenu = 'pembayaran';
         return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu'));
     }

@@ -6,7 +6,7 @@
         </a>
     </li>
 
-    @each('components.molecules.list', $lists, 'list')
+    @each('components.molecules.list', $lists, 'item')
 
 </ul>
 <!-- End of Sidebar -->

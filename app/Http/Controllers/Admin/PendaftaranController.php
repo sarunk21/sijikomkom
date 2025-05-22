@@ -15,9 +15,8 @@ class PendaftaranController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('pendaftaran');
-        $activeMenu = 'pendaftaran';
-        return view('components.pages.admin.pendaftaran.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('pendaftaran');
+        return view('components.pages.admin.pendaftaran.list', compact('lists'));
     }
 
     /**

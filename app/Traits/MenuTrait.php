@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait MenuTrait
 {
-    public function getMenuList($activeMenu = 'dashboard')
+    public function getMenuListAdmin($activeMenu = 'dashboard', $activeSubMenu = null)
     {
         $menus = [
             [
@@ -34,8 +34,20 @@ trait MenuTrait
             ],
             [
                 'title' => 'Pembayaran',
-                'url' => 'admin.pembayaran.index',
-                'key' => 'pembayaran'
+                'url' => null,
+                'key' => 'pembayaran',
+                'children' => [
+                    [
+                        'title' => 'Pembayaran Asesi',
+                        'url' => 'admin.pembayaran-asesi.index',
+                        'key' => 'pembayaran-asesi'
+                    ],
+                    [
+                        'title' => 'Pembayaran Asesor',
+                        'url' => 'admin.pembayaran-asesor.index',
+                        'key' => 'pembayaran-asesor'
+                    ]
+                ]
             ],
             [
                 'title' => 'Pendaftaran',
@@ -43,29 +55,52 @@ trait MenuTrait
                 'key' => 'pendaftaran'
             ],
             [
-                'title' => 'Pembayaran Asesor',
-                'url' => 'admin.pembayaran-asesor.index',
-                'key' => 'pembayaran-asesor'
+                'title' => 'Report Hasil Ujikom',
+                'url' => null,
+                'key' => 'report',
+                'children' => [
+                    [
+                        'title' => 'Report Hasil Ujikom',
+                        'url' => null,
+                        'key' => 'report-ujikom'
+                    ],
+                    [
+                        'title' => 'Upload Sertifikat Bertanda Tangan',
+                        'url' => null,
+                        'key' => 'upload-sertifikat'
+                    ]
+                ]
             ],
-            [
-                'title' => 'Report',
-                'url' => 'admin.report.index',
-                'key' => 'report'
-            ],
-            [
-                'title' => 'APL 2',
-                'url' => 'admin.apl-2.index',
-                'key' => 'apl-2'
-            ],
+            // [
+            //     'title' => 'APL 2',
+            //     'url' => 'admin.apl-2.index',
+            //     'key' => 'apl-2'
+            // ],
             [
                 'title' => 'Profile',
-                'url' => null,
+                'url' => 'admin.profile.index',
                 'key' => 'profile'
             ]
         ];
 
-        return collect($menus)->map(function($menu) use ($activeMenu) {
+        return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {
+            // Default inactive
             $menu['active'] = $menu['key'] === $activeMenu;
+
+            if (isset($menu['children'])) {
+                $menu['children'] = collect($menu['children'])->map(function ($child) use ($activeMenu, $activeSubMenu, &$menu) {
+                    $isChildActive = $child['key'] === $activeMenu || $child['key'] === $activeSubMenu;
+                    $child['active'] = $isChildActive;
+
+                    // Set parent menu active if any child is active
+                    if ($isChildActive) {
+                        $menu['active'] = true;
+                    }
+
+                    return $child;
+                })->all();
+            }
+
             return $menu;
         })->all();
     }

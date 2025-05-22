@@ -15,7 +15,7 @@ class SkemaController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('skema');
+        $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.list', compact('lists', 'activeMenu'));
     }
@@ -25,7 +25,7 @@ class SkemaController extends Controller
      */
     public function create()
     {
-        $lists = $this->getMenuList('skema');
+        $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.create', compact('lists', 'activeMenu'));
     }
@@ -51,9 +51,8 @@ class SkemaController extends Controller
      */
     public function edit(string $id)
     {
-        $lists = $this->getMenuList('skema');
-        $activeMenu = 'skema';
-        return view('components.pages.admin.skema.edit', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('skema');
+        return view('components.pages.admin.skema.edit', compact('lists'));
     }
 
     /**

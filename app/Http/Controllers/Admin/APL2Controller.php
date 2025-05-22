@@ -15,9 +15,8 @@ class APL2Controller extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuList('apl-2');
-        $activeMenu = 'apl-2';
-        return view('components.pages.admin.apl2.list', compact('lists', 'activeMenu'));
+        $lists = $this->getMenuListAdmin('apl-2');
+        return view('components.pages.admin.apl2.list', compact('lists'));
     }
 
     /**
