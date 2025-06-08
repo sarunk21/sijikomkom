@@ -104,4 +104,41 @@ trait MenuTrait
             return $menu;
         })->all();
     }
+
+    public function getMenuListAsesor($activeMenu = 'dashboard', $activeSubMenu = null)
+    {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'url' => 'dashboard.asesor',
+                'key' => 'dashboard'
+            ],
+            [
+                'title' => 'Verifikasi Peserta',
+                'url' => 'asesor.verifikasi-peserta.index',
+                'key' => 'verifikasi-peserta'
+            ]
+        ];
+
+        return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {
+            // Default inactive
+            $menu['active'] = $menu['key'] === $activeMenu;
+
+            if (isset($menu['children'])) {
+                $menu['children'] = collect($menu['children'])->map(function ($child) use ($activeMenu, $activeSubMenu, &$menu) {
+                    $isChildActive = $child['key'] === $activeMenu || $child['key'] === $activeSubMenu;
+                    $child['active'] = $isChildActive;
+
+                    // Set parent menu active if any child is active
+                    if ($isChildActive) {
+                        $menu['active'] = true;
+                    }
+
+                    return $child;
+                })->all();
+            }
+
+            return $menu;
+        })->all();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class DashboardController extends Controller
 {
@@ -11,7 +12,12 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $lists = $this->getMenuListAdmin('dashboard');
-        return view('components.pages.admin.dashboard', compact('lists'));
+        if (Route::is('dashboard.admin')) {
+            $lists = $this->getMenuListAdmin('dashboard');
+            return view('components.pages.admin.dashboard', compact('lists'));
+        } else if (Route::is('dashboard.asesor')) {
+            $lists = $this->getMenuListAsesor('dashboard');
+            return view('components.pages.asesor.dashboard', compact('lists'));
+        }
     }
 }
