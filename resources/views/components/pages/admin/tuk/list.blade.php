@@ -11,7 +11,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
+                <table id="tukTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Nama TUK</th>
@@ -22,23 +22,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><span class="badge bg-primary text-white">TUK 1</span></td>
-                            <td>TUK.001</td>
-                            <td>Lab</td>
-                            <td>Jl. Raya No. 123, Jakarta</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.tuk.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                        @foreach ($tuk as $item)
+                            <tr>
+                                <td>{{ $item->nama }}</td>
+                                <td>{{ $item->kode }}</td>
+                                <td>{{ $item->kategori }}</td>
+                                <td>{{ $item->alamat }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('admin.tuk.edit', $item->id) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('admin.tuk.destroy', $item->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                title="Hapus">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -66,7 +74,7 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#skemaTable').DataTable({
+                $('#tukTable').DataTable({
                     responsive: true,
                     language: {
                         searchPlaceholder: "Cari TUK...",

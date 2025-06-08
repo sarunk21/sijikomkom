@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
+use App\Models\Skema;
+use App\Models\Tuk;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,8 +18,10 @@ class JadwalController extends Controller
      */
     public function index()
     {
+        $jadwal = Jadwal::orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('jadwal');
-        return view('components.pages.admin.jadwal.list', compact('lists'));
+        $activeMenu = 'jadwal';
+        return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu', 'jadwal'));
     }
 
     /**
@@ -25,7 +30,10 @@ class JadwalController extends Controller
     public function create()
     {
         $lists = $this->getMenuListAdmin('jadwal');
-        return view('components.pages.admin.jadwal.create', compact('lists'));
+        $skema = Skema::orderBy('created_at', 'desc')->get();
+        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $activeMenu = 'jadwal';
+        return view('components.pages.admin.jadwal.create', compact('lists', 'activeMenu', 'skema', 'tuk'));
     }
 
     /**
@@ -33,7 +41,27 @@ class JadwalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'skema_id' => 'required',
+            'tuk_id' => 'required',
+            'tanggal_ujian' => 'required',
+            'status' => 'required',
+            'kuota' => 'required',
+        ]);
+
+        try {
+            $jadwal = Jadwal::create([
+                'skema_id' => $request->skema_id,
+                'tuk_id' => $request->tuk_id,
+                'tanggal_ujian' => $request->tanggal_ujian,
+                'status' => $request->status,
+                'kuota' => $request->kuota,
+            ]);
+
+            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal ditambahkan');
+        }
     }
 
     /**
@@ -41,7 +69,11 @@ class JadwalController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $jadwal = Jadwal::find($id);
+        $skema = Skema::orderBy('created_at', 'desc')->get();
+        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $activeMenu = 'jadwal';
+        return view('components.pages.admin.jadwal.edit', compact('lists', 'activeMenu', 'jadwal'));
     }
 
     /**
@@ -50,7 +82,11 @@ class JadwalController extends Controller
     public function edit(string $id)
     {
         $lists = $this->getMenuListAdmin('jadwal');
-        return view('components.pages.admin.jadwal.edit', compact('lists'));
+        $jadwal = Jadwal::find($id);
+        $skema = Skema::orderBy('created_at', 'desc')->get();
+        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $activeMenu = 'jadwal';
+        return view('components.pages.admin.jadwal.edit', compact('lists', 'activeMenu', 'jadwal', 'skema', 'tuk'));
     }
 
     /**
@@ -58,7 +94,21 @@ class JadwalController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'skema_id' => 'required',
+            'tuk_id' => 'required',
+            'tanggal_ujian' => 'required',
+            'status' => 'required',
+            'kuota' => 'required',
+        ]);
+
+        try {
+            $jadwal = Jadwal::find($id);
+            $jadwal->update($request->all());
+            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diubah');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal diubah');
+        }
     }
 
     /**
@@ -66,6 +116,12 @@ class JadwalController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $jadwal = Jadwal::find($id);
+            $jadwal->delete();
+            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal dihapus');
+        }
     }
 }

@@ -11,48 +11,50 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
+                <table id="jadwalTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Asesor</th>
                             <th>TUK</th>
                             <th>Tanggal</th>
                             <th>Status</th>
                             <th>Kuota</th>
-                            <th>Peserta</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>System Analyst</td>
-                            <td>Asesor 1</td>
-                            <td>TUK 1</td>
-                            <td>2025-01-01 10:00:00</td>
-                            <td><span class="badge bg-success text-white">Aktif</span></td>
-                            <td>10</td>
-                            <td>0</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.jadwal.edit', 1) }}"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                        @foreach ($jadwal as $item)
+                            <tr>
+                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->tuk->nama }}</td>
+                                <td>{{ $item->tanggal_ujian }}</td>
+                                <td><span class="badge bg-{{ $item->status == 'Aktif' ? 'success' : 'danger' }} text-white">{{ $item->status }}</span></td>
+                                <td>{{ $item->kuota }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('admin.jadwal.edit', $item->id) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('admin.jadwal.destroy', $item->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                title="Hapus">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    {{-- Optional CSS for btn-icon --}}
     <style>
         .btn-icon {
             display: inline-flex;
@@ -66,14 +68,13 @@
         }
     </style>
 
-    {{-- Scripts --}}
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#skemaTable').DataTable({
+                $('#jadwalTable').DataTable({
                     responsive: true,
                     language: {
                         searchPlaceholder: "Cari TUK...",

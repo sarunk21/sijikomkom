@@ -12,39 +12,38 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="" method="POST">
+            <form action="{{ route('admin.skema.update', $skema->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label for="nama_skema" class="form-label">Nama Skema</label>
-                    <input type="text" id="nama_skema" name="nama_skema" class="form-control"
-                        placeholder="Isi nama skema di sini..." value="System Analyst" required>
+                    <label for="nama" class="form-label">Nama Skema <span class="text-danger">*</span></label>
+                    <input type="text" id="nama" name="nama" class="form-control"
+                        placeholder="Isi nama skema di sini..." value="{{ $skema->nama }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kode" class="form-label">Kode</label>
+                    <label for="kode" class="form-label">Kode Skema <span class="text-danger">*</span></label>
                     <input type="text" id="kode" name="kode" class="form-control"
-                        placeholder="Isi Kode Unik di sini..." value="SA.006" required>
+                        placeholder="Isi Kode Unik di sini..." value="{{ $skema->kode }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kategori" class="form-label">Kategori</label>
+                    <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
                     <select name="kategori" id="kategori" class="form-control" required>
-                        <option value="" disabled>Pilih Kategori di sini...</option>
-                        <option value="Sertifikasi" selected>Sertifikasi</option>
-                        <option value="Pelatihan">Pelatihan</option>
-                        <!-- tambahkan sesuai kebutuhan -->
+                        <option value="" disabled>Pilih Kategori Skema di sini...</option>
+                        <option value="Sertifikasi" {{ $skema->kategori == 'Sertifikasi' ? 'selected' : '' }}>Sertifikasi</option>
+                        <option value="Pelatihan" {{ $skema->kategori == 'Pelatihan' ? 'selected' : '' }}>Pelatihan</option>
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label for="bidang" class="form-label">Bidang</label>
+                    <label for="bidang" class="form-label">Bidang <span class="text-danger">*</span></label>
                     <select name="bidang" id="bidang" class="form-control" required>
-                        <option value="" disabled>Pilih Bidang di sini...</option>
-                        <option value="Sistem Informasi" selected>Sistem Informasi</option>
-                        <option value="Teknik Informatika">Teknik Informatika</option>
-                        <!-- tambahkan bidang lainnya -->
+                        <option value="" disabled>Pilih Bidang Skema di sini...</option>
+                        <option value="S1 Sistem Informasi" {{ $skema->bidang == 'S1 Sistem Informasi' ? 'selected' : '' }}>S1 Sistem Informasi</option>
+                        <option value="S1 Teknik Informatika" {{ $skema->bidang == 'S1 Teknik Informatika' ? 'selected' : '' }}>S1 Teknik Informatika</option>
+                        <option value="D3 Sistem Informasi" {{ $skema->bidang == 'D3 Sistem Informasi' ? 'selected' : '' }}>D3 Sistem Informasi</option>
                     </select>
                 </div>
 
@@ -56,7 +55,6 @@
         </div>
     </div>
 
-    {{-- Tambahan styling warna btn-orange jika belum ada --}}
     <style>
         .text-orange {
             color: #f25c05;

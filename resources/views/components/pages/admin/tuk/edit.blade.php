@@ -12,34 +12,34 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="" method="POST">
+            <form action="{{ route('admin.tuk.update', $tuk->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label for="nama_tuk" class="form-label">Nama TUK</label>
-                    <input type="text" id="nama_tuk" name="nama_tuk" class="form-control"
-                        placeholder="Isi nama TUK di sini..." value="TUK 1" required>
+                    <label for="nama" class="form-label">Nama TUK <span class="text-danger">*</span></label>
+                    <input type="text" id="nama" name="nama" class="form-control"
+                        placeholder="Isi nama TUK di sini..." value="{{ $tuk->nama }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kode" class="form-label">Kode</label>
+                    <label for="kode" class="form-label">Kode TUK <span class="text-danger">*</span></label>
                     <input type="text" id="kode" name="kode" class="form-control"
-                        placeholder="Isi Kode Unik di sini..." value="SA.006" required>
+                        placeholder="Isi Kode Unik di sini..." value="{{ $tuk->kode }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="jenis_tuk" class="form-label">Jenis TUK</label>
-                    <select name="jenis_tuk" id="jenis_tuk" class="form-control" required>
+                    <label for="kategori" class="form-label">Jenis TUK <span class="text-danger">*</span></label>
+                    <select name="kategori" id="kategori" class="form-control" required>
                         <option value="" disabled>Pilih Jenis TUK di sini...</option>
-                        <option value="Lab" selected>Lab</option>
-                        <option value="Kantor">Kantor</option>
+                        <option value="Lab" {{ $tuk->kategori == 'Lab' ? 'selected' : '' }}>Lab</option>
+                        <option value="Kantor" {{ $tuk->kategori == 'Kantor' ? 'selected' : '' }}>Kantor</option>
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label for="alamat" class="form-label">Alamat</label>
-                    <textarea name="alamat" id="alamat" class="form-control" required>Jl. Raya No. 123, Jakarta</textarea>
+                    <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
+                    <textarea name="alamat" id="alamat" class="form-control" required>{{ $tuk->alamat }}</textarea>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
@@ -50,7 +50,6 @@
         </div>
     </div>
 
-    {{-- Tambahan styling warna btn-orange jika belum ada --}}
     <style>
         .text-orange {
             color: #f25c05;

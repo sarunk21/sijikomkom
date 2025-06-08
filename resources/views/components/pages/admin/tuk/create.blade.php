@@ -12,24 +12,24 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="" method="POST">
+            <form action="{{ route('admin.tuk.store') }}" method="POST">
                 @csrf
 
                 <div class="mb-3">
-                    <label for="nama_tuk" class="form-label">Nama TUK</label>
-                    <input type="text" id="nama_tuk" name="nama_tuk" class="form-control"
+                    <label for="nama" class="form-label">Nama TUK <span class="text-danger">*</span></label>
+                    <input type="text" id="nama" name="nama" class="form-control"
                         placeholder="Isi nama TUK di sini..." required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kode" class="form-label">Kode</label>
+                    <label for="kode" class="form-label">Kode TUK <span class="text-danger">*</span></label>
                     <input type="text" id="kode" name="kode" class="form-control"
                         placeholder="Isi Kode Unik di sini..." required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="jenis_tuk" class="form-label">Jenis TUK</label>
-                    <select name="jenis_tuk" id="jenis_tuk" class="form-control" required>
+                    <label for="kategori" class="form-label">Jenis TUK <span class="text-danger">*</span></label>
+                    <select name="kategori" id="kategori" class="form-control" required>
                         <option value="" disabled selected>Pilih Jenis TUK di sini...</option>
                         <option value="Lab">Lab</option>
                         <option value="Kantor">Kantor</option>
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="alamat" class="form-label">Alamat</label>
+                    <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
                     <textarea name="alamat" id="alamat" class="form-control" required></textarea>
                 </div>
 
@@ -49,7 +49,6 @@
         </div>
     </div>
 
-    {{-- Tambahan styling warna btn-orange jika belum ada --}}
     <style>
         .text-orange {
             color: #f25c05;

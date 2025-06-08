@@ -22,23 +22,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><span class="badge bg-primary text-white">System Analyst</span></td>
-                            <td>SA.006</td>
-                            <td>Sertifikasi</td>
-                            <td>Sistem Informasi</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.skema.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                        @foreach ($skema as $item)
+                            <tr>
+                                <td>{{ $item->nama }}</td>
+                                <td>{{ $item->kode }}</td>
+                                <td>{{ $item->kategori }}</td>
+                                <td>{{ $item->bidang }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('admin.skema.edit', $item->id) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('admin.skema.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

@@ -6,8 +6,9 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
+            <a href="{{ route('admin.user.create') }}" class="btn btn-dark mb-3"><i class="fas fa-plus mr-2"></i> Tambah User</a>
             <div class="table-responsive">
-                <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
+                <table id="userTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Nama</th>
@@ -17,22 +18,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Admin</td>
-                            <td>admin@gmail.com</td>
-                            <td>Admin</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{{ route('admin.user.edit', 1) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-pen text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                        @foreach ($users as $user)
+                            <tr>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->user_type }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('admin.user.edit', $user->id) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('admin.user.destroy', $user->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                title="Hapus">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -60,10 +69,10 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#skemaTable').DataTable({
+                $('#userTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari User...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

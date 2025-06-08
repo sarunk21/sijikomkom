@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tuk;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,8 +16,10 @@ class TUKController extends Controller
      */
     public function index()
     {
+        $tuk = Tuk::orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('tuk');
-        return view('components.pages.admin.tuk.list', compact('lists'));
+        $activeMenu = 'tuk';
+        return view('components.pages.admin.tuk.list', compact('lists', 'activeMenu', 'tuk'));
     }
 
     /**
@@ -25,7 +28,8 @@ class TUKController extends Controller
     public function create()
     {
         $lists = $this->getMenuListAdmin('tuk');
-        return view('components.pages.admin.tuk.create', compact('lists'));
+        $activeMenu = 'tuk';
+        return view('components.pages.admin.tuk.create', compact('lists', 'activeMenu'));
     }
 
     /**
@@ -33,7 +37,24 @@ class TUKController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'kode' => 'required|unique:tuk',
+            'kategori' => 'required',
+            'alamat' => 'required',
+        ]);
+
+        try {
+            Tuk::create([
+                'nama' => $request->nama,
+                'kode' => $request->kode,
+                'kategori' => $request->kategori,
+                'alamat' => $request->alamat,
+            ]);
+            return redirect()->route('admin.tuk.index')->with('success', 'TUK berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.tuk.index')->with('error', 'TUK gagal ditambahkan');
+        }
     }
 
     /**
@@ -41,7 +62,9 @@ class TUKController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $tuk = Tuk::find($id);
+        $activeMenu = 'tuk';
+        return view('components.pages.admin.tuk.edit', compact('lists', 'activeMenu', 'tuk'));
     }
 
     /**
@@ -50,7 +73,9 @@ class TUKController extends Controller
     public function edit(string $id)
     {
         $lists = $this->getMenuListAdmin('tuk');
-        return view('components.pages.admin.tuk.edit', compact('lists'));
+        $tuk = Tuk::find($id);
+        $activeMenu = 'tuk';
+        return view('components.pages.admin.tuk.edit', compact('lists', 'activeMenu', 'tuk'));
     }
 
     /**
@@ -58,7 +83,20 @@ class TUKController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'nama' => 'required',
+            'kode' => 'required|unique:tuk,kode,' . $id,
+            'kategori' => 'required',
+            'alamat' => 'required',
+        ]);
+
+        try {
+            $tuk = Tuk::find($id);
+            $tuk->update($request->all());
+            return redirect()->route('admin.tuk.index')->with('success', 'TUK berhasil diubah');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.tuk.index')->with('error', 'TUK gagal diubah');
+        }
     }
 
     /**
@@ -66,6 +104,12 @@ class TUKController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $tuk = Tuk::find($id);
+            $tuk->delete();
+            return redirect()->route('admin.tuk.index')->with('success', 'TUK berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.tuk.index')->with('error', 'TUK gagal dihapus');
+        }
     }
 }

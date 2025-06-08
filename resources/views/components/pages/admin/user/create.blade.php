@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'User - Edit')
-@section('page-title', 'Edit User')
+@section('title', 'User - Create')
+@section('page-title', 'Create User')
 
 @section('content')
 
@@ -12,46 +12,46 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="{{ route('admin.user.update', $user->id) }}" method="POST">
+            <form action="{{ route('admin.user.store') }}" method="POST">
                 @csrf
                 @method('POST')
 
                 <div class="mb-3">
                     <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
                     <input type="text" id="nama" name="name" class="form-control"
-                        placeholder="Isi nama User di sini..." value="{{ $user->name }}" required>
+                        placeholder="Isi nama User di sini..." required>
                 </div>
 
                 <div class="mb-3">
                     <label for="nik" class="form-label">NIK <span class="text-danger">*</span></label>
                     <input type="text" id="nik" name="nik" class="form-control" maxlength="16"
-                        placeholder="Isi NIK di sini..." value="{{ $user->nik }}" required>
+                        placeholder="Isi NIK di sini..." required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                     <input type="text" id="email" name="email" class="form-control"
-                        placeholder="Isi Email di sini..." value="{{ $user->email }}" required>
+                        placeholder="Isi Email di sini..." required>
                 </div>
 
                 <div class="mb-3">
                     <label for="telepon" class="form-label">Telepon <span class="text-danger">*</span></label>
                     <input type="text" id="telepon" name="telephone" class="form-control" maxlength="15"
-                        placeholder="Isi Telepon di sini..." value="{{ $user->telephone }}" required>
+                        placeholder="Isi Telepon di sini..." required>
                 </div>
 
                 <div class="mb-3">
                     <label for="user_type" class="form-label">Role <span class="text-danger">*</span></label>
                     <select name="user_type" id="user_type" class="form-control" required>
-                        <option value="" disabled>Pilih Role di sini...</option>
-                        <option value="Admin" {{ $user->user_type == 'Admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="User" {{ $user->user_type == 'User' ? 'selected' : '' }}>User</option>
+                        <option value="" disabled selected>Pilih Role di sini...</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">User</option>
                     </select>
                 </div>
 
                 <div class="mb-4">
                     <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
-                    <textarea name="alamat" id="alamat" class="form-control" required>{{ $user->alamat }}</textarea>
+                    <textarea name="alamat" id="alamat" class="form-control" required></textarea>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

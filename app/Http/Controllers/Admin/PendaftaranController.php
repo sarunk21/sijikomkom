@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pendaftaran;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,8 @@ class PendaftaranController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('pendaftaran');
-        return view('components.pages.admin.pendaftaran.list', compact('lists'));
+        $pendaftaran = Pendaftaran::all();
+        return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran'));
     }
 
     /**

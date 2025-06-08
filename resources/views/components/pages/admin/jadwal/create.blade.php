@@ -12,32 +12,31 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="" method="POST">
+            <form action="{{ route('admin.jadwal.store') }}" method="POST">
                 @csrf
 
                 <div class="mb-3">
-                    <label for="skema" class="form-label">Skema</label>
-                    <input type="text" id="skema" name="skema" class="form-control"
-                        placeholder="Isi skema di sini..." required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="asesor" class="form-label">Asesor</label>
-                    <input type="text" id="asesor" name="asesor" class="form-control"
-                        placeholder="Isi asesor di sini..." required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="tuk" class="form-label">TUK</label>
-                    <select name="tuk" id="tuk" class="form-control" required>
-                        <option value="" disabled selected>Pilih TUK di sini...</option>
-                        <option value="Lab">Lab</option>
-                        <option value="Kantor">Kantor</option>
+                    <label for="skema" class="form-label">Skema <span class="text-danger">*</span></label>
+                    <select name="skema_id" id="skema_id" class="form-control" required>
+                        <option value="" disabled selected>Pilih skema di sini...</option>
+                        @foreach ($skema as $item)
+                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="tuk" class="form-label">TUK <span class="text-danger">*</span></label>
+                    <select name="tuk_id" id="tuk_id" class="form-control" required>
+                        <option value="" disabled selected>Pilih TUK di sini...</option>
+                        @foreach ($tuk as $item)
+                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                     <select name="status" id="status" class="form-control" required>
                         <option value="" disabled selected>Pilih status di sini...</option>
                         <option value="Aktif">Aktif</option>
@@ -46,20 +45,14 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="tanggal" class="form-label">Tanggal</label>
-                    <input type="date" id="tanggal" name="tanggal" class="form-control" required>
+                    <label for="tanggal" class="form-label">Tanggal <span class="text-danger">*</span></label>
+                    <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian" class="form-control" min="{{ date('Y-m-d H:i') }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kuota" class="form-label">Kuota</label>
+                    <label for="kuota" class="form-label">Kuota <span class="text-danger">*</span></label>
                     <input type="number" id="kuota" name="kuota" class="form-control"
                         placeholder="Isi kuota di sini..." required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="peserta" class="form-label">Peserta</label>
-                    <input type="number" id="peserta" name="peserta" class="form-control"
-                        placeholder="Isi peserta di sini..." required>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
@@ -70,7 +63,6 @@
         </div>
     </div>
 
-    {{-- Tambahan styling warna btn-orange jika belum ada --}}
     <style>
         .text-orange {
             color: #f25c05;

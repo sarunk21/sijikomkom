@@ -7,7 +7,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
+                <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Nama Asesi</th>
@@ -19,26 +19,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Asesi 1</td>
-                            <td>System Analyst</td>
-                            <td>2025-01-01</td>
-                            <td>
-                                <span class="badge badge-success">Disetujui</span>
-                            </td>
-                            <td>TUK 1</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-check text-primary"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-times text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                        @foreach ($pendaftaran as $item)
+                            <tr>
+                                <td>{{ $item->user->name }}</td>
+                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
+                                <td>
+                                    <span class="badge badge-success">{{ $item->status }}</span>
+                                </td>
+                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                            title="Edit">
+                                            <i class="fas fa-eye text-primary"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                            title="Hapus">
+                                            <i class="fas fa-times text-danger"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -66,7 +69,7 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#skemaTable').DataTable({
+                $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
                         searchPlaceholder: "Cari TUK...",
