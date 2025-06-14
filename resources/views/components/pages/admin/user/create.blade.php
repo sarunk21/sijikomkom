@@ -10,6 +10,12 @@
         <span class="text-orange">Kembali</span>
     </a>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('admin.user.store') }}" method="POST">
@@ -19,39 +25,57 @@
                 <div class="mb-3">
                     <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
                     <input type="text" id="nama" name="name" class="form-control"
-                        placeholder="Isi nama User di sini..." required>
+                        placeholder="Isi nama User di sini..." value="{{ old('name') }}" required>
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="nik" class="form-label">NIK <span class="text-danger">*</span></label>
                     <input type="text" id="nik" name="nik" class="form-control" maxlength="16"
-                        placeholder="Isi NIK di sini..." required>
+                        placeholder="Isi NIK di sini..." value="{{ old('nik') }}" required>
+                    @error('nik')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                     <input type="text" id="email" name="email" class="form-control"
-                        placeholder="Isi Email di sini..." required>
+                        placeholder="Isi Email di sini..." value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="telepon" class="form-label">Telepon <span class="text-danger">*</span></label>
                     <input type="text" id="telepon" name="telephone" class="form-control" maxlength="15"
-                        placeholder="Isi Telepon di sini..." required>
+                        placeholder="Isi Telepon di sini..." value="{{ old('telephone') }}" required>
+                    @error('telephone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="user_type" class="form-label">Role <span class="text-danger">*</span></label>
                     <select name="user_type" id="user_type" class="form-control" required>
                         <option value="" disabled selected>Pilih Role di sini...</option>
-                        <option value="Admin">Admin</option>
-                        <option value="User">User</option>
+                        <option value="Admin" {{ old('user_type') == 'Admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="User" {{ old('user_type') == 'User' ? 'selected' : '' }}>User</option>
                     </select>
+                    @error('user_type')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
-                    <textarea name="alamat" id="alamat" class="form-control" required></textarea>
+                    <textarea name="alamat" id="alamat" class="form-control" required>{{ old('alamat') }}</textarea>
+                    @error('alamat')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

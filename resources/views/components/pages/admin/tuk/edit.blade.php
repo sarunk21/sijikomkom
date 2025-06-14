@@ -10,6 +10,12 @@
         <span class="text-orange">Kembali</span>
     </a>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('admin.tuk.update', $tuk->id) }}" method="POST">
@@ -18,28 +24,41 @@
 
                 <div class="mb-3">
                     <label for="nama" class="form-label">Nama TUK <span class="text-danger">*</span></label>
-                    <input type="text" id="nama" name="nama" class="form-control"
-                        placeholder="Isi nama TUK di sini..." value="{{ $tuk->nama }}" required>
+                    <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror"
+                        placeholder="Isi nama TUK di sini..." value="{{ old('nama', $tuk->nama) }}" required>
+                    @error('nama')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="kode" class="form-label">Kode TUK <span class="text-danger">*</span></label>
-                    <input type="text" id="kode" name="kode" class="form-control"
-                        placeholder="Isi Kode Unik di sini..." value="{{ $tuk->kode }}" required>
+                    <input type="text" id="kode" name="kode" class="form-control @error('kode') is-invalid @enderror"
+                        placeholder="Isi Kode Unik di sini..." value="{{ old('kode', $tuk->kode) }}" required>
+                    @error('kode')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="kategori" class="form-label">Jenis TUK <span class="text-danger">*</span></label>
-                    <select name="kategori" id="kategori" class="form-control" required>
+                    <select name="kategori" id="kategori" class="form-control @error('kategori') is-invalid @enderror" required>
                         <option value="" disabled>Pilih Jenis TUK di sini...</option>
-                        <option value="Lab" {{ $tuk->kategori == 'Lab' ? 'selected' : '' }}>Lab</option>
-                        <option value="Kantor" {{ $tuk->kategori == 'Kantor' ? 'selected' : '' }}>Kantor</option>
+                        <option value="Lab" {{ old('kategori', $tuk->kategori) == 'Lab' ? 'selected' : '' }}>Lab</option>
+                        <option value="Kantor" {{ old('kategori', $tuk->kategori) == 'Kantor' ? 'selected' : '' }}>Kantor</option>
                     </select>
+                    @error('kategori')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
-                    <textarea name="alamat" id="alamat" class="form-control" required>{{ $tuk->alamat }}</textarea>
+                    <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror"
+                        required>{{ old('alamat', $tuk->alamat) }}</textarea>
+                    @error('alamat')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

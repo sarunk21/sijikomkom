@@ -45,65 +45,132 @@
                 <div class="border p-4 bg-white">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5><strong>Informasi Profil</strong></h5>
-                        <a href="{{ route('admin.profile.update', $user->id) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-plus"></i> Simpan Perubahan
-                        </a>
                     </div>
 
-                    <form>
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('admin.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+
                         {{-- Basic info --}}
                         <div class="form-group">
                             <label>Nama</label>
-                            <input type="text" class="form-control" value="{{ $user->name }}" required>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                                value="{{ old('name', $user->name) }}"
+                                placeholder="Masukkan nama lengkap" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label>NIK</label>
-                            <input type="text" class="form-control" value="{{ $user->nik }}" required>
+                            <input type="text" name="nik" class="form-control @error('nik') is-invalid @enderror"
+                                value="{{ old('nik', $user->nik) }}"
+                                placeholder="Masukkan NIK" maxlength="16" required>
+                            @error('nik')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label>Telepon</label>
-                            <input type="text" class="form-control" value="{{ $user->telephone }}" required>
+                            <input type="text" name="telephone" class="form-control @error('telephone') is-invalid @enderror"
+                                value="{{ old('telephone', $user->telephone) }}"
+                                placeholder="Masukkan nomor telepon" maxlength="15" required>
+                            @error('telephone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" class="form-control" value="{{ $user->email }}" required>
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                                value="{{ old('email', $user->email) }}"
+                                placeholder="Masukkan email" required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         {{-- Tempat / Tanggal / Gender --}}
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label>Tempat Lahir</label>
-                                <input type="text" class="form-control" value="{{ $user->tempat_lahir }}" required>
+                                <input type="text" name="tempat_lahir" class="form-control @error('tempat_lahir') is-invalid @enderror"
+                                    value="{{ old('tempat_lahir', $user->tempat_lahir) }}"
+                                    placeholder="Masukkan tempat lahir" required>
+                                @error('tempat_lahir')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Tanggal Lahir</label>
-                                <input type="text" class="form-control" value="{{ $user->tanggal_lahir }}" required>
+                                <input type="date" name="tanggal_lahir" class="form-control @error('tanggal_lahir') is-invalid @enderror"
+                                    value="{{ old('tanggal_lahir', $user->tanggal_lahir) }}" required>
+                                @error('tanggal_lahir')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Jenis Kelamin</label>
-                                <input type="text" class="form-control" value="{{ $user->jenis_kelamin }}" required>
+                                <select name="jenis_kelamin" class="form-control @error('jenis_kelamin') is-invalid @enderror" required>
+                                    <option value="">Pilih Jenis Kelamin</option>
+                                    <option value="L" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="P" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                </select>
+                                @error('jenis_kelamin')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
                         {{-- Alamat --}}
                         <div class="form-group">
                             <label>Alamat</label>
-                            <input type="text" class="form-control" value="{{ $user->alamat }}" required>
+                            <textarea name="alamat" class="form-control @error('alamat') is-invalid @enderror"
+                                placeholder="Masukkan alamat lengkap" required rows="3">{{ old('alamat', $user->alamat) }}</textarea>
+                            @error('alamat')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         {{-- Kebangsaan / Pekerjaan / Pendidikan --}}
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label>Kebangsaan</label>
-                                <input type="text" class="form-control" value="{{ $user->kebangsaan }}" required>
+                                <input type="text" name="kebangsaan" class="form-control @error('kebangsaan') is-invalid @enderror"
+                                    value="{{ old('kebangsaan', $user->kebangsaan) }}"
+                                    placeholder="Masukkan kebangsaan" required>
+                                @error('kebangsaan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Pekerjaan</label>
-                                <input type="text" class="form-control" value="{{ $user->pekerjaan }}" required>
+                                <input type="text" name="pekerjaan" class="form-control @error('pekerjaan') is-invalid @enderror"
+                                    value="{{ old('pekerjaan', $user->pekerjaan) }}"
+                                    placeholder="Masukkan pekerjaan" required>
+                                @error('pekerjaan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Pendidikan</label>
-                                <input type="text" class="form-control" value="{{ $user->pendidikan }}" required>
+                                <input type="text" name="pendidikan" class="form-control @error('pendidikan') is-invalid @enderror"
+                                    value="{{ old('pendidikan', $user->pendidikan) }}"
+                                    placeholder="Masukkan pendidikan terakhir" required>
+                                @error('pendidikan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -117,6 +184,11 @@
                                 @else
                                     <div><i class="fas fa-user fa-5x text-dark"></i></div>
                                 @endif
+                                <input type="file" name="photo" class="form-control-file mt-2 @error('photo') is-invalid @enderror">
+                                <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
+                                @error('photo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col">
                                 <label>Tanda Tangan</label>
@@ -126,7 +198,18 @@
                                 @else
                                     <div><i class="fas fa-user fa-5x text-dark"></i></div>
                                 @endif
+                                <input type="file" name="tanda_tangan" class="form-control-file mt-2 @error('tanda_tangan') is-invalid @enderror">
+                                <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
+                                @error('tanda_tangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
+                        </div>
+
+                        <div class="text-right mt-4">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save"></i> Simpan Perubahan
+                            </button>
                         </div>
                     </form>
                 </div>

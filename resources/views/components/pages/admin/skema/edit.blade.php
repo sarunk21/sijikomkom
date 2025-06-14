@@ -10,6 +10,12 @@
         <span class="text-orange">Kembali</span>
     </a>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('admin.skema.update', $skema->id) }}" method="POST">
@@ -18,33 +24,45 @@
 
                 <div class="mb-3">
                     <label for="nama" class="form-label">Nama Skema <span class="text-danger">*</span></label>
-                    <input type="text" id="nama" name="nama" class="form-control"
+                    <input type="text" id="nama" name="nama" class="form-control @error('nama') is-invalid @enderror"
                         placeholder="Isi nama skema di sini..." value="{{ $skema->nama }}" required>
+                    @error('nama')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="kode" class="form-label">Kode Skema <span class="text-danger">*</span></label>
-                    <input type="text" id="kode" name="kode" class="form-control"
+                    <input type="text" id="kode" name="kode" class="form-control @error('kode') is-invalid @enderror"
                         placeholder="Isi Kode Unik di sini..." value="{{ $skema->kode }}" required>
+                    @error('kode')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
-                    <select name="kategori" id="kategori" class="form-control" required>
+                    <select name="kategori" id="kategori" class="form-control @error('kategori') is-invalid @enderror" required>
                         <option value="" disabled>Pilih Kategori Skema di sini...</option>
                         <option value="Sertifikasi" {{ $skema->kategori == 'Sertifikasi' ? 'selected' : '' }}>Sertifikasi</option>
                         <option value="Pelatihan" {{ $skema->kategori == 'Pelatihan' ? 'selected' : '' }}>Pelatihan</option>
                     </select>
+                    @error('kategori')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="bidang" class="form-label">Bidang <span class="text-danger">*</span></label>
-                    <select name="bidang" id="bidang" class="form-control" required>
+                    <select name="bidang" id="bidang" class="form-control @error('bidang') is-invalid @enderror" required>
                         <option value="" disabled>Pilih Bidang Skema di sini...</option>
                         <option value="S1 Sistem Informasi" {{ $skema->bidang == 'S1 Sistem Informasi' ? 'selected' : '' }}>S1 Sistem Informasi</option>
                         <option value="S1 Teknik Informatika" {{ $skema->bidang == 'S1 Teknik Informatika' ? 'selected' : '' }}>S1 Teknik Informatika</option>
                         <option value="D3 Sistem Informasi" {{ $skema->bidang == 'D3 Sistem Informasi' ? 'selected' : '' }}>D3 Sistem Informasi</option>
                     </select>
+                    @error('bidang')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

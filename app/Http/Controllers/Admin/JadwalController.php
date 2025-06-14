@@ -60,7 +60,7 @@ class JadwalController extends Controller
 
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal ditambahkan');
+            return redirect()->route('admin.jadwal.index')->withInput()->with('error', 'Jadwal gagal ditambahkan');
         }
     }
 
@@ -107,7 +107,7 @@ class JadwalController extends Controller
             $jadwal->update($request->all());
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diubah');
         } catch (\Exception $e) {
-            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal diubah');
+            return redirect()->route('admin.jadwal.index')->withInput()->with('error', 'Jadwal gagal diubah');
         }
     }
 

@@ -4,9 +4,18 @@
 @section('page-title', 'Informasi User')
 
 @section('content')
+    <div class="mb-3">
+        <a href="{{ route('admin.user.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah User</a>
+    </div>
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
-            <a href="{{ route('admin.user.create') }}" class="btn btn-dark mb-3"><i class="fas fa-plus mr-2"></i> Tambah User</a>
             <div class="table-responsive">
                 <table id="userTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">

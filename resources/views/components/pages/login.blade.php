@@ -102,11 +102,11 @@
             <img src="{{ asset('img/logo.png') }}" alt="Logo LSP UPNVJ">
             <h4>LOGIN</h4>
 
-            <form action="" method="POST" class="login-form">
+            <form action="{{ route('login.post') }}" method="POST" class="login-form">
                 @csrf
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="Email" required>
                 </div>
 
                 <div class="mb-4">
@@ -114,8 +114,7 @@
                     <input type="password" name="password" class="form-control" placeholder="Password" required>
                 </div>
 
-                {{-- <button type="submit" class="btn btn-login w-100">LOGIN</button> --}}
-                <a href="{{ route('dashboard.admin') }}" class="btn btn-login w-100">LOGIN</a>
+                <button type="submit" class="btn btn-login w-100">LOGIN</button>
             </form>
         </div>
 

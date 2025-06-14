@@ -54,7 +54,7 @@ class SkemaController extends Controller
 
             return redirect()->route('admin.skema.index')->with('success', 'Skema berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.skema.index')->with('error', 'Skema gagal ditambahkan');
+            return redirect()->route('admin.skema.create')->withInput()->with('error', 'Skema gagal ditambahkan');
         }
     }
 
@@ -94,7 +94,7 @@ class SkemaController extends Controller
             $skema->update($request->all());
             return redirect()->route('admin.skema.index')->with('success', 'Skema berhasil diubah');
         } catch (\Exception $e) {
-            return redirect()->route('admin.skema.index')->with('error', 'Skema gagal diubah');
+            return redirect()->route('admin.skema.index')->withInput()->with('error', 'Skema gagal diubah');
         }
     }
 

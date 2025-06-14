@@ -53,7 +53,7 @@ class TUKController extends Controller
             ]);
             return redirect()->route('admin.tuk.index')->with('success', 'TUK berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.tuk.index')->with('error', 'TUK gagal ditambahkan');
+            return redirect()->route('admin.tuk.index')->withInput()->with('error', 'TUK gagal ditambahkan');
         }
     }
 
@@ -95,7 +95,7 @@ class TUKController extends Controller
             $tuk->update($request->all());
             return redirect()->route('admin.tuk.index')->with('success', 'TUK berhasil diubah');
         } catch (\Exception $e) {
-            return redirect()->route('admin.tuk.index')->with('error', 'TUK gagal diubah');
+            return redirect()->route('admin.tuk.index')->withInput()->with('error', 'TUK gagal diubah');
         }
     }
 

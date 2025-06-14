@@ -10,6 +10,12 @@
         <span class="text-orange">Kembali</span>
     </a>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('admin.jadwal.update', $jadwal->id) }}" method="POST">
@@ -18,43 +24,67 @@
 
                 <div class="mb-3">
                     <label for="skema" class="form-label">Skema</label>
-                    <select name="skema_id" id="skema_id" class="form-control" required>
+                    <select name="skema_id" id="skema_id" class="form-control @error('skema_id') is-invalid @enderror"
+                        required>
                         <option value="" disabled selected>Pilih skema di sini...</option>
                         @foreach ($skema as $item)
-                            <option value="{{ $item->id }}" {{ $jadwal->skema_id == $item->id ? 'selected' : '' }}>{{ $item->nama }}</option>
+                            <option {{ old('skema_id', $jadwal->skema_id) == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
+                                {{ $item->nama }}</option>
                         @endforeach
                     </select>
+                    @error('skema_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="tuk" class="form-label">TUK</label>
-                    <select name="tuk_id" id="tuk_id" class="form-control" required>
+                    <select name="tuk_id" id="tuk_id" class="form-control @error('tuk_id') is-invalid @enderror"
+                        required>
                         <option value="" disabled>Pilih TUK di sini...</option>
                         @foreach ($tuk as $item)
-                            <option value="{{ $item->id }}" {{ $jadwal->tuk_id == $item->id ? 'selected' : '' }}>{{ $item->nama }}</option>
+                            <option {{ old('tuk_id', $jadwal->tuk_id) == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
+                                {{ $item->nama }}</option>
                         @endforeach
                     </select>
+                    @error('tuk_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="status" class="form-label">Status</label>
-                    <select name="status" id="status" class="form-control" required>
+                    <select name="status" id="status" class="form-control @error('status') is-invalid @enderror"
+                        required>
                         <option value="" disabled>Pilih status di sini...</option>
-                        <option value="Aktif" {{ $jadwal->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="Tidak Aktif" {{ $jadwal->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                        <option value="Aktif" {{ old('status', $jadwal->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Tidak Aktif" {{ old('status', $jadwal->status) == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif
+                        </option>
                     </select>
+                    @error('status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="tanggal" class="form-label">Tanggal</label>
-                    <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian" class="form-control"
-                        placeholder="Isi tanggal di sini..." value="{{ date('Y-m-d H:i', strtotime($jadwal->tanggal_ujian)) }}" required>
+                    <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian"
+                        class="form-control @error('tanggal_ujian') is-invalid @enderror"
+                        placeholder="Isi tanggal di sini..."
+                        value="{{ old('tanggal_ujian', date('Y-m-d H:i', strtotime($jadwal->tanggal_ujian))) }}" required>
+                    @error('tanggal_ujian')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="kuota" class="form-label">Kuota</label>
-                    <input type="number" id="kuota" name="kuota" class="form-control"
-                        placeholder="Isi kuota di sini..." value="{{ $jadwal->kuota }}" required>
+                    <input type="number" id="kuota" name="kuota"
+                        class="form-control @error('kuota') is-invalid @enderror" placeholder="Isi kuota di sini..."
+                        value="{{ old('kuota', $jadwal->kuota) }}" required>
+                    @error('kuota')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">

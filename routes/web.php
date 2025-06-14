@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\LoginController;
+
 use App\Http\Controllers\Admin\APL2Controller;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\PendaftaranController;
@@ -17,11 +19,10 @@ use App\Http\Controllers\DashboardController;
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', function () {
-    return view('components.pages.login');
-})->name('login');
+Route::get('/login', [LoginController::class, 'index'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 
-Route::group(['prefix' => 'admin'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.admin');
     Route::resource('skema', SkemaController::class)->names('admin.skema');
     Route::resource('tuk', TUKController::class)->names('admin.tuk');
@@ -35,7 +36,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::resource('profile', ProfileController::class)->names('admin.profile');
 });
 
-Route::group(['prefix' => 'asesor'], function () {
+Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.asesor');
     Route::resource('verifikasi-peserta', VerifikasiPesertaController::class)->names('asesor.verifikasi-peserta');
 });

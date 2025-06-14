@@ -20,6 +20,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('skema_id')->nullable()->constrained('skema');
+        });
     }
 
     /**
@@ -28,5 +32,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('skema');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['skema_id']);
+        });
     }
 };
