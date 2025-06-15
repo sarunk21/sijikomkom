@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use App\Models\PembayaranAsesor;
 
 class PembayaranAsesorController extends Controller
 {
@@ -15,7 +16,8 @@ class PembayaranAsesorController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
-        return view('components.pages.admin.pembayaranasesor.list', compact('lists'));
+        $pembayaranAsesor = PembayaranAsesor::where('status', 1)->get();
+        return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'pembayaranAsesor'));
     }
 
     /**

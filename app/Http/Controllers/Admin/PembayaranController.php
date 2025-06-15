@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use App\Models\Pembayaran;
 
 class PembayaranController extends Controller
 {
@@ -16,7 +17,8 @@ class PembayaranController extends Controller
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesi');
         $activeMenu = 'pembayaran';
-        return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu'));
+        $pembayaranAsesi = Pembayaran::where('status', 1)->get();
+        return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu', 'pembayaranAsesi'));
     }
 
     /**
@@ -56,7 +58,19 @@ class PembayaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        $request->validate([
+            'status' => 'required|in:1,2,3',
+        ]);
+
+        try {
+            $pembayaran = Pembayaran::find($id);
+            $pembayaran->status = $request->status;
+            $pembayaran->save();
+            return redirect()->route('admin.pembayaran-asesi.index')->with('success', 'Pembayaran berhasil diupdate');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.pembayaran-asesi.index')->with('error', 'Pembayaran gagal diupdate: ' . $e->getMessage());
+        }
     }
 
     /**

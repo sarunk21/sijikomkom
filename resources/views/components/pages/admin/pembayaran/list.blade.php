@@ -4,6 +4,19 @@
 @section('page-title', 'Informasi Pembayaran')
 
 @section('content')
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -20,31 +33,75 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Asesi 1</td>
-                            <td>asesi1@gmail.com</td>
-                            <td>System Analyst</td>
-                            <td>2025-01-01</td>
-                            <td>
-                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
-                                    <i class="fas fa-eye text-primary"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <span class="badge badge-success">Dikonfirmasi</span>
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-check text-primary"></i>
+                        @foreach ($pembayaranAsesi as $item)
+                            <tr>
+                                <td>{{ $item->pendaftaran->pembayaran->user->name }}</td>
+                                <td>{{ $item->pendaftaran->pembayaran->user->email }}</td>
+                                <td>{{ $item->pendaftaran->skema->nama }}</td>
+                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
+                                <td>
+                                    <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                        <i class="fas fa-eye text-primary"></i>
                                     </a>
-                                    <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                        <i class="fas fa-times text-danger"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Tambah baris lain jika perlu -->
+                                </td>
+                                <td>
+                                    @if ($item->status == 1)
+                                        <span class="badge badge-success">Menunggu Konfirmasi</span>
+                                    @elseif ($item->status == 2)
+                                        <span class="badge badge-warning">Dikonfirmasi</span>
+                                    @else
+                                        <span class="badge badge-danger">Ditolak</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if ($item->status == 1)
+                                        <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                            <form action="{{ route('admin.pembayaran-asesi.update', $item->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="2">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Approve">
+                                                    <i class="fas fa-check text-success"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('admin.pembayaran-asesi.update', $item->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="3">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Reject">
+                                                    <i class="fas fa-times text-danger"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="modal fade" id="rejectModal" tabindex="-1"
+                                            aria-labelledby="rejectModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="rejectModalLabel">Reject Pembayaran</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Apakah Anda yakin ingin menolak pembayaran ini?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-danger">Tolak</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

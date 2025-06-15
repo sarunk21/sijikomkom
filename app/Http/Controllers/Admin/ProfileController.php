@@ -68,7 +68,7 @@ class ProfileController extends Controller
             'alamat' => 'required|string',
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'jenis_kelamin' => 'required|in:L,P',
             'kebangsaan' => 'required|string|max:255',
             'pekerjaan' => 'required|string|max:255',
             'pendidikan' => 'required|string|max:255',
