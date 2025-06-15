@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use App\Models\PembayaranAsesor;
+use App\Models\User;
 
 class PembayaranAsesorController extends Controller
 {
@@ -25,7 +27,10 @@ class PembayaranAsesorController extends Controller
      */
     public function create()
     {
-        //
+        $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
+        $asesor = User::where('user_type', 'asesor')->get();
+        $jadwal = Jadwal::where('status', 3)->get();
+        return view('components.pages.admin.pembayaranasesor.create', compact('lists', 'asesor', 'jadwal'));
     }
 
     /**
@@ -33,7 +38,27 @@ class PembayaranAsesorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'asesor_id' => 'required|exists:users,id',
+                'jadwal_id' => 'required|exists:jadwal,id',
+                'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            $buktiPembayaran = $request->file('bukti_pembayaran');
+            $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName());
+
+            $pembayaranAsesor = PembayaranAsesor::create([
+                'asesor_id' => $request->asesor_id,
+                'jadwal_id' => $request->jadwal_id,
+                'bukti_pembayaran' => $buktiPembayaran->hashName(),
+                'status' => 1,
+            ]);
+
+            return redirect()->route('admin.pembayaran-asesor.index')->with('success', 'Pembayaran asesor berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('admin.pembayaran-asesor.create')->withInput()->with('error', $th->getMessage());
+        }
     }
 
     /**

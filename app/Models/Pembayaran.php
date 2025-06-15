@@ -7,20 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 class Pembayaran extends Model
 {
     protected $table = 'pembayaran';
-    protected $fillable = ['pendaftaran_id', 'bukti_pembayaran', 'status'];
+    protected $fillable = ['jadwal_id', 'user_id', 'bukti_pembayaran', 'status'];
 
-    public function pendaftaran()
+    protected $statusPembayaran = [
+        1 => 'Menunggu Verifikasi',
+        2 => 'Tidak Lolos Verifikasi',
+        3 => 'Dikonfirmasi',
+    ];
+
+    public function getStatusTextAttribute()
     {
-        return $this->belongsTo(Pendaftaran::class);
+        return $this->statusPembayaran[$this->status] ?? 'Tidak Diketahui';
+    }
+
+    public function jadwal()
+    {
+        return $this->belongsTo(Jadwal::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function skema()
-    {
-        return $this->belongsTo(Skema::class, 'skema_id');
+        return $this->belongsTo(User::class);
     }
 }

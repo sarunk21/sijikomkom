@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class PembayaranAsesor extends Model
 {
     protected $table = 'pembayaran_asesor';
-    protected $fillable = ['jadwal_id', 'bukti_pembayaran', 'status'];
+    protected $fillable = ['asesor_id', 'jadwal_id', 'bukti_pembayaran', 'status'];
 
     public function jadwal()
     {
         return $this->belongsTo(Jadwal::class);
     }
 
-    public function user()
+    public function asesor()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'asesor_id');
     }
 
     public function skema()

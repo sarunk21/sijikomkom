@@ -13,6 +13,17 @@ class Jadwal extends Model
     protected $table = 'jadwal';
     protected $fillable = ['skema_id', 'tuk_id', 'tanggal_ujian', 'status', 'kuota'];
 
+    public $statusJadwal = [
+        1 => 'Aktif',
+        2 => 'Tidak Aktif',
+        3 => 'Selesai',
+    ];
+
+    public function getStatusTextAttribute()
+    {
+        return $this->statusJadwal[$this->status] ?? 'Tidak Diketahui';
+    }
+
     public function skema()
     {
         return $this->belongsTo(Skema::class);

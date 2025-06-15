@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('skema_id')->constrained('skema');
             $table->foreignId('tuk_id')->constrained('tuk');
-            $table->integer('verif_stage')->default(1);
+            $table->integer('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

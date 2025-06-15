@@ -5,7 +5,8 @@
 
 @section('content')
     <div class="mb-3">
-        <a href="#" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Upload Bukti Pembayaran</a>
+        <a href="{{ route('admin.pembayaran-asesor.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i>
+            Upload Bukti Pembayaran</a>
     </div>
 
     <div class="card shadow-sm">
@@ -18,33 +19,21 @@
                             <th>Email</th>
                             <th>Skema</th>
                             <th>Tanggal Ujian</th>
-                            <th>TUK</th>
                             <th>Bukti Pembayaran</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($pembayaranAsesor as $item)
                             <tr>
-                                <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->user->email }}</td>
-                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->asesor->name }}</td>
+                                <td>{{ $item->asesor->email }}</td>
+                                <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
-                                <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>
                                     <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
                                         class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
-                                </td>
-                                <td>
-                                    @if ($item->status == 1)
-                                        <span class="badge badge-success">Menunggu Konfirmasi</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="badge badge-warning">Dikonfirmasi</span>
-                                    @else
-                                        <span class="badge badge-danger">Ditolak</span>
-                                    @endif
                                 </td>
                             </tr>
                         @endforeach

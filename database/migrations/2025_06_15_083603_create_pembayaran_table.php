@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pendaftaran_id')->constrained('pendaftaran');
+            $table->foreignId(column: 'jadwal_id')->constrained('jadwal');
+            $table->foreignId('user_id')->constrained('users');
             $table->string('bukti_pembayaran')->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();

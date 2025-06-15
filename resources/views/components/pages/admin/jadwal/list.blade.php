@@ -34,7 +34,7 @@
                                 <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->tuk->nama }}</td>
                                 <td>{{ $item->tanggal_ujian }}</td>
-                                <td><span class="badge bg-{{ $item->status == 'Aktif' ? 'success' : 'danger' }} text-white">{{ $item->status }}</span></td>
+                                <td>{{ $item->status_text }}</td>
                                 <td>{{ $item->kuota }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">

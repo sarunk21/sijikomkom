@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pembayaran_asesor', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('asesor_id')->constrained('users');
             $table->foreignId('jadwal_id')->constrained('jadwal');
             $table->string('bukti_pembayaran')->nullable();
             $table->integer('status')->default(1);

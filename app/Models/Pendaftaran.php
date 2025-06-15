@@ -11,7 +11,20 @@ class Pendaftaran extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'pendaftaran';
-    protected $fillable = ['jadwal_id', 'user_id', 'skema_id', 'tuk_id', 'verif_stage'];
+    protected $fillable = ['jadwal_id', 'user_id', 'skema_id', 'tuk_id', 'status'];
+
+    protected $statusPendaftaran = [
+        1 => 'Menunggu Verifikasi Kaprodi',
+        2 => 'Tidak Lolos Verifikasi Kaprodi',
+        3 => 'Menunggu Verifikasi Admin',
+        4 => 'Menunggu Ujian',
+        5 => 'Selesai',
+    ];
+
+    public function getStatusTextAttribute()
+    {
+        return $this->statusPendaftaran[$this->status] ?? 'Tidak Diketahui';
+    }
 
     public function jadwal()
     {

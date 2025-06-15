@@ -35,9 +35,9 @@
                     <tbody>
                         @foreach ($pembayaranAsesi as $item)
                             <tr>
-                                <td>{{ $item->pendaftaran->pembayaran->user->name }}</td>
-                                <td>{{ $item->pendaftaran->pembayaran->user->email }}</td>
-                                <td>{{ $item->pendaftaran->skema->nama }}</td>
+                                <td>{{ $item->user->name }}</td>
+                                <td>{{ $item->user->email }}</td>
+                                <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
                                     <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
@@ -45,15 +45,7 @@
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
                                 </td>
-                                <td>
-                                    @if ($item->status == 1)
-                                        <span class="badge badge-success">Menunggu Konfirmasi</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="badge badge-warning">Dikonfirmasi</span>
-                                    @else
-                                        <span class="badge badge-danger">Ditolak</span>
-                                    @endif
-                                </td>
+                                <td>{{ $item->status_text }}</td>
                                 <td class="text-center">
                                     @if ($item->status == 1)
                                         <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
@@ -61,7 +53,7 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="hidden" name="status" value="2">
+                                                <input type="hidden" name="status" value="3">
                                                 <button type="submit"
                                                     class="btn btn-light btn-icon btn-sm border shadow-sm" title="Approve">
                                                     <i class="fas fa-check text-success"></i>
@@ -71,7 +63,7 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="hidden" name="status" value="3">
+                                                <input type="hidden" name="status" value="2">
                                                 <button type="submit"
                                                     class="btn btn-light btn-icon btn-sm border shadow-sm" title="Reject">
                                                     <i class="fas fa-times text-danger"></i>

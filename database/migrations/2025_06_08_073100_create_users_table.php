@@ -36,12 +36,6 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
-
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -51,11 +45,21 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
+
+        // Default Admin
         User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
             'password' => Hash::make('admin'),
             'user_type' => 'admin',
+        ]);
+
+        // Default Asesor
+        User::create([
+            'name' => 'Asesor',
+            'email' => 'asesor@asesor.com',
+            'password' => Hash::make('asesor'),
+            'user_type' => 'asesor',
         ]);
     }
 
@@ -65,7 +69,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };
