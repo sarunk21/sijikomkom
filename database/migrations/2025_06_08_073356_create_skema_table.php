@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Skema;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,13 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('skema_id')->nullable()->constrained('skema');
         });
+
+        Skema::create([
+            'nama' => 'Sistem Analisis',
+            'kode' => 'SA',
+            'kategori' => 'Sertifikasi',
+            'bidang' => 'S1 Sistem Informasi',
+        ]);
     }
 
     /**

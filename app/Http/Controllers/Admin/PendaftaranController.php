@@ -58,7 +58,19 @@ class PendaftaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $request->validate([
+                'status' => 'required|in:1,2,3,4,5',
+            ]);
+
+            $pendaftaran = Pendaftaran::find($id);
+            $pendaftaran->status = $request->status;
+            $pendaftaran->save();
+
+            return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran berhasil diupdate');
+        } catch (\Throwable $th) {
+            return redirect()->route('admin.pendaftaran.index')->with('error', 'Pendaftaran gagal diupdate: ' . $th->getMessage());
+        }
     }
 
     /**

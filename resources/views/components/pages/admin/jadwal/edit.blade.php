@@ -57,9 +57,9 @@
                     <select name="status" id="status" class="form-control @error('status') is-invalid @enderror"
                         required>
                         <option value="" disabled>Pilih status di sini...</option>
-                        <option value="Aktif" {{ old('status', $jadwal->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="Tidak Aktif" {{ old('status', $jadwal->status) == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif
-                        </option>
+                        <option value="1" {{ old('status', $jadwal->status) == 1 ? 'selected' : '' }}>Aktif</option>
+                        <option value="2" {{ old('status', $jadwal->status) == 2 ? 'selected' : '' }}>Tidak Aktif</option>
+                        <option value="3" {{ old('status', $jadwal->status) == 3 ? 'selected' : '' }}>Selesai</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>

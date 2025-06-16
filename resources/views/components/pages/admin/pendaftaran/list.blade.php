@@ -22,23 +22,26 @@
                         @foreach ($pendaftaran as $item)
                             <tr>
                                 <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    <span class="badge badge-success">{{ $item->status }}</span>
-                                </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td>{{ $item->status_text }}</td>
+                                <td>{{ $item->tuk->nama }}</td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                        <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                            title="Edit">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                            title="Hapus">
-                                            <i class="fas fa-times text-danger"></i>
-                                        </a>
-                                    </div>
+                                    @if ($item->status == 3)
+                                        <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                            <form action="{{ route('admin.pendaftaran.update', $item->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="4">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                    title="Verifikasi">
+                                                    <i class="fas fa-check text-success"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

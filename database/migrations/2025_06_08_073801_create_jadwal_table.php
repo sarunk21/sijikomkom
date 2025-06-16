@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('skema_id')->constrained('skema');
             $table->foreignId('tuk_id')->constrained('tuk');
             $table->dateTime('tanggal_ujian');
-            $table->string('status');
+            $table->integer('status');
             $table->integer('kuota');
             $table->timestamps();
             $table->softDeletes();

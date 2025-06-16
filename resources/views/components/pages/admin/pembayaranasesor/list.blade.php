@@ -5,7 +5,8 @@
 
 @section('content')
     <div class="mb-3">
-        <a href="#" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Upload Bukti Pembayaran</a>
+        <a href="{{ route('admin.pembayaran-asesor.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i>
+            Upload Bukti Pembayaran</a>
     </div>
 
     <div class="card shadow-sm">
@@ -18,24 +19,24 @@
                             <th>Email</th>
                             <th>Skema</th>
                             <th>Tanggal Ujian</th>
-                            <th>TUK</th>
                             <th>Bukti Pembayaran</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Asesi 1</td>
-                            <td>asesi1@gmail.com</td>
-                            <td>System Analyst</td>
-                            <td>2025-01-01</td>
-                            <td>TUK 1</td>
-                            <td>
-                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                    title="Lihat Bukti">
-                                    <i class="fas fa-eye text-primary"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        @foreach ($pembayaranAsesor as $item)
+                            <tr>
+                                <td>{{ $item->asesor->name }}</td>
+                                <td>{{ $item->asesor->email }}</td>
+                                <td>{{ $item->jadwal->skema->nama }}</td>
+                                <td>{{ $item->jadwal->tanggal_ujian }}</td>
+                                <td>
+                                    <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                        <i class="fas fa-eye text-primary"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

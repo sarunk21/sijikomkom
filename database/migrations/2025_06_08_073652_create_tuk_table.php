@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tuk;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,6 +21,13 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Tuk::create([
+            'nama' => 'TUK 1',
+            'kode' => 'TUK1',
+            'kategori' => 'Lab',
+            'alamat' => 'Jl. Raya No. 1',
+        ]);
     }
 
     /**

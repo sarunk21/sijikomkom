@@ -65,7 +65,7 @@
 
                         {{-- Basic info --}}
                         <div class="form-group">
-                            <label>Nama</label>
+                            <label>Nama <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                 value="{{ old('name', $user->name) }}"
                                 placeholder="Masukkan nama lengkap" required>
@@ -74,7 +74,7 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label>NIK</label>
+                            <label>NIK <span class="text-danger">*</span></label>
                             <input type="text" name="nik" class="form-control @error('nik') is-invalid @enderror"
                                 value="{{ old('nik', $user->nik) }}"
                                 placeholder="Masukkan NIK" maxlength="16" required>
@@ -83,7 +83,7 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label>Telepon</label>
+                            <label>Telepon <span class="text-danger">*</span></label>
                             <input type="text" name="telephone" class="form-control @error('telephone') is-invalid @enderror"
                                 value="{{ old('telephone', $user->telephone) }}"
                                 placeholder="Masukkan nomor telepon" maxlength="15" required>
@@ -92,7 +92,7 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label>Email</label>
+                            <label>Email <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                                 value="{{ old('email', $user->email) }}"
                                 placeholder="Masukkan email" required>
@@ -104,7 +104,7 @@
                         {{-- Tempat / Tanggal / Gender --}}
                         <div class="form-row">
                             <div class="form-group col-md-4">
-                                <label>Tempat Lahir</label>
+                                <label>Tempat Lahir <span class="text-danger">*</span></label>
                                 <input type="text" name="tempat_lahir" class="form-control @error('tempat_lahir') is-invalid @enderror"
                                     value="{{ old('tempat_lahir', $user->tempat_lahir) }}"
                                     placeholder="Masukkan tempat lahir" required>
@@ -113,7 +113,7 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-4">
-                                <label>Tanggal Lahir</label>
+                                <label>Tanggal Lahir <span class="text-danger">*</span></label>
                                 <input type="date" name="tanggal_lahir" class="form-control @error('tanggal_lahir') is-invalid @enderror"
                                     value="{{ old('tanggal_lahir', $user->tanggal_lahir) }}" required>
                                 @error('tanggal_lahir')
@@ -121,7 +121,7 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-4">
-                                <label>Jenis Kelamin</label>
+                                <label>Jenis Kelamin <span class="text-danger">*</span></label>
                                 <select name="jenis_kelamin" class="form-control @error('jenis_kelamin') is-invalid @enderror" required>
                                     <option value="">Pilih Jenis Kelamin</option>
                                     <option value="L" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'L' ? 'selected' : '' }}>Laki-laki</option>
@@ -135,7 +135,7 @@
 
                         {{-- Alamat --}}
                         <div class="form-group">
-                            <label>Alamat</label>
+                            <label>Alamat <span class="text-danger">*</span></label>
                             <textarea name="alamat" class="form-control @error('alamat') is-invalid @enderror"
                                 placeholder="Masukkan alamat lengkap" required rows="3">{{ old('alamat', $user->alamat) }}</textarea>
                             @error('alamat')
@@ -146,7 +146,7 @@
                         {{-- Kebangsaan / Pekerjaan / Pendidikan --}}
                         <div class="form-row">
                             <div class="form-group col-md-4">
-                                <label>Kebangsaan</label>
+                                <label>Kebangsaan <span class="text-danger">*</span></label>
                                 <input type="text" name="kebangsaan" class="form-control @error('kebangsaan') is-invalid @enderror"
                                     value="{{ old('kebangsaan', $user->kebangsaan) }}"
                                     placeholder="Masukkan kebangsaan" required>
@@ -155,7 +155,7 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-4">
-                                <label>Pekerjaan</label>
+                                <label>Pekerjaan <span class="text-danger">*</span></label>
                                 <input type="text" name="pekerjaan" class="form-control @error('pekerjaan') is-invalid @enderror"
                                     value="{{ old('pekerjaan', $user->pekerjaan) }}"
                                     placeholder="Masukkan pekerjaan" required>
@@ -164,7 +164,7 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-4">
-                                <label>Pendidikan</label>
+                                <label>Pendidikan <span class="text-danger">*</span></label>
                                 <input type="text" name="pendidikan" class="form-control @error('pendidikan') is-invalid @enderror"
                                     value="{{ old('pendidikan', $user->pendidikan) }}"
                                     placeholder="Masukkan pendidikan terakhir" required>

@@ -45,7 +45,7 @@ class JadwalController extends Controller
             'skema_id' => 'required',
             'tuk_id' => 'required',
             'tanggal_ujian' => 'required',
-            'status' => 'required',
+            'status' => 'required|integer',
             'kuota' => 'required',
         ]);
 
@@ -60,7 +60,7 @@ class JadwalController extends Controller
 
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.jadwal.index')->withInput()->with('error', 'Jadwal gagal ditambahkan');
+            return redirect()->route('admin.jadwal.create')->withInput()->with('error', 'Jadwal gagal ditambahkan');
         }
     }
 
