@@ -53,7 +53,6 @@
                         <option value="" disabled selected>Pilih status di sini...</option>
                         <option {{ old('status') == 1 ? 'selected' : '' }} value="1">Aktif</option>
                         <option {{ old('status') == 2 ? 'selected' : '' }} value="2">Tidak Aktif</option>
-                        <option {{ old('status') == 3 ? 'selected' : '' }} value="3">Selesai</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>

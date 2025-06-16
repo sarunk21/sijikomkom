@@ -33,4 +33,9 @@ class Jadwal extends Model
     {
         return $this->belongsTo(Tuk::class);
     }
+
+    public function pendaftaran()
+    {
+        return $this->hasMany(Pendaftaran::class, 'jadwal_id', 'id')->where('status', 4);
+    }
 }

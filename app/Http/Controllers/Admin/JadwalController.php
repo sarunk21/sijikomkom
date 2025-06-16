@@ -105,6 +105,16 @@ class JadwalController extends Controller
         try {
             $jadwal = Jadwal::find($id);
             $jadwal->update($request->all());
+
+            // Cek jika jadwal sudah ada pendaftaran, maka tidak bisa diubah
+            if (Jadwal::find($id)->pendaftaran->count() > 0) {
+                return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah ada pendaftaran');
+            }
+            // Cek jika jadwal sudah selesai, maka tidak bisa diubah
+            if (Jadwal::find($id)->status == 3) {
+                return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah selesai');
+            }
+
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diubah');
         } catch (\Exception $e) {
             return redirect()->route('admin.jadwal.index')->withInput()->with('error', 'Jadwal gagal diubah');
@@ -117,6 +127,15 @@ class JadwalController extends Controller
     public function destroy(string $id)
     {
         try {
+            // Cek jika jadwal sudah ada pendaftaran, maka tidak bisa dihapus
+            if (Jadwal::find($id)->pendaftaran->count() > 0) {
+                return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal tidak bisa dihapus karena sudah ada pendaftaran');
+            }
+            // Cek jika jadwal sudah selesai, maka tidak bisa dihapus
+            if (Jadwal::find($id)->status == 3) {
+                return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal tidak bisa dihapus karena sudah selesai');
+            }
+
             $jadwal = Jadwal::find($id);
             $jadwal->delete();
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil dihapus');

@@ -52,7 +52,7 @@
                     @enderror
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label for="bidang" class="form-label">Bidang <span class="text-danger">*</span></label>
                     <select name="bidang" id="bidang" class="form-control @error('bidang') is-invalid @enderror" required>
                         <option value="" disabled>Pilih Bidang Skema di sini...</option>
@@ -61,6 +61,24 @@
                         <option value="D3 Sistem Informasi" {{ $skema->bidang == 'D3 Sistem Informasi' ? 'selected' : '' }}>D3 Sistem Informasi</option>
                     </select>
                     @error('bidang')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="asesor_id" class="form-label">Asesor </label>
+                    <select name="asesor_id[]" id="asesor_id" class="form-control @error('asesor_id') is-invalid @enderror" multiple>
+                        <option value="" disabled>Pilih Asesor di sini...</option>
+                        @foreach ($asesor as $item)
+                            <option value="{{ $item->id }}" {{ in_array($item->id, $asesor_skema->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                {{ $item->name }}</option>
+                            {{-- Jika asesor sudah ada skema nya, dibuat disabled --}}
+                            @if ($item->skema_id && $item->skema_id != $skema->id)
+                                <option value="{{ $item->id }}" disabled>{{ $item->name }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('asesor_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

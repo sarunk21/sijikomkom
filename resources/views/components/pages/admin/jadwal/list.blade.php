@@ -14,6 +14,12 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -25,6 +31,7 @@
                             <th>Tanggal</th>
                             <th>Status</th>
                             <th>Kuota</th>
+                            <th>Kuota Tersisa</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
@@ -36,6 +43,7 @@
                                 <td>{{ $item->tanggal_ujian }}</td>
                                 <td>{{ $item->status_text }}</td>
                                 <td>{{ $item->kuota }}</td>
+                                <td>{{ $item->kuota - $item->pendaftaran->count() }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                         <a href="{{ route('admin.jadwal.edit', $item->id) }}"

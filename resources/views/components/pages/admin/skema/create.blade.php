@@ -43,9 +43,11 @@
 
                 <div class="mb-3">
                     <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
-                    <select name="kategori" id="kategori" class="form-control @error('kategori') is-invalid @enderror" required>
+                    <select name="kategori" id="kategori" class="form-control @error('kategori') is-invalid @enderror"
+                        required>
                         <option value="" disabled selected>Pilih Kategori Skema di sini...</option>
-                        <option value="Sertifikasi" {{ old('kategori') == 'Sertifikasi' ? 'selected' : '' }}>Sertifikasi</option>
+                        <option value="Sertifikasi" {{ old('kategori') == 'Sertifikasi' ? 'selected' : '' }}>Sertifikasi
+                        </option>
                         <option value="Pelatihan" {{ old('kategori') == 'Pelatihan' ? 'selected' : '' }}>Pelatihan</option>
                     </select>
                     @error('kategori')
@@ -53,16 +55,38 @@
                     @enderror
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label for="bidang" class="form-label">Bidang <span class="text-danger">*</span></label>
                     <select name="bidang" id="bidang" class="form-control @error('bidang') is-invalid @enderror"
                         required>
                         <option value="" disabled selected>Pilih Bidang Skema di sini...</option>
-                        <option value="S1 Sistem Informasi" {{ old('bidang') == 'S1 Sistem Informasi' ? 'selected' : '' }}>S1 Sistem Informasi</option>
-                        <option value="S1 Teknik Informatika" {{ old('bidang') == 'S1 Teknik Informatika' ? 'selected' : '' }}>S1 Teknik Informatika</option>
-                        <option value="D3 Sistem Informasi" {{ old('bidang') == 'D3 Sistem Informasi' ? 'selected' : '' }}>D3 Sistem Informasi</option>
+                        <option value="S1 Sistem Informasi" {{ old('bidang') == 'S1 Sistem Informasi' ? 'selected' : '' }}>
+                            S1 Sistem Informasi</option>
+                        <option value="S1 Teknik Informatika"
+                            {{ old('bidang') == 'S1 Teknik Informatika' ? 'selected' : '' }}>S1 Teknik Informatika</option>
+                        <option value="D3 Sistem Informasi" {{ old('bidang') == 'D3 Sistem Informasi' ? 'selected' : '' }}>
+                            D3 Sistem Informasi</option>
                     </select>
                     @error('bidang')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="asesor_id" class="form-label">Asesor </label>
+                    <select name="asesor_id[]" id="asesor_id" class="form-control @error('asesor_id') is-invalid @enderror"
+                        multiple>
+                        <option value="" disabled selected>Pilih Asesor di sini...</option>
+                        @foreach ($asesor as $item)
+                            <option value="{{ $item->id }}" {{ old('asesor_id') == $item->id ? 'selected' : '' }}>
+                                {{ $item->name }}</option>
+                            {{-- Jika asesor sudah ada skema nya, dibuat disabled --}}
+                            @if ($item->skema_id)
+                                <option value="{{ $item->id }}" disabled>{{ $item->name }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('asesor_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
