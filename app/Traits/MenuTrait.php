@@ -117,7 +117,116 @@ trait MenuTrait
                 'title' => 'Verifikasi Peserta',
                 'url' => 'asesor.verifikasi-peserta.index',
                 'key' => 'verifikasi-peserta'
-            ]
+            ],
+            [
+                'title' => 'Pembayaran Jasa',
+                'url' => 'asesor.pembayaran-jasa.index',
+                'key' => 'pembayaran-jasa'
+            ],
+            [
+                'title' => 'Hasil Ujikom',
+                'url' => 'asesor.hasil-ujikom.index',
+                'key' => 'hasil-ujikom'
+            ],
+            [
+                'title' => 'Profil',
+                'url' => 'asesor.profil-asesor.index',
+                'key' => 'profil-asesor'
+            ],
+        ];
+
+        return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {
+            // Default inactive
+            $menu['active'] = $menu['key'] === $activeMenu;
+
+            if (isset($menu['children'])) {
+                $menu['children'] = collect($menu['children'])->map(function ($child) use ($activeMenu, $activeSubMenu, &$menu) {
+                    $isChildActive = $child['key'] === $activeMenu || $child['key'] === $activeSubMenu;
+                    $child['active'] = $isChildActive;
+
+                    // Set parent menu active if any child is active
+                    if ($isChildActive) {
+                        $menu['active'] = true;
+                    }
+
+                    return $child;
+                })->all();
+            }
+
+            return $menu;
+        })->all();
+    }
+
+    public function getMenuListKaprodi($activeMenu = 'dashboard', $activeSubMenu = null)
+    {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'url' => 'dashboard.kaprodi',
+                'key' => 'dashboard'
+            ],
+            [
+                'title' => 'Report',
+                'url' => 'kaprodi.report-hasil-uji.index',
+                'key' => 'report-hasil-uji'
+            ],
+            [
+                'title' => 'Verifikasi Pendaftaran',
+                'url' => 'kaprodi.verifikasi-pendaftaran.index',
+                'key' => 'verifikasi-pendaftaran'
+            ],
+            [
+                'title' => 'Profil',
+                'url' => 'kaprodi.profil-kaprodi.index',
+                'key' => 'profil-kaprodi'
+            ],
+        ];
+
+        return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {
+            // Default inactive
+            $menu['active'] = $menu['key'] === $activeMenu;
+
+            if (isset($menu['children'])) {
+                $menu['children'] = collect($menu['children'])->map(function ($child) use ($activeMenu, $activeSubMenu, &$menu) {
+                    $isChildActive = $child['key'] === $activeMenu || $child['key'] === $activeSubMenu;
+                    $child['active'] = $isChildActive;
+
+                    // Set parent menu active if any child is active
+                    if ($isChildActive) {
+                        $menu['active'] = true;
+                    }
+
+                    return $child;
+                })->all();
+            }
+
+            return $menu;
+        })->all();
+    }
+
+    public function getMenuListPimpinan($activeMenu = 'dashboard', $activeSubMenu = null)
+    {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'url' => 'dashboard.pimpinan',
+                'key' => 'dashboard'
+            ],
+            [
+                'title' => 'Report',
+                'url' => 'pimpinan.report-pimpinan.index',
+                'key' => 'report-pimpinan'
+            ],
+            [
+                'title' => 'Laporan IKU',
+                'url' => 'pimpinan.laporan-iku.index',
+                'key' => 'laporan-iku'
+            ],
+            [
+                'title' => 'Profil',
+                'url' => 'pimpinan.profil-pimpinan.index',
+                'key' => 'profil-pimpinan'
+            ],
         ];
 
         return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {

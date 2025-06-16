@@ -57,6 +57,27 @@ return new class extends Migration
             'password' => Hash::make('admin'),
             'user_type' => 'admin',
         ]);
+
+        User::create([
+            'name' => 'Asesor',
+            'email' => 'asesor@admin.com',
+            'password' => Hash::make('asesor'),
+            'user_type' => 'asesor',
+        ]);
+
+        User::create([
+            'name' => 'Kaprodi',
+            'email' => 'kaprodi@admin.com',
+            'password' => Hash::make('kaprodi'),
+            'user_type' => 'kaprodi',
+        ]);
+
+        User::create([
+            'name' => 'Pimpinan',
+            'email' => 'pimpinan@admin.com',
+            'password' => Hash::make('pimpinan'),
+            'user_type' => 'pimpinan',
+        ]);
     }
 
     /**
