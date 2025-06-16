@@ -21,18 +21,10 @@
                         @foreach ($pendaftaran as $item)
                             <tr>
                                 <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td>{{ $item->status_text }}</td>
+                                <td>{{ $item->tuk->nama }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VerifikasiPesertaController extends Controller
 {
@@ -16,9 +17,15 @@ class VerifikasiPesertaController extends Controller
      */
     public function index()
     {
+        $skema_id = null;
+
+        if (Auth::user()->skema_id) {
+            $skema_id = Auth::user()->skema_id;
+        }
+
         $lists = $this->getMenuListAsesor('verifikasi-peserta');
-        $pendaftaran = Pendaftaran::where('verif_stage', 1)->get();
-        return view('components.pages.asesor.verifikasi-peserta.list', compact('lists', 'pendaftaran'));
+        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)->get();
+        return view('components.pages.asesor.verifikasi-peserta.list', data: compact('lists', 'pendaftaran'));
     }
 
     /**

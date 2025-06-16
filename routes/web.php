@@ -40,6 +40,8 @@ Route::get('/', function () {
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 
+Route::delete('/logout', [LoginController::class, 'logout'])->name('logout');
+
 Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.admin');
     Route::resource('skema', SkemaController::class)->names('admin.skema');
