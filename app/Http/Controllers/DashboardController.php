@@ -18,6 +18,12 @@ class DashboardController extends Controller
         } else if (Route::is('dashboard.asesor')) {
             $lists = $this->getMenuListAsesor('dashboard');
             return view('components.pages.asesor.dashboard', compact('lists'));
+        } else if (Route::is('dashboard.kaprodi')) {
+            $lists = $this->getMenuListKaprodi('dashboard');
+            return view('components.pages.kaprodi.dashboard', compact('lists'));
+        } else if (Route::is('dashboard.pimpinan')) {
+            $lists = $this->getMenuListPimpinan('dashboard');
+            return view('components.pages.pimpinan.dashboard', compact('lists'));
         }
     }
 }
