@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('nik')->nullable();
+            $table->string('nim')->nullable();
             $table->string('telephone')->nullable();
             $table->string('email')->unique();
             $table->string('tempat_lahir')->nullable();
@@ -26,10 +27,14 @@ return new class extends Migration
             $table->string('kebangsaan')->nullable();
             $table->string('pekerjaan')->nullable();
             $table->string('pendidikan')->nullable();
-            $table->string('photo')->nullable();
+            $table->string('jurusan')->nullable();
+            $table->string('photo_diri')->nullable();
+            $table->string('photo_ktp')->nullable();
+            $table->string('photo_sertifikat')->nullable();
+            $table->string('photo_ktmkhs')->nullable();
+            $table->string('photo_administatif')->nullable();
             $table->string('tanda_tangan')->nullable();
             $table->string('user_type')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
