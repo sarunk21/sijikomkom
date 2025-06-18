@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Kaprodi;
+namespace App\Http\Controllers\Asesi;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pendaftaran;
 use App\Traits\MenuTrait;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
-class VerifikasiPendaftaranController extends Controller
+class ProfilAsesiController extends Controller
 {
     use MenuTrait;
     /**
@@ -16,15 +15,9 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function index()
     {
-        $skema_id = null;
-
-        if (Auth::user()->skema_id) {
-            $skema_id = Auth::user()->skema_id;
-        }
-
-        $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::where('skema_id', $skema_id)->get();
-        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
+        $user = Auth::user();
+        $lists = $this->getMenuListAsesi('profil-asesi');
+        return view('components.pages.profile', compact('lists', 'user'));
     }
 
     /**

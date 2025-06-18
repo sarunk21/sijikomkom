@@ -19,40 +19,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach ($verfikasiPendaftaran as $item)
+                        @foreach ($verfikasiPendaftaran as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->user->name }}</td>
+                                <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
-                                    </span>
+                                @if ($item->status == 1)
+                                    <span class="text-success">{{ $item->status_text }}</span>
+                                @elseif ($item->status == 2)
+                                    <span class="text-warning">{{ $item->status_text }}</span>
+                                @endif
                                 </td>
                                 <td>{{ $item->tuk->nama_tuk }}</td>
-                                <td>
-                                    <span>-</span>
-                                </td>
-                            </tr>
-                        @endforeach -->
-                        <tr>
-                            <td>
-                                <span class="badge badge-secondary">
-                                Asesi 1
-                                </span>
-                            </td>
-                            <td>System Analyst</td>
-                            <td>20/11/2024</td>
-                            <td>
-                                <span class="text-success">
-                                    Disetujui
-                                </span>
-                            </td>
-                            <td>Lab Komputer</td>
-                            <td class="text-center">
+                                <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                     <a href="{#"
                                         class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
@@ -67,7 +47,8 @@
                                     </form>
                                 </div>
                             </td>
-                        </tr>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

@@ -13,6 +13,10 @@ use App\Http\Controllers\Admin\SkemaController;
 use App\Http\Controllers\Admin\TUKController;
 use App\Http\Controllers\Admin\UserController;
 
+use App\Http\Controllers\Asesi\InformasiPembayaranController;
+use App\Http\Controllers\Asesi\UploadSertifikatController;
+use App\Http\Controllers\Asesi\ProfilAsesiController;
+
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\PembayaranJasaController;
 use App\Http\Controllers\Asesor\HasilUjikomController;
@@ -54,6 +58,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('profile', ProfileController::class)->names('admin.profile');
+});
+
+Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.asesi');
+    Route::resource('informasi-pembayaran', InformasiPembayaranController::class)->names('asesi.informasi-pembayaran');
+    Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('asesi.upload-sertifikat');
+    Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {

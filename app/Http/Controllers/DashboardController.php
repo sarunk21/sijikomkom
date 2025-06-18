@@ -15,6 +15,9 @@ class DashboardController extends Controller
         if (Route::is('dashboard.admin')) {
             $lists = $this->getMenuListAdmin('dashboard');
             return view('components.pages.admin.dashboard', compact('lists'));
+        } else if (Route::is('dashboard.asesi')) {
+            $lists = $this->getMenuListAsesi('dashboard');
+            return view('components.pages.asesi.dashboard', compact('lists'));
         } else if (Route::is('dashboard.asesor')) {
             $lists = $this->getMenuListAsesor('dashboard');
             return view('components.pages.asesor.dashboard', compact('lists'));

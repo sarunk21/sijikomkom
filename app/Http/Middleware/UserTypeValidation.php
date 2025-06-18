@@ -26,6 +26,7 @@ class UserTypeValidation
         // Jika user sudah berada di halaman yang sesuai, lanjutkan request
         if (
             ($userType === 'admin' && (str_starts_with($currentRoute, 'admin.') || $currentRoute === 'dashboard.admin')) ||
+            ($userType === 'asesi' && (str_starts_with($currentRoute, 'asesi.') || $currentRoute === 'dashboard.asesi')) ||
             ($userType === 'asesor' && (str_starts_with($currentRoute, 'asesor.') || $currentRoute === 'dashboard.asesor')) ||
             ($userType === 'kaprodi' && (str_starts_with($currentRoute, 'kaprodi.') || $currentRoute === 'dashboard.kaprodi')) ||
             ($userType === 'pimpinan' && (str_starts_with($currentRoute, 'pimpinan.') || $currentRoute === 'dashboard.pimpinan'))
@@ -36,6 +37,9 @@ class UserTypeValidation
         // Redirect ke halaman yang sesuai jika user belum berada di halaman yang benar
         if ($userType === 'admin') {
             return redirect()->route('dashboard.admin');
+        }
+        if ($userType === 'asesi') {
+            return redirect()->route('dashboard.asesi');
         }
         if ($userType === 'asesor') {
             return redirect()->route('dashboard.asesor');

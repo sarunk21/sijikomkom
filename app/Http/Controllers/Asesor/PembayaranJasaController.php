@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Asesor;
 
 use App\Http\Controllers\Controller;
+use App\Models\PembayaranAsesor;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,7 @@ class PembayaranJasaController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAsesor('pembayaran-jasa');
-        // Assuming you have a model for PembayaranJasa, you can fetch the data here
-        // $pembayaranJasa = PembayaranJasa::all();
-        // For now, we'll just pass an empty array
-        $pembayaranJasa = [];
-        
+        $pembayaranJasa = PembayaranAsesor::with(['jadwal', 'asesor', 'skema'])->get();
         return view('components.pages.asesor.pembayaran-jasa.list', compact('lists', 'pembayaranJasa'));
     }
 

@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Pembayaran Jasa')
-@section('page-title', 'Pembayaran Jasa')
+@section('title', 'Upload Sertifikat Bertanda Tangan')
+@section('page-title', 'Upload Sertifikat Bertanda Tangan')
 
 @section('content')
     <div class="card shadow-sm">
@@ -18,29 +18,50 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pembayaranJasa as $item)
+                        <!-- @foreach ($uploadSertifikat as $item)
                             <tr>
                                 <td>{{ $item->skema->nama_skema }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        <span class="text-success">Disetujui</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="text-warning">Proses</span>
-                                    @endif
+                                    <span class="badge badge-success">
+                                        @if ($item->verif_stage == 1)
+                                            Verifikasi
+                                        @elseif ($item->verif_stage == 2)
+                                            Verifikasi
+                                        @endif
+                                    </span>
                                 </td>
                                 <td>{{ $item->tuk->nama_tuk }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        -
-                                    @elseif ($item->status == 2)
-                                        <a class="btn btn-light btn-icon btn-sm border shadow-sm">
-                                            <i class="fas fa-file text-success"></i>
-                                        </a>
-                                    @endif
+                                    <span>-</span>
                                 </td>
                             </tr>
-                        @endforeach
+                        @endforeach -->
+                        <tr>
+                            <td>System Analyst</td>
+                            <td>20/11/2024</td>
+                            <td>
+                                <span class="text-success">
+                                    Selesai
+                                </span>
+                            </td>
+                            <td>Lab Komputer</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                    <a href="{#"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                        <i class="fas fa-check text-success"></i>
+                                    </a>
+                                    <form action="#" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
+                                            <i class="fas fa-times text-danger"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

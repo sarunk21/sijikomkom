@@ -25,6 +25,9 @@ class LoginController extends Controller
             if (Auth::user()->user_type == 'admin') {
                 return redirect()->route('dashboard.admin');
             }
+            if (Auth::user()->user_type == 'asesi') {
+                return redirect()->route('dashboard.asesi');
+            }
             if (Auth::user()->user_type == 'asesor') {
                 return redirect()->route('dashboard.asesor');
             }

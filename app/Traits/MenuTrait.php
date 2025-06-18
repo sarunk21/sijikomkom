@@ -105,6 +105,53 @@ trait MenuTrait
         })->all();
     }
 
+    public function getMenuListAsesi($activeMenu = 'dashboard', $activeSubMenu = null)
+    {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'url' => 'dashboard.asesi',
+                'key' => 'dashboard'
+            ],
+            [
+                'title' => 'Informasi Pembayaran',
+                'url' => 'asesi.informasi-pembayaran.index',
+                'key' => 'informasi-pembayaran'
+            ],
+            [
+                'title' => 'Upload Sertifikat',
+                'url' => 'asesi.upload-sertifikat.index',
+                'key' => 'upload-sertifikat'
+            ],
+            [
+                'title' => 'Profil',
+                'url' => 'asesi.profil-asesi.index',
+                'key' => 'profil-asesi'
+            ],
+        ];
+
+        return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {
+            // Default inactive
+            $menu['active'] = $menu['key'] === $activeMenu;
+
+            if (isset($menu['children'])) {
+                $menu['children'] = collect($menu['children'])->map(function ($child) use ($activeMenu, $activeSubMenu, &$menu) {
+                    $isChildActive = $child['key'] === $activeMenu || $child['key'] === $activeSubMenu;
+                    $child['active'] = $isChildActive;
+
+                    // Set parent menu active if any child is active
+                    if ($isChildActive) {
+                        $menu['active'] = true;
+                    }
+
+                    return $child;
+                })->all();
+            }
+
+            return $menu;
+        })->all();
+    }
+
     public function getMenuListAsesor($activeMenu = 'dashboard', $activeSubMenu = null)
     {
         $menus = [
