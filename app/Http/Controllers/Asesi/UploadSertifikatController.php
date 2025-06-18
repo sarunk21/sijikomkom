@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Kaprodi;
+namespace App\Http\Controllers\Asesi;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pendaftaran;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class VerifikasiPendaftaranController extends Controller
+class UploadSertifikatController extends Controller
 {
     use MenuTrait;
     /**
@@ -16,15 +14,13 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function index()
     {
-        $skema_id = null;
+        $lists = $this->getMenuListAsesi('upload-sertifikat');
+        // Assuming you have a model for HasilUjikom, you can fetch the data here
+        // $hasilUjikom = HasilUjikom::all();
+        // For now, we'll just pass an empty array
+        $uploadSertifikat = [];
 
-        if (Auth::user()->skema_id) {
-            $skema_id = Auth::user()->skema_id;
-        }
-
-        $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::where('skema_id', $skema_id)->get();
-        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
+        return view('components.pages.asesi.upload-sertifikat.list', compact('lists', 'uploadSertifikat'));
     }
 
     /**

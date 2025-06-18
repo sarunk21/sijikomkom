@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Pembayaran Jasa')
-@section('page-title', 'Pembayaran Jasa')
+@section('title', 'Informasi Pembayaran')
+@section('page-title', 'Informasi Pembayaran')
 
 @section('content')
     <div class="card shadow-sm">
@@ -11,33 +11,29 @@
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
+                            <th>Tanggal Asesmen</th>
                             <th>TUK</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pembayaranJasa as $item)
+                        @foreach ($pembayaran as $item)
                             <tr>
                                 <td>{{ $item->skema->nama_skema }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    @if ($item->status == 1)
-                                        <span class="text-success">Disetujui</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="text-warning">Proses</span>
-                                    @endif
-                                </td>
                                 <td>{{ $item->tuk->nama_tuk }}</td>
                                 <td>
                                     @if ($item->status == 1)
-                                        -
+                                        <span class="badge badge-success">Aktif</span>
                                     @elseif ($item->status == 2)
-                                        <a class="btn btn-light btn-icon btn-sm border shadow-sm">
-                                            <i class="fas fa-file text-success"></i>
-                                        </a>
+                                        <span class="badge badge-warning">Pending</span>
                                     @endif
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-warning btn-sm shadow-sm">
+                                    Bayar
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
