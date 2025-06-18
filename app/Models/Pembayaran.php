@@ -10,9 +10,10 @@ class Pembayaran extends Model
     protected $fillable = ['jadwal_id', 'user_id', 'bukti_pembayaran', 'status'];
 
     protected $statusPembayaran = [
-        1 => 'Menunggu Verifikasi',
-        2 => 'Tidak Lolos Verifikasi',
-        3 => 'Dikonfirmasi',
+        1 => 'Belum Bayar',
+        2 => 'Menunggu Verifikasi',
+        3 => 'Tidak Lolos Verifikasi',
+        4 => 'Dikonfirmasi',
     ];
 
     public function getStatusTextAttribute()

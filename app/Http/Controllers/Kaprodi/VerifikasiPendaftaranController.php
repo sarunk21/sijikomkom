@@ -16,14 +16,8 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function index()
     {
-        $skema_id = null;
-
-        if (Auth::user()->skema_id) {
-            $skema_id = Auth::user()->skema_id;
-        }
-
         $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::where('skema_id', $skema_id)->get();
+        $verfikasiPendaftaran = Pendaftaran::where('status', 1)->with(['jadwal', 'user'])->get();
         return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
     }
 
@@ -64,7 +58,15 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'status' => 'required|in:1,2,3',
+        ]);
+
+        $pendaftaran = Pendaftaran::find($id);
+        $pendaftaran->status = $request->status;
+        $pendaftaran->save();
+
+        return redirect()->route('kaprodi.verifikasi-pendaftaran.index')->with('success', 'Pendaftaran berhasil diupdate');
     }
 
     /**

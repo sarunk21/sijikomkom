@@ -18,7 +18,8 @@ class PembayaranAsesorController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
-        $pembayaranAsesor = PembayaranAsesor::where('status', 1)->get();
+        $pembayaranAsesor = PembayaranAsesor::where('status', 1)
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'asesor'])->get();
         return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'pembayaranAsesor'));
     }
 
@@ -46,7 +47,13 @@ class PembayaranAsesorController extends Controller
             ]);
 
             $buktiPembayaran = $request->file('bukti_pembayaran');
-            $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName());
+            $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
+
+            // cek apakah jadwal sudah ada pembayaran
+            $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $request->jadwal_id)->first();
+            if ($pembayaranAsesor) {
+                return redirect()->route('admin.pembayaran-asesor.create')->with('error', 'Jadwal sudah ada pembayaran');
+            }
 
             $pembayaranAsesor = PembayaranAsesor::create([
                 'asesor_id' => $request->asesor_id,

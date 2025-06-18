@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId(column: 'jadwal_id')->constrained('jadwal');
             $table->foreignId('user_id')->constrained('users');
             $table->string('bukti_pembayaran')->nullable();
-            $table->integer('status')->default(1);
+            $table->integer('status')->nullable();
             $table->timestamps();
         });
     }

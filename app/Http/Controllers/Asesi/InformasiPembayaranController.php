@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Asesi;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Models\Pembayaran;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
@@ -49,7 +50,10 @@ class InformasiPembayaranController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $pembayaran = Pembayaran::where('id', $id)->first();
+        $jadwal = Jadwal::where('status', 1)->get();
+        $lists = $this->getMenuListAsesi('informasi-pembayaran');
+        return view('components.pages.asesi.informasi-pembayaran.edit', compact('lists', 'pembayaran', 'jadwal'));
     }
 
     /**
@@ -57,7 +61,18 @@ class InformasiPembayaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $pembayaran = Pembayaran::where('id', $id)->first();
+        $buktiPembayaran = $request->file('bukti_pembayaran')->store('photos', 'public');
+        $pembayaran->update([
+            'bukti_pembayaran' => $buktiPembayaran,
+            'status' => 2,
+        ]);
+
+        return redirect()->route('asesi.informasi-pembayaran.index')->with('success', 'Berhasil mengubah informasi pembayaran');
     }
 
     /**

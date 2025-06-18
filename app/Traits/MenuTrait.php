@@ -78,7 +78,7 @@ trait MenuTrait
             // ],
             [
                 'title' => 'Profile',
-                'url' => 'admin.profile.index',
+                'url' => 'profile.index',
                 'key' => 'profile'
             ]
         ];
@@ -114,6 +114,11 @@ trait MenuTrait
                 'key' => 'dashboard'
             ],
             [
+                'title' => 'Daftar Ujikom',
+                'url' => 'asesi.daftar-ujikom.index',
+                'key' => 'daftar-ujikom'
+            ],
+            [
                 'title' => 'Informasi Pembayaran',
                 'url' => 'asesi.informasi-pembayaran.index',
                 'key' => 'informasi-pembayaran'
@@ -125,7 +130,7 @@ trait MenuTrait
             ],
             [
                 'title' => 'Profil',
-                'url' => 'asesi.profil-asesi.index',
+                'url' => 'profile.index',
                 'key' => 'profil-asesi'
             ],
         ];
@@ -224,7 +229,7 @@ trait MenuTrait
             ],
             [
                 'title' => 'Profil',
-                'url' => 'kaprodi.profil-kaprodi.index',
+                'url' => 'profile.index',
                 'key' => 'profil-kaprodi'
             ],
         ];
@@ -271,7 +276,7 @@ trait MenuTrait
             ],
             [
                 'title' => 'Profil',
-                'url' => 'pimpinan.profil-pimpinan.index',
+                'url' => 'profile.index',
                 'key' => 'profil-pimpinan'
             ],
         ];

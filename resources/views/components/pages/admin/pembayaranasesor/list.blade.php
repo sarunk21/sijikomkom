@@ -9,6 +9,18 @@
             Upload Bukti Pembayaran</a>
     </div>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -30,8 +42,8 @@
                                 <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>
-                                    <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                    <a href="{{ asset('storage/public/bukti_pembayaran/' . $item->bukti_pembayaran) }}"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti" target="_blank">
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
                                 </td>

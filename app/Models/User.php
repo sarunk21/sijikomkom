@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nim',
         'nik',
         'telephone',
         'tempat_lahir',
@@ -30,7 +31,8 @@ class User extends Authenticatable
         'kebangsaan',
         'pekerjaan',
         'pendidikan',
-        'photo',
+        'jurusan',
+        'photo_diri',
         'tanda_tangan',
         'user_type',
     ];
@@ -56,5 +58,32 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function checkProfileLengkapAsesi()
+    {
+        $requiredFields = [
+            'nim',
+            'nik',
+            'telephone',
+            'tempat_lahir',
+            'tanggal_lahir',
+            'jenis_kelamin',
+            'alamat',
+            'kebangsaan',
+            'pekerjaan',
+            'pendidikan',
+            'jurusan',
+            'photo_diri',
+            'tanda_tangan',
+        ];
+
+        foreach ($requiredFields as $field) {
+            if (!$this->$field || $this->$field == null || $this->$field == '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

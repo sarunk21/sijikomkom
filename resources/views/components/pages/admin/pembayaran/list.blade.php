@@ -47,7 +47,7 @@
                                 </td>
                                 <td>{{ $item->status_text }}</td>
                                 <td class="text-center">
-                                    @if ($item->status == 1)
+                                    @if ($item->status == 2)
                                         <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                             <form action="{{ route('admin.pembayaran-asesi.update', $item->id) }}"
                                                 method="POST">

@@ -18,7 +18,7 @@ class PembayaranController extends Controller
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesi');
         $activeMenu = 'pembayaran';
-        $pembayaranAsesi = Pembayaran::where('status', 1)->get();
+        $pembayaranAsesi = Pembayaran::where('status', 1)->orWhere('status', 2)->with(['jadwal', 'user'])->get();
         return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu', 'pembayaranAsesi'));
     }
 
@@ -69,7 +69,7 @@ class PembayaranController extends Controller
             $pembayaran->status = $request->status;
             $pembayaran->save();
 
-            if ($request->status == 3) {
+            if ($request->status == 4) {
                 Pendaftaran::create([
                     'jadwal_id' => $pembayaran->jadwal_id,
                     'user_id' => $pembayaran->user_id,

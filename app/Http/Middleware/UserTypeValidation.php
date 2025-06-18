@@ -23,6 +23,11 @@ class UserTypeValidation
         $userType = Auth::user()->user_type;
         $currentRoute = $request->route()->getName();
 
+        // Jika user sudah berada di halaman profile, lanjutkan request
+        if ($currentRoute === 'profile.index' || $currentRoute === 'profile.update') {
+            return $next($request);
+        }
+
         // Jika user sudah berada di halaman yang sesuai, lanjutkan request
         if (
             ($userType === 'admin' && (str_starts_with($currentRoute, 'admin.') || $currentRoute === 'dashboard.admin')) ||

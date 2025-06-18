@@ -11,8 +11,8 @@
             <div class="col-md-4">
                 <div class="border p-3 bg-white">
                     <div class="text-center mb-3">
-                        @if ($user->photo)
-                            <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto" class="img-fluid"
+                        @if ($user->photo_diri)
+                            <img src="{{ asset('storage/' . $user->photo_diri) }}" alt="Foto" class="img-fluid"
                                 style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;">
                         @else
                             <i class="fas fa-user fa-5x text-dark"></i>
@@ -59,7 +59,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -73,6 +73,16 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        @if ($user->user_type == 'asesi')
+                            <div class="form-group">
+                                <label>NIM <span class="text-danger">*</span></label>
+                                <input type="text" name="nim" class="form-control @error('nim') is-invalid @enderror"
+                                    value="{{ old('nim', $user->nim) }}"
+                                    placeholder="Masukkan NIM" maxlength="10" required>
+                            </div>
+                        @endif
+
                         <div class="form-group">
                             <label>NIK <span class="text-danger">*</span></label>
                             <input type="text" name="nik" class="form-control @error('nik') is-invalid @enderror"
@@ -82,6 +92,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="form-group">
                             <label>Telepon <span class="text-danger">*</span></label>
                             <input type="text" name="telephone" class="form-control @error('telephone') is-invalid @enderror"
@@ -91,6 +102,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="form-group">
                             <label>Email <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
@@ -174,19 +186,31 @@
                             </div>
                         </div>
 
+                        @if ($user->user_type == 'asesi')
+                            <div class="form-group">
+                                <label>Jurusan <span class="text-danger">*</span></label>
+                                <select name="jurusan" class="form-control @error('jurusan') is-invalid @enderror" required>
+                                    <option value="">Pilih Jurusan</option>
+                                    <option value="S1 Sistem Informasi" {{ old('jurusan', $user->jurusan) == 'S1 Sistem Informasi' ? 'selected' : '' }}>S1 Sistem Informasi</option>
+                                    <option value="S1 Teknik Informatika" {{ old('jurusan', $user->jurusan) == 'S1 Teknik Informatika' ? 'selected' : '' }}>S1 Teknik Informatika</option>
+                                    <option value="D3 Sistem Informasi" {{ old('jurusan', $user->jurusan) == 'D3 Sistem Informasi' ? 'selected' : '' }}>D3 Sistem Informasi</option>
+                                </select>
+                            </div>
+                        @endif
+
                         {{-- Foto & TTD --}}
                         <div class="form-row text-center mt-4">
                             <div class="col">
                                 <label>Foto</label>
-                                @if ($user->photo)
-                                    <div><img src="{{ asset('storage/' . $user->photo) }}" alt="Foto"
+                                @if ($user->photo_diri)
+                                    <div><img src="{{ asset('storage/' . $user->photo_diri) }}" alt="Foto"
                                             class="img-fluid"></div>
                                 @else
                                     <div><i class="fas fa-user fa-5x text-dark"></i></div>
                                 @endif
-                                <input type="file" name="photo" class="form-control-file mt-2 @error('photo') is-invalid @enderror">
+                                <input type="file" name="photo_diri" class="form-control-file mt-2 @error('photo_diri') is-invalid @enderror">
                                 <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
-                                @error('photo')
+                                @error('photo_diri')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -211,7 +235,9 @@
                                 <i class="fas fa-save"></i> Simpan Perubahan
                             </button>
                         </div>
+
                     </form>
+
                 </div>
             </div>
 

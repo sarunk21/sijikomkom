@@ -14,26 +14,35 @@
                             <th>Tanggal Asesmen</th>
                             <th>TUK</th>
                             <th>Status</th>
+                            <th>Bukti Pembayaran</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($pembayaran as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td>{{ $item->jadwal->skema->nama }}</td>
+                                <td>{{ $item->jadwal->tanggal_ujian }}</td>
+                                <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="badge badge-warning">Pending</span>
+                                    {{ $item->status_text }}
+                                </td>
+                                <td>
+                                    @if ($item->bukti_pembayaran)
+                                        <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}" target="_blank">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-eye text-orange"></i>
+                                            </div>
+                                        </a>
                                     @endif
                                 </td>
                                 <td>
-                                    <button class="btn btn-outline-warning btn-sm shadow-sm">
-                                    Bayar
-                                    </button>
+                                    @if ($item->status == 1)
+                                        <a href="{{ route('asesi.informasi-pembayaran.edit', $item->id) }}"
+                                            class="btn btn-outline-warning btn-sm shadow-sm">
+                                            Upload Bukti Pembayaran
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

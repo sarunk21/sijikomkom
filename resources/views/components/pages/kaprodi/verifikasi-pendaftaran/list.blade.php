@@ -6,6 +6,19 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
+
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <div class="table-responsive">
                 <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
@@ -25,28 +38,40 @@
                                 <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                @if ($item->status == 1)
-                                    <span class="text-success">{{ $item->status_text }}</span>
-                                @elseif ($item->status == 2)
-                                    <span class="text-warning">{{ $item->status_text }}</span>
-                                @endif
+                                    @if ($item->status == 1)
+                                        <span class="text-success">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 2)
+                                        <span class="text-warning">{{ $item->status_text }}</span>
+                                    @endif
                                 </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{#"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-check text-success"></i>
-                                    </a>
-                                    <form action="#" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                            <i class="fas fa-times text-danger"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                                    @if ($item->status == 1)
+                                        <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                            <form action="{{ route('kaprodi.verifikasi-pendaftaran.update', $item->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="3">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                                    <i class="fas fa-check text-success"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('kaprodi.verifikasi-pendaftaran.update', $item->id) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="2">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
+                                                    <i class="fas fa-times text-danger"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

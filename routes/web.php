@@ -1,18 +1,20 @@
 <?php
 
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\Admin\APL2Controller;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\PendaftaranController;
 use App\Http\Controllers\Admin\PembayaranAsesorController;
 use App\Http\Controllers\Admin\PembayaranController;
-use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SkemaController;
 use App\Http\Controllers\Admin\TUKController;
 use App\Http\Controllers\Admin\UserController;
 
+use App\Http\Controllers\Asesi\DaftarUjikomController;
 use App\Http\Controllers\Asesi\InformasiPembayaranController;
 use App\Http\Controllers\Asesi\UploadSertifikatController;
 use App\Http\Controllers\Asesi\ProfilAsesiController;
@@ -31,6 +33,7 @@ use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
 use App\Http\Controllers\DashboardController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +49,10 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 
 Route::delete('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::group(['middleware' => 'user.type'], function () {
+    Route::resource('profile', ProfileController::class)->names('profile');
+});
+
 Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.admin');
     Route::resource('skema', SkemaController::class)->names('admin.skema');
@@ -57,7 +64,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
-    Route::resource('profile', ProfileController::class)->names('admin.profile');
+    Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -65,6 +72,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('informasi-pembayaran', InformasiPembayaranController::class)->names('asesi.informasi-pembayaran');
     Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('asesi.upload-sertifikat');
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
+    Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom');
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {

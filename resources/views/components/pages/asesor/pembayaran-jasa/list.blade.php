@@ -20,23 +20,19 @@
                     <tbody>
                         @foreach ($pembayaranJasa as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        <span class="text-success">Disetujui</span>
-                                    @elseif ($item->status == 2)
-                                        <span class="text-warning">Proses</span>
-                                    @endif
+                                    {{ $item->status_text }}
                                 </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
+                                <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        -
-                                    @elseif ($item->status == 2)
-                                        <a class="btn btn-light btn-icon btn-sm border shadow-sm">
+                                    @if($item->bukti_pembayaran)
+                                        <a href="{{ asset('storage/public/bukti_pembayaran/' . $item->bukti_pembayaran) }}" target="_blank" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti Pembayaran">
                                             <i class="fas fa-file text-success"></i>
                                         </a>
+                                    @else
+                                        <span class="text-muted">Belum ada bukti</span>
                                     @endif
                                 </td>
                             </tr>
