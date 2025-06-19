@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -14,8 +15,11 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $lists = $this->getMenuListAdmin('report');
-        return view('components.pages.admin.report.list', compact('lists'));
+        $lists = $this->getMenuListAdmin('report-ujikom');
+        $reports = Jadwal::where('status', 4)
+            ->with(['skema'])
+            ->get();
+        return view('components.pages.admin.report.list', compact('lists', 'reports'));
     }
 
     /**

@@ -40,10 +40,14 @@
                                 <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                    <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
-                                        <i class="fas fa-eye text-primary"></i>
-                                    </a>
+                                    @if ($item->bukti_pembayaran)
+                                        <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                            <i class="fas fa-eye text-primary"></i>
+                                        </a>
+                                    @else
+                                        <span class="text-danger">Pendaftaran Pertama</span>
+                                    @endif
                                 </td>
                                 <td>{{ $item->status_text }}</td>
                                 <td class="text-center">
@@ -53,7 +57,7 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="hidden" name="status" value="3">
+                                                <input type="hidden" name="status" value="1">
                                                 <button type="submit"
                                                     class="btn btn-light btn-icon btn-sm border shadow-sm" title="Approve">
                                                     <i class="fas fa-check text-success"></i>

@@ -6,6 +6,13 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
+
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="table-responsive">
                 <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">

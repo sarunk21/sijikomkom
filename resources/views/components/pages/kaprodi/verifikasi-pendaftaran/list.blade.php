@@ -34,7 +34,7 @@
                     <tbody>
                         @foreach ($verfikasiPendaftaran as $item)
                             <tr>
-                                <td>{{ $item->user->name }}</td>
+                                <td>{{ $item->user->name }} - {{ $item->user->nim }}</td>
                                 <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
@@ -42,6 +42,10 @@
                                         <span class="text-success">{{ $item->status_text }}</span>
                                     @elseif ($item->status == 2)
                                         <span class="text-warning">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 3)
+                                        <span class="text-danger">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 4)
+                                        <span class="text-success">{{ $item->status_text }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
@@ -104,7 +108,7 @@
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari skema...",
+                        searchPlaceholder: "Cari nama asesi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

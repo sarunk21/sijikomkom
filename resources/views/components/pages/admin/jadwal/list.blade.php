@@ -28,7 +28,9 @@
                         <tr>
                             <th>Skema</th>
                             <th>TUK</th>
-                            <th>Tanggal</th>
+                            <th>Tanggal Ujian</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Tanggal Maksimal Pendaftaran</th>
                             <th>Status</th>
                             <th>Kuota</th>
                             <th>Kuota Tersisa</th>
@@ -41,6 +43,8 @@
                                 <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->tuk->nama }}</td>
                                 <td>{{ $item->tanggal_ujian }}</td>
+                                <td>{{ $item->tanggal_selesai }}</td>
+                                <td>{{ $item->tanggal_maksimal_pendaftaran }}</td>
                                 <td>{{ $item->status_text }}</td>
                                 <td>{{ $item->kuota }}</td>
                                 <td>{{ $item->kuota - $item->pendaftaran->count() }}</td>

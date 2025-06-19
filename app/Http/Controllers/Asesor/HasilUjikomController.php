@@ -19,7 +19,7 @@ class HasilUjikomController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
-        $hasilUjikom = Jadwal::where('status', 3)
+        $hasilUjikom = Jadwal::where('status', 4)
             ->with(['skema'])
             ->get();
 

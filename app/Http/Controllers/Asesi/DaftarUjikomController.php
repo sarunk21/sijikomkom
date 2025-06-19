@@ -29,8 +29,8 @@ class DaftarUjikomController extends Controller
                 $query->where('bidang', $asesi->jurusan);
             })
             ->where('status', 1)
-            ->where('tanggal_ujian', '>=', now())
-            ->orderBy('tanggal_ujian', 'asc')
+            ->where('tanggal_maksimal_pendaftaran', '>=', now())
+            ->orderBy('tanggal_maksimal_pendaftaran', 'asc')
             ->get();
 
         $lists = $this->getMenuListAsesi('daftar-ujikom');
@@ -87,7 +87,7 @@ class DaftarUjikomController extends Controller
             ]);
         }
 
-        return redirect()->route('asesi.daftar-ujikom.index')->with('success', 'Berhasil daftar ujikom');
+        return redirect()->route('asesi.informasi-pembayaran.index')->with('success', 'Berhasil daftar ujikom');
     }
 
     /**

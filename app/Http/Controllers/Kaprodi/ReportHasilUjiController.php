@@ -17,7 +17,7 @@ class ReportHasilUjiController extends Controller
     {
         $lists = $this->getMenuListKaprodi('report-hasil-uji');
 
-        $reports = Jadwal::where('status', 3)
+        $reports = Jadwal::where('status', 4)
             ->with(['skema'])
             ->get();
 

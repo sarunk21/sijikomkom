@@ -18,7 +18,7 @@ class JadwalController extends Controller
      */
     public function index()
     {
-        $jadwal = Jadwal::orderBy('created_at', 'desc')->get();
+        $jadwal = Jadwal::with('skema', 'tuk')->orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('jadwal');
         $activeMenu = 'jadwal';
         return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu', 'jadwal'));
@@ -45,15 +45,19 @@ class JadwalController extends Controller
             'skema_id' => 'required',
             'tuk_id' => 'required',
             'tanggal_ujian' => 'required',
+            'tanggal_selesai' => 'required',
+            'tanggal_maksimal_pendaftaran' => 'required',
             'status' => 'required|integer',
             'kuota' => 'required',
         ]);
 
         try {
-            $jadwal = Jadwal::create([
+            Jadwal::create([
                 'skema_id' => $request->skema_id,
                 'tuk_id' => $request->tuk_id,
                 'tanggal_ujian' => $request->tanggal_ujian,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'tanggal_maksimal_pendaftaran' => $request->tanggal_maksimal_pendaftaran,
                 'status' => $request->status,
                 'kuota' => $request->kuota,
             ]);
@@ -98,22 +102,25 @@ class JadwalController extends Controller
             'skema_id' => 'required',
             'tuk_id' => 'required',
             'tanggal_ujian' => 'required',
-            'status' => 'required',
+            'tanggal_selesai' => 'required',
+            'tanggal_maksimal_pendaftaran' => 'required',
+            'status' => 'required|in:1,2,3,4',
             'kuota' => 'required',
         ]);
 
         try {
             $jadwal = Jadwal::find($id);
-            $jadwal->update($request->all());
 
             // Cek jika jadwal sudah ada pendaftaran, maka tidak bisa diubah
-            if (Jadwal::find($id)->pendaftaran->count() > 0) {
+            if ($jadwal->pendaftaran->count() > 0) {
                 return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah ada pendaftaran');
             }
             // Cek jika jadwal sudah selesai, maka tidak bisa diubah
-            if (Jadwal::find($id)->status == 3) {
+            if ($jadwal->status == 4) {
                 return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah selesai');
             }
+
+            $jadwal->update($request->all());
 
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diubah');
         } catch (\Exception $e) {
@@ -132,7 +139,7 @@ class JadwalController extends Controller
                 return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal tidak bisa dihapus karena sudah ada pendaftaran');
             }
             // Cek jika jadwal sudah selesai, maka tidak bisa dihapus
-            if (Jadwal::find($id)->status == 3) {
+            if (Jadwal::find($id)->status == 4) {
                 return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal tidak bisa dihapus karena sudah selesai');
             }
 

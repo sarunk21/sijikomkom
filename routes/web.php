@@ -18,6 +18,8 @@ use App\Http\Controllers\Asesi\DaftarUjikomController;
 use App\Http\Controllers\Asesi\InformasiPembayaranController;
 use App\Http\Controllers\Asesi\UploadSertifikatController;
 use App\Http\Controllers\Asesi\ProfilAsesiController;
+use App\Http\Controllers\Asesi\SertifikasiController;
+use App\Http\Controllers\Asesi\UjikomController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\PembayaranJasaController;
@@ -63,6 +65,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::resource('report', ReportController::class)->names('admin.report');
+    Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('admin.upload-sertifikat');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
 });
@@ -73,6 +76,8 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('asesi.upload-sertifikat');
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
     Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom');
+    Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
+    Route::resource('ujikom', UjikomController::class)->names('asesi.ujikom');
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {

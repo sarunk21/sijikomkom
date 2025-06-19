@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('skema_id')->constrained('skema');
             $table->foreignId('tuk_id')->constrained('tuk');
             $table->dateTime('tanggal_ujian');
+            $table->dateTime('tanggal_selesai');
+            $table->dateTime('tanggal_maksimal_pendaftaran');
             $table->integer('status');
             $table->integer('kuota');
             $table->timestamps();

@@ -21,8 +21,6 @@ class VerifikasiPesertaController extends Controller
 
         if (Auth::user()->skema_id) {
             $skema_id = Auth::user()->skema_id;
-        } else {
-            return redirect()->route('asesor.dashboard')->with('error', 'Anda tidak memiliki skema');
         }
 
         $lists = $this->getMenuListAsesor('verifikasi-peserta');

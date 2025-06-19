@@ -18,7 +18,8 @@ class Pendaftaran extends Model
         2 => 'Tidak Lolos Verifikasi Kaprodi',
         3 => 'Menunggu Verifikasi Admin',
         4 => 'Menunggu Ujian',
-        5 => 'Selesai',
+        5 => 'Ujian Berlangsung',
+        6 => 'Selesai',
     ];
 
     public function getStatusTextAttribute()

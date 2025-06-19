@@ -1,24 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\Kaprodi;
+namespace App\Http\Controllers\Asesi;
 
 use App\Http\Controllers\Controller;
+use App\Models\APL2;
 use App\Models\Pendaftaran;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class VerifikasiPendaftaranController extends Controller
+class UjikomController extends Controller
 {
     use MenuTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::with(['jadwal', 'user'])->get();
-        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
+        $asesi = Auth::user();
+        $lists = $this->getMenuListAsesi('ujikom');
+        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->get();
+
+        return view('components.pages.asesi.ujikom.list', compact('lists', 'pendaftaran'));
     }
 
     /**
@@ -42,7 +46,12 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $asesi = Auth::user();
+        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->first();
+        $apl2 = APL2::where('skema_id', $pendaftaran->skema_id)->get();
+        $lists = $this->getMenuListAsesi('ujikom');
+
+        return view('components.pages.asesi.ujikom.show', compact('pendaftaran', 'lists', 'apl2'));
     }
 
     /**
@@ -58,15 +67,7 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'status' => 'required|in:1,2,3',
-        ]);
-
-        $pendaftaran = Pendaftaran::find($id);
-        $pendaftaran->status = $request->status;
-        $pendaftaran->save();
-
-        return redirect()->route('kaprodi.verifikasi-pendaftaran.index')->with('success', 'Pendaftaran berhasil diupdate');
+        //
     }
 
     /**

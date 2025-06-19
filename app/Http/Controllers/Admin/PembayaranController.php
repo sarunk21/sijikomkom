@@ -61,15 +61,13 @@ class PembayaranController extends Controller
     {
 
         $request->validate([
-            'status' => 'required|in:1,2,3',
+            'status' => 'required|in:1,2',
         ]);
 
         try {
             $pembayaran = Pembayaran::find($id);
-            $pembayaran->status = $request->status;
-            $pembayaran->save();
 
-            if ($request->status == 4) {
+            if ($request->status == 1) {
                 Pendaftaran::create([
                     'jadwal_id' => $pembayaran->jadwal_id,
                     'user_id' => $pembayaran->user_id,
@@ -77,6 +75,14 @@ class PembayaranController extends Controller
                     'tuk_id' => $pembayaran->jadwal->tuk_id,
                     'status' => 1,
                 ]);
+
+                $pembayaran->status = 4;
+                $pembayaran->save();
+            }
+
+            if ($request->status == 2) {
+                $pembayaran->status = 3;
+                $pembayaran->save();
             }
 
             return redirect()->route('admin.pembayaran-asesi.index')->with('success', 'Pembayaran berhasil diupdate');

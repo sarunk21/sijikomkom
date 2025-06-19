@@ -1,30 +1,28 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Report Hasil Ujikom')
-@section('page-title', 'Report Hasil Ujikom')
+@section('title', 'Sertifikasi')
+@section('page-title', 'Sertifikasi')
 
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="reportTable" class="table table-striped table-hover align-middle w-100">
+                <table id="sertifikasiTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Jumlah Asesi</th>
-                            <th>Tanggal</th>
-                            <th>Jumlah Kompeten</th>
-                            <th>Jumlah Tidak Kompeten</th>
+                            <th>Tanggal Assesmen</th>
+                            <th>TUK</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($reports as $item)
+                        @foreach ($pendaftaran as $item)
                             <tr>
                                 <td>{{ $item->skema->nama }}</td>
-                                <td>{{ $item->jumlah_asesi()->count() }}</td>
-                                <td>{{ $item->tanggal_ujian }}</td>
-                                <td>{{ $item->jumlah_kompeten()->count() }}</td>
-                                <td>{{ $item->jumlah_tidak_kompeten()->count() }}</td>
+                                <td>{{ $item->jadwal->tanggal_ujian }}</td>
+                                <td>{{ $item->jadwal->tuk->nama }}</td>
+                                <td>{{ $item->status_text }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -54,10 +52,10 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#reportTable').DataTable({
+                $('#sertifikasiTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari skema...",
+                        searchPlaceholder: "Cari data...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

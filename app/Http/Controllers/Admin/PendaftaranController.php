@@ -17,7 +17,7 @@ class PendaftaranController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('pendaftaran');
-        $pendaftaran = Pendaftaran::all();
+        $pendaftaran = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user')->get();
         return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran'));
     }
 
@@ -60,7 +60,7 @@ class PendaftaranController extends Controller
     {
         try {
             $request->validate([
-                'status' => 'required|in:1,2,3,4,5',
+                'status' => 'required|in:1,2,3,4,5,6',
             ]);
 
             $pendaftaran = Pendaftaran::find($id);

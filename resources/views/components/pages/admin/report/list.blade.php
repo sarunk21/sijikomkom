@@ -4,31 +4,29 @@
 @section('page-title', 'Report')
 
 @section('content')
-    <div class="mb-3">
-        <a href="#" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Report</a>
-    </div>
-
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="skemaTable" class="table table-striped table-hover align-middle w-100">
+                <table id="reportTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
                             <th>Jumlah Asesi</th>
-                            <th>Tanggal</th>
+                            <th>Tanggal Ujian</th>
                             <th>Jumlah Kompeten</th>
                             <th>Jumlah Tidak Kompeten</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>System Analyst</td>
-                            <td>10</td>
-                            <td>2025-01-01</td>
-                            <td>10</td>
-                            <td>0</td>
-                        </tr>
+                        @foreach ($reports as $report)
+                            <tr>
+                                <td>{{ $report->skema->nama }}</td>
+                                <td>{{ $report->jumlah_asesi()->count() }}</td>
+                                <td>{{ $report->tanggal_ujian }}</td>
+                                <td>{{ $report->jumlah_kompeten()->count() }}</td>
+                                <td>{{ $report->jumlah_tidak_kompeten()->count() }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -56,7 +54,7 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#skemaTable').DataTable({
+                $('#reportTable').DataTable({
                     responsive: true,
                     language: {
                         searchPlaceholder: "Cari TUK...",

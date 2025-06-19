@@ -61,12 +61,12 @@ trait MenuTrait
                 'children' => [
                     [
                         'title' => 'Report Hasil Ujikom',
-                        'url' => null,
+                        'url' => 'admin.report.index',
                         'key' => 'report-ujikom'
                     ],
                     [
                         'title' => 'Upload Sertifikat Bertanda Tangan',
-                        'url' => null,
+                        'url' => 'admin.upload-sertifikat.index',
                         'key' => 'upload-sertifikat'
                     ]
                 ]
@@ -119,9 +119,19 @@ trait MenuTrait
                 'key' => 'daftar-ujikom'
             ],
             [
-                'title' => 'Informasi Pembayaran',
+                'title' => 'Sertifikasi',
+                'url' => 'asesi.sertifikasi.index',
+                'key' => 'sertifikasi'
+            ],
+            [
+                'title' => 'Pembayaran',
                 'url' => 'asesi.informasi-pembayaran.index',
                 'key' => 'informasi-pembayaran'
+            ],
+            [
+                'title' => 'Ujikom',
+                'url' => 'asesi.ujikom.index',
+                'key' => 'ujikom'
             ],
             [
                 'title' => 'Upload Sertifikat',

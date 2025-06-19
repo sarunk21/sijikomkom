@@ -126,6 +126,7 @@ class SkemaController extends Controller
             $skema = Skema::find($id);
             $skema->delete();
             User::where('skema_id', $skema->id)->update(['skema_id' => null]);
+
             return redirect()->route('admin.skema.index')->with('success', 'Skema berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->route('admin.skema.index')->with('error', 'Skema gagal dihapus');

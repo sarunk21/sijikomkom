@@ -78,6 +78,22 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="tanggal" class="form-label">Tanggal Selesai</label>
+                    <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai"
+                        class="form-control @error('tanggal_selesai') is-invalid @enderror"
+                        placeholder="Isi tanggal selesai di sini..."
+                        value="{{ old('tanggal_selesai', date('Y-m-d H:i', strtotime($jadwal->tanggal_selesai))) }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tanggal" class="form-label">Tanggal Maksimal Pendaftaran</label>
+                    <input type="datetime-local" id="tanggal_maksimal_pendaftaran" name="tanggal_maksimal_pendaftaran"
+                        class="form-control @error('tanggal_maksimal_pendaftaran') is-invalid @enderror"
+                        placeholder="Isi tanggal maksimal pendaftaran di sini..."
+                        value="{{ old('tanggal_maksimal_pendaftaran', date('Y-m-d H:i', strtotime($jadwal->tanggal_maksimal_pendaftaran))) }}" required>
+                </div>
+
+                <div class="mb-3">
                     <label for="kuota" class="form-label">Kuota</label>
                     <input type="number" id="kuota" name="kuota"
                         class="form-control @error('kuota') is-invalid @enderror" placeholder="Isi kuota di sini..."
