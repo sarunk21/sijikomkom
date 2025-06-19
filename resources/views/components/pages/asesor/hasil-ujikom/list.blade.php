@@ -10,7 +10,6 @@
                 <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama Asesi</th>
                             <th>Skema</th>
                             <th>Tanggal</th>
                             <th>Status</th>
@@ -18,44 +17,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach ($hasilUjikom as $item)
+                        @foreach ($hasilUjikom as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
+                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->tanggal_ujian }}</td>
+                                <td>{{ $item->status_text }}</td>
                                 <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
-                                <td>
-                                    <span>-</span>
+                                    <a href="{{ route('asesor.hasil-ujikom.show', $item->id) }}" class="btn btn-outline-warning btn-sm shadow-sm">
+                                        Mulai
+                                    </a>
                                 </td>
                             </tr>
-                        @endforeach -->
-                        <tr>
-                            <td>
-                                <span class="badge badge-secondary">
-                                    Asesi 1
-                                </span>
-                            </td>
-                            <td>System Analyst</td>
-                            <td>20/11/2024</td>
-                            <td>
-                                <span class="text-success">
-                                Kompeten
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-outline-warning btn-sm shadow-sm">
-                                   Mulai
-                                </button>
-                            </td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

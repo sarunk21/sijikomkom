@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pimpinan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,12 @@ class ReportPimpinanController extends Controller
     public function index()
     {
         $lists = $this->getMenuListPimpinan('report-pimpinan');
-        // Assuming you have a model for Report, you can fetch the data here
-        // $reports = Report::all();
-        // For now, we'll just pass an empty array
-        $reportPimpinan = [];
-        return view('components.pages.pimpinan.report-pimpinan.list', compact('lists', 'reportPimpinan'));
+
+        $reports = Jadwal::where('status', 3)
+            ->with(['skema'])
+            ->get();
+
+        return view('components.pages.pimpinan.report-pimpinan.list', compact('lists', 'reports'));
     }
 
     /**

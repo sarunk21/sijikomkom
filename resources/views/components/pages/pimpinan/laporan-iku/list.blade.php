@@ -17,35 +17,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach ($laporanIku as $item)
+                        @foreach ($reports as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
-                                <td>
-                                    <span>-</span>
-                                </td>
+                                <td>{{ $item->user->nim }}</td>
+                                <td>{{ $item->user->name }}</td>
+                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->user->jurusan }}</td>
                             </tr>
-                        @endforeach -->
-                        <tr>
-                            <td>
-                                <span class="badge badge-secondary">
-                                2012345678
-                                </span>
-                            </td>
-                            <td>Muhammad Kautsar Panggawa</td>
-                            <td>System Analyst</td>
-                            <td>S1 Sistem Informasi</td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

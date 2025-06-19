@@ -102,16 +102,28 @@
             <img src="{{ asset('img/logo.png') }}" alt="Logo LSP UPNVJ">
             <h4>LOGIN</h4>
 
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <form action="{{ route('login.post') }}" method="POST" class="login-form">
                 @csrf
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                    <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    <input type="password" name="password" class="form-control" placeholder="Password" value="{{ old('password') }}" required>
+                    @error('password')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-login w-100">LOGIN</button>

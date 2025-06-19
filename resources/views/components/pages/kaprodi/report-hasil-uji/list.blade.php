@@ -18,36 +18,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach ($reportHasilUji as $item)
+                        @foreach ($reports as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
-                                <td>
-                                    <span>-</span>
-                                </td>
+                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->jumlah_asesi()->count() }}</td>
+                                <td>{{ $item->tanggal_ujian }}</td>
+                                <td>{{ $item->jumlah_kompeten()->count() }}</td>
+                                <td>{{ $item->jumlah_tidak_kompeten()->count() }}</td>
                             </tr>
-                        @endforeach -->
-                        <tr>
-                            <td>
-                                <span class="badge badge-secondary">
-                                Asesi 1
-                                </span>
-                            </td>
-                            <td>2</td>
-                            <td>20/11/2024</td>
-                            <td>1</td>
-                            <td>1</td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

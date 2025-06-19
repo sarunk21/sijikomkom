@@ -34,6 +34,21 @@ class Jadwal extends Model
         return $this->belongsTo(Tuk::class);
     }
 
+    public function jumlah_asesi()
+    {
+        return $this->pendaftaran();
+    }
+
+    public function jumlah_kompeten()
+    {
+        return $this->hasMany(Report::class, 'jadwal_id', 'id')->where('status', 1);
+    }
+
+    public function jumlah_tidak_kompeten()
+    {
+        return $this->hasMany(Report::class, 'jadwal_id', 'id')->where('status', 2);
+    }
+
     public function pendaftaran()
     {
         return $this->hasMany(Pendaftaran::class, 'jadwal_id', 'id')->where('status', 4);

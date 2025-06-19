@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Asesor;
 
 use App\Http\Controllers\Controller;
+use App\Models\APL2;
+use App\Models\Jadwal;
+use App\Models\PendaftaranUjikom;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HasilUjikomController extends Controller
 {
@@ -15,10 +19,9 @@ class HasilUjikomController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
-        // Assuming you have a model for HasilUjikom, you can fetch the data here
-        // $hasilUjikom = HasilUjikom::all();
-        // For now, we'll just pass an empty array
-        $hasilUjikom = [];
+        $hasilUjikom = Jadwal::where('status', 3)
+            ->with(['skema'])
+            ->get();
 
         return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom'));
     }
@@ -44,7 +47,19 @@ class HasilUjikomController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $lists = $this->getMenuListAsesor('hasil-ujikom');
+
+        $jadwal = Jadwal::where('status', 3)
+            ->with(['skema'])
+            ->first();
+
+        $asesi = PendaftaranUjikom::where('jadwal_id', $jadwal->id)
+            ->with(['jadwal'])
+            ->get();
+
+        $apl2 = APL2::where('skema_id', $jadwal->skema_id)->first();
+
+        return view('components.pages.asesor.hasil-ujikom.list-asesi', compact('lists', 'jadwal', 'asesi', 'apl2'));
     }
 
     /**
@@ -60,7 +75,18 @@ class HasilUjikomController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validate request
+        $request->validate([
+            'status' => 'required|in:2,3',
+        ]);
+
+        // Update status ujikom
+        $pendaftaranUjikom = PendaftaranUjikom::find($id);
+        $pendaftaranUjikom->asesor_id = Auth::user()->id;
+        $pendaftaranUjikom->status = $request->status;
+        $pendaftaranUjikom->save();
+
+        return redirect()->route('asesor.hasil-ujikom.show', $id)->with('success', 'Status berhasil diubah');
     }
 
     /**

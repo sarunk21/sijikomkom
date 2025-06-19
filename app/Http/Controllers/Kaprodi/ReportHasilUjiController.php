@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kaprodi;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,12 @@ class ReportHasilUjiController extends Controller
     public function index()
     {
         $lists = $this->getMenuListKaprodi('report-hasil-uji');
-        // Assuming you have a model for Report, you can fetch the data here
-        // $reports = Report::all();
-        // For now, we'll just pass an empty array
-        $reportHasilUji = [];
-        return view('components.pages.kaprodi.report-hasil-uji.list', compact('lists', 'reportHasilUji'));
+
+        $reports = Jadwal::where('status', 3)
+            ->with(['skema'])
+            ->get();
+
+        return view('components.pages.kaprodi.report-hasil-uji.list', compact('lists', 'reports'));
     }
 
     /**

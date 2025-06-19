@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PendaftaranUjikom extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table = 'pendaftaran_ujikom';
     protected $fillable = ['pendaftar_id', 'jadwal_id', 'asesi_id', 'asesor_id'];
+
+    protected $statusUjikom = [
+        1 => 'Belum Ujikom',
+        2 => 'Kompeten',
+        3 => 'Tidak Kompeten',
+    ];
 
     public function pendaftar()
     {

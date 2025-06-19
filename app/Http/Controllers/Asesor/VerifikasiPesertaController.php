@@ -21,10 +21,12 @@ class VerifikasiPesertaController extends Controller
 
         if (Auth::user()->skema_id) {
             $skema_id = Auth::user()->skema_id;
+        } else {
+            return redirect()->route('asesor.dashboard')->with('error', 'Anda tidak memiliki skema');
         }
 
         $lists = $this->getMenuListAsesor('verifikasi-peserta');
-        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)->get();
+        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)->with(['jadwal', 'user'])->get();
         return view('components.pages.asesor.verifikasi-peserta.list', data: compact('lists', 'pendaftaran'));
     }
 

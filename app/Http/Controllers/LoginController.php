@@ -39,10 +39,10 @@ class LoginController extends Controller
             }
 
             Auth::logout();
-            return redirect()->route('login')->with('error', 'Tipe pengguna tidak valid');
+            return redirect()->route('login')->withInput()->with('error', 'Tipe pengguna tidak valid');
         }
 
-        return redirect()->route('login')->with('error', 'Email atau password salah');
+        return redirect()->route('login')->withInput()->with('error', 'Email atau password salah');
     }
 
     public function logout()

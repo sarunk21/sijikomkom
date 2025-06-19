@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pimpinan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Report;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,8 @@ class LaporanIKUController extends Controller
     public function index()
     {
         $lists = $this->getMenuListPimpinan('laporan-iku');
-        // Assuming you have a model for Report, you can fetch the data here
-        // $reports = Report::all();
-        // For now, we'll just pass an empty array
-        $laporanIku = [];
-        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'laporanIku'));
+        $reports = Report::where('status', operator: 1)->get();
+        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports'));
     }
 
     /**
