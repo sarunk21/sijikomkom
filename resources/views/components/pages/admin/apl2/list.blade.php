@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-3">
-        <a href="#" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah APL 2</a>
+        <a href="{{ route('admin.apl-2.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah APL 2</a>
     </div>
 
     <div class="card shadow-sm">
@@ -15,25 +15,37 @@
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Jumlah Soal</th>
                             <th>Tanggal Terakhir Update</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>System Analyst</td>
-                            <td>10</td>
-                            <td>2025-01-01</td>
-                            <td>
-                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                    <i class="fas fa-pen text-primary"></i>
-                                </a>
-                                <a href="#" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                    <i class="fas fa-trash text-danger"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        @foreach ($apl2 as $item)
+                            <tr>
+                                <td>
+                                    <span class="badge badge-secondary">
+                                    {{ $item->skema->nama }}
+                                    </span>
+                                </td>
+                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
+                                <td>
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('admin.apl-2.edit', $item->id) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('admin.apl-2.destroy', $item->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                title="Hapus">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
