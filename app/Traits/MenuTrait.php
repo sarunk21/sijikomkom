@@ -71,11 +71,11 @@ trait MenuTrait
                     ]
                 ]
             ],
-            // [
-            //     'title' => 'APL 2',
-            //     'url' => 'admin.apl-2.index',
-            //     'key' => 'apl-2'
-            // ],
+            [
+                'title' => 'APL 2',
+                'url' => 'admin.apl-2.index',
+                'key' => 'apl-2'
+            ],
             [
                 'title' => 'Profile',
                 'url' => 'profile.index',
