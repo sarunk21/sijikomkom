@@ -42,7 +42,7 @@
                                 <td>
                                     @if ($item->bukti_pembayaran)
                                         <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
-                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti">
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" target="_blank" title="Lihat Bukti">
                                             <i class="fas fa-eye text-primary"></i>
                                         </a>
                                     @else
