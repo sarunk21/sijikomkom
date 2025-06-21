@@ -5,6 +5,12 @@
 
 @section('content')
     <div class="card shadow-sm">
+        @if (session('success'))
+            <div class="alert alert-success mb-3">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="card-body">
             <div class="table-responsive">
                 <table id="ujikomTable" class="table table-striped table-hover align-middle w-100">
@@ -27,7 +33,8 @@
                                 <td>
                                     {{-- Jika jadwal ujian sudah lewat dan status jadwal ujian adalah 3, maka tombol mulai ujian tidak aktif --}}
                                     @if ($item->jadwal->status == 3)
-                                        <a href="{{ route('asesi.ujikom.show', $item->id) }}" class="btn btn-primary">Mulai Ujian</a>
+                                        <a href="{{ route('asesi.ujikom.show', $item->id) }}" class="btn btn-primary">Mulai
+                                            Ujian</a>
                                     @else
                                         -
                                     @endif

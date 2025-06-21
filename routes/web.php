@@ -78,6 +78,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
     Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom');
     Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
+    Route::post('ujikom/jawaban/{id}', [UjikomController::class, 'store'])->name('asesi.ujikom.store.jawaban');
     Route::resource('ujikom', UjikomController::class)->names('asesi.ujikom');
 });
 

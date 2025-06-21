@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Asesi;
 use App\Http\Controllers\Controller;
 use App\Models\APL2;
 use App\Models\Pendaftaran;
+use App\Models\Response;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,9 +37,29 @@ class UjikomController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, string $id)
     {
-        //
+        $rules = [];
+        foreach ($request->input('answers', []) as $apl2_id => $answer) {
+            $rules['answers.' . $apl2_id] = 'required|string';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Simpan jawaban ke database, misalnya model Response
+        foreach ($validated['answers'] as $apl2_id => $answer_text) {
+            Response::updateOrCreate(
+                [
+                    'pendaftaran_id' => $id,
+                    'apl2_id' => $apl2_id,
+                ],
+                [
+                    'answer_text' => $answer_text,
+                ]
+            );
+        }
+
+        return redirect()->route('asesi.ujikom.index')->with('success', 'Jawaban berhasil disimpan!');
     }
 
     /**
@@ -49,7 +70,7 @@ class UjikomController extends Controller
         $asesi = Auth::user();
         $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->first();
         $apl2 = APL2::where('skema_id', $pendaftaran->skema_id)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
         $lists = $this->getMenuListAsesi('ujikom');
 

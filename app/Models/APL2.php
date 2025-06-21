@@ -19,6 +19,6 @@ class APL2 extends Model
 
     public function responses()
     {
-        return $this->hasMany(Response::class);
+        return $this->hasMany(Response::class, 'apl2_id', 'id');
     }
 }
