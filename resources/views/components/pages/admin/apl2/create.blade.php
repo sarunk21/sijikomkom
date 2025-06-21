@@ -21,33 +21,13 @@
             <form action="{{ route('admin.apl-2.store') }}" method="POST">
                 @csrf
 
-                <div class="mb-3">
-                    <label for="skema" class="form-label">Skema <span class="text-danger">*</span></label>
-                    <select name="skema_id" id="skema_id" class="form-control @error('skema_id') is-invalid @enderror" required>
-                        <option value="" disabled selected>Pilih skema di sini...</option>
-                        @foreach ($skema as $item)
-                            <option {{ old('skema_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">{{ $item->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('skema_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <input type="hidden" name="skema_id" value="{{ $skema->id }}">
 
                 <div class="mb-3">
-                    <label for="link_ujikom_asesor" class="form-label">Link Ujikom Asesor <span class="text-danger">*</span></label>
-                    <input type="text" id="link_ujikom_asesor" name="link_ujikom_asesor" class="form-control @error('link_ujikom_asesor') is-invalid @enderror"
-                        placeholder="Isi link ujikom asesor di sini..." value="{{ old('link_ujikom_asesor') }}" required>
-                    @error('link_ujikom_asesor')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                    <label for="link_ujikom_asesi" class="form-label">Link Ujikom Asesi <span class="text-danger">*</span></label>
-                    <input type="text" id="link_ujikom_asesi" name="link_ujikom_asesi" class="form-control @error('link_ujikom_asesi') is-invalid @enderror"
-                        placeholder="Isi link ujikom asesi di sini..." value="{{ old('link_ujikom_asesi') }}" required>
-                    @error('link_ujikom_asesi')
+                    <label for="question_text" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                    <input type="text" id="question_text" name="question_text" class="form-control @error('question_text') is-invalid @enderror"
+                        placeholder="Isi pertanyaan di sini..." value="{{ old('question_text') }}" required>
+                    @error('question_text')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

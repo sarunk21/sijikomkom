@@ -25,10 +25,11 @@ class APL2Controller extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(string $skema_id)
     {
         $lists = $this->getMenuListAdmin('apl-2');
-        $skema = Skema::orderBy('created_at', 'desc')->get();
+        $skema = Skema::find($skema_id);
+
         return view('components.pages.admin.apl2.create', compact('lists', 'skema'));
     }
 
@@ -48,18 +49,20 @@ class APL2Controller extends Controller
                 'question_text' => $request->question_text,
             ]);
 
-            return redirect()->route('admin.apl-2.index')->with('success', 'APL02 berhasil ditambahkan');
+            return redirect()->route('admin.apl-2.show', $request->skema_id)->with('success', 'APL02 berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.apl-2.create')->withInput()->with('error', 'APL02 gagal ditambahkan');
+            return redirect()->route('admin.apl-2.create.question', $request->skema_id)->withInput()->with('error', 'APL02 gagal ditambahkan');
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $skema_id)
     {
-        //
+        $lists = $this->getMenuListAdmin('apl-2');
+        $questions = APL2::where('skema_id', $skema_id)->get();
+        return view('components.pages.admin.apl2.show', compact('lists', 'questions', 'skema_id'));
     }
 
     /**
@@ -69,8 +72,7 @@ class APL2Controller extends Controller
     {
         $lists = $this->getMenuListAdmin('apl-2');
         $apl2 = APL2::find($id);
-        $skema = Skema::orderBy('created_at', 'desc')->get();
-        return view('components.pages.admin.apl2.edit', compact('lists', 'apl2', 'skema'));
+        return view('components.pages.admin.apl2.edit', compact('lists', 'apl2'));
     }
 
     /**
@@ -80,21 +82,19 @@ class APL2Controller extends Controller
     {
         $request->validate([
             'skema_id' => 'required',
-            'link_ujikom_asesor' => 'required',
-            'link_ujikom_asesi' => 'required',
+            'question_text' => 'required',
         ]);
 
         try {
             $apl2 = APL2::findOrFail($id);
             $apl2->update([
                 'skema_id' => $request->skema_id,
-                'link_ujikom_asesor' => $request->link_ujikom_asesor,
-                'link_ujikom_asesi' => $request->link_ujikom_asesi,
+                'question_text' => $request->question_text,
             ]);
 
-            return redirect()->route('admin.apl-2.index')->with('success', 'APL02 berhasil diperbarui');
+            return redirect()->route('admin.apl-2.show', $request->skema_id)->with('success', 'APL02 berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->route('admin.apl-2.edit', $id)->withInput()->with('error', 'APL02 gagal diperbarui');
+            return redirect()->route('admin.apl-2.show', $request->skema_id)->withInput()->with('error', 'APL02 gagal diperbarui');
         }
     }
 
@@ -103,13 +103,13 @@ class APL2Controller extends Controller
      */
     public function destroy(string $id)
     {
+        $apl2 = APL2::findOrFail($id);
         try {
-            $apl2 = APL2::find($id);
             $apl2->delete();
 
-            return redirect()->route('admin.apl-2.index')->with('success', 'APL02 berhasil dihapus');
+            return redirect()->route('admin.apl-2.show', $apl2->skema_id)->with('success', 'APL02 berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.apl-2.index')->with('error', 'APL02 gagal dihapus');
+            return redirect()->route('admin.apl-2.show', $apl2->skema_id)->with('error', 'APL02 gagal dihapus');
         }
     }
 }

@@ -66,6 +66,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('admin.upload-sertifikat');
+    Route::get('apl-2/create/question/{skema_id}', [APL2Controller::class, 'create'])->name('admin.apl-2.create.question');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
 });
