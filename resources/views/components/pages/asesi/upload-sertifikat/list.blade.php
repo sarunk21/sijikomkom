@@ -4,6 +4,9 @@
 @section('page-title', 'Upload Sertifikat Bertanda Tangan')
 
 @section('content')
+    <div class="mb-3">
+        <a href="{{ route('asesi.upload-sertifikat.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Upload Sertifikat</a>
+    </div>
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -18,50 +21,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach ($uploadSertifikat as $item)
+                        @foreach ($uploadSertifikat as $item)
                             <tr>
-                                <td>{{ $item->skema->nama_skema }}</td>
+                                <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
-                                    <span class="badge badge-success">
-                                        @if ($item->verif_stage == 1)
-                                            Verifikasi
-                                        @elseif ($item->verif_stage == 2)
-                                            Verifikasi
-                                        @endif
+                                    @php
+                                        $textClass = match ($item->status) {
+                                            1 => 'warning',
+                                            2 => 'success',
+                                            3 => 'danger',
+                                            default => 'secondary',
+                                        };
+                                    @endphp
+
+                                    <span class="text-{{ $textClass }}">
+                                        {{ $item->status_text }}
                                     </span>
                                 </td>
-                                <td>{{ $item->tuk->nama_tuk }}</td>
-                                <td>
-                                    <span>-</span>
+                                <td>{{ $item->pendaftaran->tuk->nama }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        <a href="{{ route('asesi.upload-sertifikat.edit', $item->id) }}"
+                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                            <i class="fas fa-pen text-primary"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
-                        @endforeach -->
-                        <tr>
-                            <td>System Analyst</td>
-                            <td>20/11/2024</td>
-                            <td>
-                                <span class="text-success">
-                                    Selesai
-                                </span>
-                            </td>
-                            <td>Lab Komputer</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                    <a href="{#"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                        <i class="fas fa-check text-success"></i>
-                                    </a>
-                                    <form action="#" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                            <i class="fas fa-times text-danger"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
