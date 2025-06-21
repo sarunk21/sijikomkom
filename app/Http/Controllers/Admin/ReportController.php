@@ -17,7 +17,8 @@ class ReportController extends Controller
     {
         $lists = $this->getMenuListAdmin('report-ujikom');
         $reports = Jadwal::where('status', 4)
-            ->with(['skema'])
+            ->with(['skema', 'tuk'])
+            ->orderBy('tanggal_ujian', 'asc')
             ->get();
         return view('components.pages.admin.report.list', compact('lists', 'reports'));
     }

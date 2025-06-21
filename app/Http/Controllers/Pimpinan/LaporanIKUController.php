@@ -16,7 +16,9 @@ class LaporanIKUController extends Controller
     public function index()
     {
         $lists = $this->getMenuListPimpinan('laporan-iku');
-        $reports = Report::where('status', operator: 1)->get();
+        $reports = Report::where('status', operator: 1)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports'));
     }
 

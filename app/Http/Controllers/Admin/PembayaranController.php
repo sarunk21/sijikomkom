@@ -18,7 +18,11 @@ class PembayaranController extends Controller
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesi');
         $activeMenu = 'pembayaran';
-        $pembayaranAsesi = Pembayaran::where('status', 1)->orWhere('status', 2)->with(['jadwal', 'user'])->get();
+        $pembayaranAsesi = Pembayaran::where('status', 1)
+            ->orWhere('status', 2)
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu', 'pembayaranAsesi'));
     }
 

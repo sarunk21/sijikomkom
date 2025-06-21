@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('apl2', function (Blueprint $table) {
+        Schema::create('responses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('skema_id')->constrained('skema');
-            $table->string('link_ujikom_asesor')->nullable();
-            $table->string('link_ujikom_asesi')->nullable();
+            $table->foreignId('pendaftaran_id')->constrained('pendaftaran');
+            $table->foreignId('apl2_id')->constrained('apl2');
+            $table->string('answer_text');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('apl2');
+        Schema::dropIfExists('responses');
     }
 };

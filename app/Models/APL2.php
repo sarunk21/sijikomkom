@@ -10,10 +10,15 @@ class APL2 extends Model
     use HasFactory;
 
     protected $table = 'apl2';
-    protected $fillable = ['skema_id', 'link_ujikom_asesor', 'link_ujikom_asesi'];
+    protected $fillable = ['skema_id', 'question_text'];
 
     public function skema()
     {
         return $this->belongsTo(Skema::class);
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(Response::class);
     }
 }

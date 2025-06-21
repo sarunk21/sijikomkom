@@ -17,4 +17,9 @@ class Skema extends Model
     {
         return $this->hasMany(Jadwal::class);
     }
+
+    public function apl2()
+    {
+        return $this->hasMany(APL2::class);
+    }
 }

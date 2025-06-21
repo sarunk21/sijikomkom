@@ -18,7 +18,8 @@ class ReportPimpinanController extends Controller
         $lists = $this->getMenuListPimpinan('report-pimpinan');
 
         $reports = Jadwal::where('status', 3)
-            ->with(['skema'])
+            ->with(['skema', 'tuk'])
+            ->orderBy('tanggal_ujian', 'asc')
             ->get();
 
         return view('components.pages.pimpinan.report-pimpinan.list', compact('lists', 'reports'));

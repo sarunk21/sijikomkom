@@ -18,7 +18,10 @@ class SertifikasiController extends Controller
     public function index()
     {
         $asesi = Auth::user();
-        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->get();
+        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         $lists = $this->getMenuListAsesi('sertifikasi');
 
         return view('components.pages.asesi.sertifikasi.list', compact('pendaftaran', 'lists'));

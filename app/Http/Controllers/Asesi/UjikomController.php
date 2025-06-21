@@ -48,7 +48,9 @@ class UjikomController extends Controller
     {
         $asesi = Auth::user();
         $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->first();
-        $apl2 = APL2::where('skema_id', $pendaftaran->skema_id)->get();
+        $apl2 = APL2::where('skema_id', $pendaftaran->skema_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
         $lists = $this->getMenuListAsesi('ujikom');
 
         return view('components.pages.asesi.ujikom.show', compact('pendaftaran', 'lists', 'apl2'));

@@ -50,19 +50,21 @@
                                 <td>{{ $item->kuota - $item->pendaftaran->count() }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                        <a href="{{ route('admin.jadwal.edit', $item->id) }}"
-                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                            <i class="fas fa-pen text-primary"></i>
-                                        </a>
-                                        <form action="{{ route('admin.jadwal.destroy', $item->id) }}" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                                title="Hapus">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </button>
-                                        </form>
+                                        @if ($item->status != 3 && $item->status != 4)
+                                            <a href="{{ route('admin.jadwal.edit', $item->id) }}"
+                                                class="btn btn-light btn-icon btn-sm border shadow-sm" title="Ujian">
+                                                <i class="fas fa-pen text-primary"></i>
+                                            </a>
+                                            <form action="{{ route('admin.jadwal.destroy', $item->id) }}" method="POST"
+                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
+                                                    <i class="fas fa-trash text-danger"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

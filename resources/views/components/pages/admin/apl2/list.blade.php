@@ -15,33 +15,24 @@
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Tanggal Terakhir Update</th>
-                            <th>Aksi</th>
+                            <th class="text-center">Jumlah Pertanyaan</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($apl2 as $item)
+                        @foreach ($skema as $item)
                             <tr>
-                                <td>
+                                <td class="align-middle">
                                     <span class="badge badge-secondary">
-                                    {{ $item->skema->nama }}
+                                    {{ $item->nama }}
                                     </span>
                                 </td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>
+                                <td class="text-center align-middle">{{ $item->apl2->count() ?? 0 }}</td>
+                                <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                         <a href="{{ route('admin.apl-2.edit', $item->id) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                             <i class="fas fa-pen text-primary"></i>
                                         </a>
-                                        <form action="{{ route('admin.apl-2.destroy', $item->id) }}" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                                title="Hapus">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </button>
-                                        </form>
                                     </div>
                                 </td>
                             </tr>

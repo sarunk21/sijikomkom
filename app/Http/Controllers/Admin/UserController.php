@@ -17,7 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $users = User::orderBy('name', 'asc')->get();
         $lists = $this->getMenuListAdmin('user');
         return view('components.pages.admin.user.list', compact('lists', 'users'));
     }

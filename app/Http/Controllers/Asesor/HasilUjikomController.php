@@ -20,7 +20,8 @@ class HasilUjikomController extends Controller
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
         $hasilUjikom = Jadwal::where('status', 4)
-            ->with(['skema'])
+            ->with(['skema', 'tuk'])
+            ->orderBy('tanggal_ujian', 'asc')
             ->get();
 
         return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom'));
@@ -50,11 +51,13 @@ class HasilUjikomController extends Controller
         $lists = $this->getMenuListAsesor('hasil-ujikom');
 
         $jadwal = Jadwal::where('status', 3)
-            ->with(['skema'])
+            ->with(['skema', 'tuk'])
+            ->orderBy('tanggal_ujian', 'asc')
             ->first();
 
         $asesi = PendaftaranUjikom::where('jadwal_id', $jadwal->id)
-            ->with(['jadwal'])
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $apl2 = APL2::where('skema_id', $jadwal->skema_id)->first();

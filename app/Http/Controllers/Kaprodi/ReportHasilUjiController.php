@@ -18,7 +18,8 @@ class ReportHasilUjiController extends Controller
         $lists = $this->getMenuListKaprodi('report-hasil-uji');
 
         $reports = Jadwal::where('status', 4)
-            ->with(['skema'])
+            ->with(['skema', 'tuk'])
+            ->orderBy('tanggal_ujian', 'asc')
             ->get();
 
         return view('components.pages.kaprodi.report-hasil-uji.list', compact('lists', 'reports'));

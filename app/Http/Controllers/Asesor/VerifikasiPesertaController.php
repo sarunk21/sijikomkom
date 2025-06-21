@@ -24,7 +24,10 @@ class VerifikasiPesertaController extends Controller
         }
 
         $lists = $this->getMenuListAsesor('verifikasi-peserta');
-        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)->with(['jadwal', 'user'])->get();
+        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.asesor.verifikasi-peserta.list', data: compact('lists', 'pendaftaran'));
     }
 

@@ -17,7 +17,7 @@ class SkemaController extends Controller
      */
     public function index()
     {
-        $skema = Skema::orderBy('created_at', 'desc')->get();
+        $skema = Skema::orderBy('nama', 'asc')->get();
         $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.list', compact('lists', 'activeMenu', 'skema'));
@@ -30,7 +30,10 @@ class SkemaController extends Controller
     {
         $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
-        $asesor = User::where('user_type', 'asesor')->where('skema_id', null)->get();
+        $asesor = User::where('user_type', 'asesor')
+            ->where('skema_id', null)
+            ->orderBy('name', 'asc')
+            ->get();
         return view('components.pages.admin.skema.create', compact('lists', 'activeMenu', 'asesor'));
     }
 
@@ -81,8 +84,14 @@ class SkemaController extends Controller
     {
         $lists = $this->getMenuListAdmin('skema');
         $skema = Skema::find($id);
-        $asesor = User::where('user_type', 'asesor')->get();
-        $asesor_skema = User::where('user_type', 'asesor')->where('skema_id', $skema->id)->get();
+        $asesor = User::where('user_type', 'asesor')
+            ->where('skema_id', null)
+            ->orderBy('name', 'asc')
+            ->get();
+        $asesor_skema = User::where('user_type', 'asesor')
+            ->where('skema_id', $skema->id)
+            ->orderBy('name', 'asc')
+            ->get();
         return view('components.pages.admin.skema.edit', compact('lists', 'skema', 'asesor', 'asesor_skema'));
     }
 

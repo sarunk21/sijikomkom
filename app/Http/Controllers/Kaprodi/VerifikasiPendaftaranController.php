@@ -17,7 +17,9 @@ class VerifikasiPendaftaranController extends Controller
     public function index()
     {
         $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::with(['jadwal', 'user'])->get();
+        $verfikasiPendaftaran = Pendaftaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
     }
 

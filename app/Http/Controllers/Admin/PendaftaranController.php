@@ -17,7 +17,9 @@ class PendaftaranController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('pendaftaran');
-        $pendaftaran = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user')->get();
+        $pendaftaran = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran'));
     }
 

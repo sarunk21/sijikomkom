@@ -17,7 +17,9 @@ class InformasiPembayaranController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAsesi('informasi-pembayaran');
-        $pembayaran = Pembayaran::with(['jadwal', 'user'])->get();
+        $pembayaran = Pembayaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('components.pages.asesi.informasi-pembayaran.list', data: compact('lists', 'pembayaran'));
     }
 
@@ -51,7 +53,9 @@ class InformasiPembayaranController extends Controller
     public function edit(string $id)
     {
         $pembayaran = Pembayaran::where('id', $id)->first();
-        $jadwal = Jadwal::where('status', 1)->get();
+        $jadwal = Jadwal::where('status', 1)
+            ->orderBy('tanggal_ujian', 'asc')
+            ->get();
         $lists = $this->getMenuListAsesi('informasi-pembayaran');
         return view('components.pages.asesi.informasi-pembayaran.edit', compact('lists', 'pembayaran', 'jadwal'));
     }

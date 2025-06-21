@@ -18,7 +18,7 @@ class JadwalController extends Controller
      */
     public function index()
     {
-        $jadwal = Jadwal::with('skema', 'tuk')->orderBy('created_at', 'desc')->get();
+        $jadwal = Jadwal::with('skema', 'tuk')->orderBy('tanggal_ujian', 'asc')->get();
         $lists = $this->getMenuListAdmin('jadwal');
         $activeMenu = 'jadwal';
         return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu', 'jadwal'));
@@ -30,8 +30,8 @@ class JadwalController extends Controller
     public function create()
     {
         $lists = $this->getMenuListAdmin('jadwal');
-        $skema = Skema::orderBy('created_at', 'desc')->get();
-        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $skema = Skema::orderBy('nama', 'asc')->get();
+        $tuk = Tuk::orderBy('nama', 'asc')->get();
         $activeMenu = 'jadwal';
         return view('components.pages.admin.jadwal.create', compact('lists', 'activeMenu', 'skema', 'tuk'));
     }
@@ -74,8 +74,8 @@ class JadwalController extends Controller
     public function show(string $id)
     {
         $jadwal = Jadwal::find($id);
-        $skema = Skema::orderBy('created_at', 'desc')->get();
-        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $skema = Skema::orderBy('nama', 'asc')->get();
+        $tuk = Tuk::orderBy('nama', 'asc')->get();
         $activeMenu = 'jadwal';
         return view('components.pages.admin.jadwal.edit', compact('lists', 'activeMenu', 'jadwal'));
     }
@@ -87,8 +87,8 @@ class JadwalController extends Controller
     {
         $lists = $this->getMenuListAdmin('jadwal');
         $jadwal = Jadwal::find($id);
-        $skema = Skema::orderBy('created_at', 'desc')->get();
-        $tuk = Tuk::orderBy('created_at', 'desc')->get();
+        $skema = Skema::orderBy('nama', 'asc')->get();
+        $tuk = Tuk::orderBy('nama', 'asc')->get();
         $activeMenu = 'jadwal';
         return view('components.pages.admin.jadwal.edit', compact('lists', 'activeMenu', 'jadwal', 'skema', 'tuk'));
     }
