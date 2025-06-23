@@ -66,8 +66,8 @@ trait MenuTrait
                     ],
                     [
                         'title' => 'Upload Sertifikat Bertanda Tangan',
-                        'url' => 'admin.upload-sertifikat.index',
-                        'key' => 'upload-sertifikat'
+                        'url' => 'admin.upload-sertifikat-admin.index',
+                        'key' => 'upload-sertifikat-admin'
                     ]
                 ]
             ],
