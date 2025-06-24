@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SkemaController;
 use App\Http\Controllers\Admin\TUKController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UploadSertifikatAdminController;
 
 use App\Http\Controllers\Asesi\DaftarUjikomController;
 use App\Http\Controllers\Asesi\InformasiPembayaranController;
@@ -65,7 +66,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::resource('report', ReportController::class)->names('admin.report');
-    Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('admin.upload-sertifikat');
+    Route::resource('upload-sertifikat', UploadSertifikatAdminController::class)->names('admin.upload-sertifikat-admin');
     Route::get('apl-2/create/question/{skema_id}', [APL2Controller::class, 'create'])->name('admin.apl-2.create.question');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
