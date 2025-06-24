@@ -42,7 +42,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
             'nik' => 'required|unique:users,nik,NULL,id,deleted_at,NULL',
             'telephone' => 'required|unique:users,telephone,NULL,id,deleted_at,NULL',
-            'user_type' => 'required',
+            'user_type' => 'required|in:asesi,asesor,kaprodi,pimpinan,admin',
             'alamat' => 'required',
         ]);
 

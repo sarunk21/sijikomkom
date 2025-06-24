@@ -62,8 +62,11 @@
                     <label for="user_type" class="form-label">Role <span class="text-danger">*</span></label>
                     <select name="user_type" id="user_type" class="form-control" required>
                         <option value="" disabled>Pilih Role di sini...</option>
-                        <option value="Admin" {{ old('user_type', $user->user_type) == 'Admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="User" {{ old('user_type', $user->user_type) == 'User' ? 'selected' : '' }}>User</option>
+                        <option value="asesi" {{ old('user_type', $user->user_type) == 'asesi' ? 'selected' : '' }}>Asesi</option>
+                        <option value="asesor" {{ old('user_type', $user->user_type) == 'asesor' ? 'selected' : '' }}>Asesor</option>
+                        <option value="kaprodi" {{ old('user_type', $user->user_type) == 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
+                        <option value="pimpinan" {{ old('user_type', $user->user_type) == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                        <option value="admin" {{ old('user_type', $user->user_type) == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                     @error('user_type')
                         <div class="invalid-feedback">{{ $message }}</div>

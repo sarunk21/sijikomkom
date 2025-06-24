@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>{{ $user->user_type }}</td>
+                                <td>{{ ucfirst($user->user_type) }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                         <a href="{{ route('admin.user.edit', $user->id) }}"
