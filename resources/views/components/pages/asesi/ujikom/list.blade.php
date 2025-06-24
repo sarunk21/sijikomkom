@@ -32,7 +32,7 @@
                                 <td>{{ $item->status_text }}</td>
                                 <td>
                                     {{-- Jika jadwal ujian sudah lewat dan status jadwal ujian adalah 3, maka tombol mulai ujian tidak aktif --}}
-                                    @if ($item->jadwal->status == 3)
+                                    @if ($item->jadwal->status == 3 && $item->pendaftaranUjikom->status == 1 || $item->pendaftaranUjikom->status == 2)
                                         <a href="{{ route('asesi.ujikom.show', $item->id) }}" class="btn btn-primary">Mulai
                                             Ujian</a>
                                     @else

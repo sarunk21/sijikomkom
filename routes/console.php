@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('jadwal:update-status')->everyMinute();
+Schedule::command('ujikom:distribute')->dailyAt('00:01');

@@ -16,7 +16,9 @@ class UploadSertifikatAdminController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('upload-sertifikat-admin');
-        $uploadSertifikat = Sertif::with(['user', 'skema', 'pendaftaran'])->orderBy('created_at', 'desc')->get();
+        $uploadSertifikat = Sertif::with(['user', 'skema', 'pendaftaran'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('components.pages.admin.upload-sertifikat-admin.list', compact('lists', 'uploadSertifikat'));
     }
@@ -64,7 +66,8 @@ class UploadSertifikatAdminController extends Controller
 
         try {
             $sertif = Sertif::findOrFail($id);
-            $sertif->update(['status' => $request->status]);
+            $sertif->status = $request->status;
+            $sertif->save();
             return redirect()->route('admin.upload-sertifikat-admin.index')->with('success', 'Status sertifikat berhasil diperbarui');
         } catch (\Exception $e) {
             return redirect()->route('admin.upload-sertifikat-admin.index')->withInput()->with('error', 'Gagal memperbarui status sertifikat');

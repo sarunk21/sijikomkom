@@ -10,7 +10,7 @@ class Report extends Model
     use HasFactory;
 
     protected $table = 'report';
-    protected $fillable = ['user_id', 'skema_id', 'jadwal_id', 'status'];
+    protected $fillable = ['user_id', 'skema_id', 'jadwal_id', 'pendaftaran_id', 'status'];
     protected $statusReport = [
         1 => 'Kompeten',
         2 => 'Tidak Kompeten'
@@ -29,6 +29,11 @@ class Report extends Model
     public function jadwal()
     {
         return $this->belongsTo(Jadwal::class);
+    }
+
+    public function pendaftaran()
+    {
+        return $this->belongsTo(Pendaftaran::class);
     }
 
     public function getStatusTextAttribute()

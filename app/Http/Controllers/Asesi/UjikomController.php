@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Asesi;
 use App\Http\Controllers\Controller;
 use App\Models\APL2;
 use App\Models\Pendaftaran;
+use App\Models\PendaftaranUjikom;
 use App\Models\Response;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
@@ -59,6 +60,13 @@ class UjikomController extends Controller
             );
         }
 
+        // Update status ujikom
+        $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $id)
+            ->where('asesi_id', Auth::user()->id)
+            ->first();
+        $pendaftaranUjikom->status = 2;
+        $pendaftaranUjikom->save();
+
         return redirect()->route('asesi.ujikom.index')->with('success', 'Jawaban berhasil disimpan!');
     }
 
@@ -73,6 +81,18 @@ class UjikomController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
         $lists = $this->getMenuListAsesi('ujikom');
+
+        // Update status ujikom
+        $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftaran->id)
+            ->where('asesi_id', Auth::user()->id)
+            ->first();
+        $pendaftaranUjikom->status = 2;
+        $pendaftaranUjikom->save();
+
+        // Update status pendaftaran
+        $pendaftaran = Pendaftaran::where('id', $pendaftaran->id)->first();
+        $pendaftaran->status = 5;
+        $pendaftaran->save();
 
         return view('components.pages.asesi.ujikom.show', compact('pendaftaran', 'lists', 'apl2'));
     }

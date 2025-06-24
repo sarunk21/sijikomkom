@@ -22,13 +22,6 @@
                 </p>
             </div>
 
-            <div class="mb-3">
-                <a href="https://{{ $apl2->link_ujikom_asesor }}" target="_blank"
-                    class="btn btn-outline-primary btn-sm shadow-sm">
-                    Link Ujikom Asesor
-                </a>
-            </div>
-
             <div class="table-responsive">
                 <table id="asesiTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
@@ -41,31 +34,14 @@
                     <tbody>
                         @foreach ($asesi as $item)
                             <tr>
-                                <td>{{ $item->asesi->nama }}</td>
-                                <td>{{ $item->asesi->status_text }}</td>
+                                <td>{{ $item->asesi->nama }} - {{ $item->asesi->nim }}</td>
+                                <td>{{ $item->status_text }}</td>
                                 <td>
-                                    @if ($item->status == 1)
-                                        <form action="{{ route('asesor.hasil-ujikom.update', $item->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="2">
-                                            <button type="submit" class="btn btn-outline-warning btn-sm shadow-sm">
-                                                Kompeten
-                                            </button>
-                                        </form>
-                                    @elseif ($item->status == 2)
-                                        <form action="{{ route('asesor.hasil-ujikom.update', $item->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="3">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm shadow-sm">
-                                                Tidak Kompeten
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span class="badge badge-warning">
-                                            Belum Ujikom
-                                        </span>
+                                    @if ($item->status == 3)
+                                        <a href="{{ route('asesor.hasil-ujikom.show', $item->id) }}"
+                                            class="btn btn-outline-warning btn-sm shadow-sm">
+                                            Mulai Pemeriksaan
+                                        </a>
                                     @endif
                                 </td>
                             </tr>

@@ -24,7 +24,7 @@
                                 <td>{{ $item->status_text }}</td>
                                 <td>
                                     <a href="{{ route('asesor.hasil-ujikom.show', $item->id) }}" class="btn btn-outline-warning btn-sm shadow-sm">
-                                        Mulai
+                                        Mulai Pemeriksaan
                                     </a>
                                 </td>
                             </tr>

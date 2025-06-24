@@ -46,4 +46,9 @@ class Pendaftaran extends Model
     {
         return $this->belongsTo(Tuk::class);
     }
+
+    public function pendaftaranUjikom()
+    {
+        return $this->hasOne(PendaftaranUjikom::class);
+    }
 }

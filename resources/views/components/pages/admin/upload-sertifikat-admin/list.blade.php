@@ -46,7 +46,8 @@
                                 <td class="text-center">
                                     @if ($item->status == 1)
                                         <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                            <form action="{{ route('admin.upload-sertifikat-admin.update', $item->id) }}" method="POST">
+                                            <form action="{{ route('admin.upload-sertifikat-admin.update', $item->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" name="status" value="2">
@@ -55,7 +56,8 @@
                                                     <i class="fas fa-check text-success"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('admin.upload-sertifikat-admin.update', $item->id) }}" method="POST">
+                                            <form action="{{ route('admin.upload-sertifikat-admin.update', $item->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" name="status" value="3">
@@ -64,28 +66,6 @@
                                                     <i class="fas fa-times text-danger"></i>
                                                 </button>
                                             </form>
-                                        </div>
-
-                                        {{-- Modal Reject (opsional jika akan dipakai di kemudian hari) --}}
-                                        <div class="modal fade" id="rejectModal" tabindex="-1"
-                                            aria-labelledby="rejectModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="rejectModalLabel">Reject Pembayaran</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>Apakah Anda yakin ingin menolak pembayaran ini?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Batal</button>
-                                                        <button type="submit" class="btn btn-danger">Tolak</button>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     @elseif ($item->status == 2 || $item->status == 3)
                                         -

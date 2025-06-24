@@ -28,6 +28,12 @@ class ScheduleServiceProvider extends ServiceProvider
                     ->everyMinute()
                     ->withoutOverlapping()
                     ->onOneServer();
+
+            // Run daily at 00:01 to distribute ujikom
+            $schedule->command('ujikom:distribute')
+                    ->dailyAt('00:01')
+                    ->withoutOverlapping()
+                    ->onOneServer();
         });
     }
 }

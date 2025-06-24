@@ -14,9 +14,16 @@ class PendaftaranUjikom extends Model
 
     protected $statusUjikom = [
         1 => 'Belum Ujikom',
-        2 => 'Kompeten',
-        3 => 'Tidak Kompeten',
+        2 => 'Ujikom Berlangsung',
+        3 => 'Ujikom Selesai',
+        4 => 'Tidak Kompeten',
+        5 => 'Kompeten',
     ];
+
+    public function getStatusTextAttribute()
+    {
+        return $this->statusUjikom[$this->status] ?? 'Tidak Diketahui';
+    }
 
     public function pendaftar()
     {

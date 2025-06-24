@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\APL2;
 use App\Models\Jadwal;
 use App\Models\PendaftaranUjikom;
+use App\Models\Report;
+use App\Models\Response;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,11 +58,9 @@ class HasilUjikomController extends Controller
             ->first();
 
         $asesi = PendaftaranUjikom::where('jadwal_id', $jadwal->id)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'pendaftaran'])
             ->orderBy('created_at', 'desc')
             ->get();
-
-        $apl2 = APL2::where('skema_id', $jadwal->skema_id)->first();
 
         return view('components.pages.asesor.hasil-ujikom.list-asesi', compact('lists', 'jadwal', 'asesi', 'apl2'));
     }
@@ -80,7 +80,7 @@ class HasilUjikomController extends Controller
     {
         // Validate request
         $request->validate([
-            'status' => 'required|in:2,3',
+            'status' => 'required|in:4,5',
         ]);
 
         // Update status ujikom
@@ -88,6 +88,17 @@ class HasilUjikomController extends Controller
         $pendaftaranUjikom->asesor_id = Auth::user()->id;
         $pendaftaranUjikom->status = $request->status;
         $pendaftaranUjikom->save();
+
+        $status = $request->status == 4 ? 2 : 1;
+
+        // Insert ke report
+        Report::create([
+            'user_id' => $pendaftaranUjikom->asesi_id,
+            'pendaftaran_id' => $pendaftaranUjikom->pendaftaran_id,
+            'skema_id' => $pendaftaranUjikom->jadwal->skema_id,
+            'jadwal_id' => $pendaftaranUjikom->jadwal_id,
+            'status' => $status,
+        ]);
 
         return redirect()->route('asesor.hasil-ujikom.show', $id)->with('success', 'Status berhasil diubah');
     }
@@ -98,5 +109,17 @@ class HasilUjikomController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function showJawabanAsesi(string $id)
+    {
+        $lists = $this->getMenuListAsesor('hasil-ujikom');
+
+        $jawabanAsesi = Response::where('pendaftaran_id', $id)->get();
+
+        return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'jawabanAsesi'));
     }
 }
