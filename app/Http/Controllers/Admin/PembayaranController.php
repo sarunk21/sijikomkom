@@ -63,15 +63,16 @@ class PembayaranController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
         $request->validate([
             'status' => 'required|in:1,2',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
         try {
-            $pembayaran = Pembayaran::find($id);
+            $pembayaran = Pembayaran::findOrFail($id);
 
             if ($request->status == 1) {
+                // Approve pembayaran
                 Pendaftaran::create([
                     'jadwal_id' => $pembayaran->jadwal_id,
                     'user_id' => $pembayaran->user_id,
@@ -81,17 +82,34 @@ class PembayaranController extends Controller
                 ]);
 
                 $pembayaran->status = 4;
+                $pembayaran->keterangan = null; // Hapus keterangan jika ada
                 $pembayaran->save();
+
+                return redirect()->route('admin.pembayaran-asesi.index')
+                    ->with('success', 'Pembayaran berhasil dikonfirmasi dan pendaftaran telah dibuat');
             }
 
             if ($request->status == 2) {
+                // Reject pembayaran
+                if (empty($request->keterangan)) {
+                    return redirect()->route('admin.pembayaran-asesi.index')
+                        ->with('error', 'Keterangan penolakan harus diisi');
+                }
+
                 $pembayaran->status = 3;
+                $pembayaran->keterangan = $request->keterangan;
                 $pembayaran->save();
+
+                return redirect()->route('admin.pembayaran-asesi.index')
+                    ->with('success', 'Pembayaran berhasil ditolak');
             }
 
-            return redirect()->route('admin.pembayaran-asesi.index')->with('success', 'Pembayaran berhasil diupdate');
+            return redirect()->route('admin.pembayaran-asesi.index')
+                ->with('error', 'Status tidak valid');
+
         } catch (\Exception $e) {
-            return redirect()->route('admin.pembayaran-asesi.index')->with('error', 'Pembayaran gagal diupdate: ' . $e->getMessage());
+            return redirect()->route('admin.pembayaran-asesi.index')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

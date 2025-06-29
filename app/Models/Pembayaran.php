@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pembayaran extends Model
 {
     protected $table = 'pembayaran';
-    protected $fillable = ['jadwal_id', 'user_id', 'bukti_pembayaran', 'status'];
+    protected $fillable = ['jadwal_id', 'user_id', 'bukti_pembayaran', 'status', 'keterangan'];
 
     protected $statusPembayaran = [
         1 => 'Belum Bayar',

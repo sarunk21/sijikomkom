@@ -10,7 +10,7 @@ class PendaftaranUjikom extends Model
     use HasFactory;
 
     protected $table = 'pendaftaran_ujikom';
-    protected $fillable = ['pendaftar_id', 'jadwal_id', 'asesi_id', 'asesor_id'];
+    protected $fillable = ['pendaftar_id', 'jadwal_id', 'asesi_id', 'asesor_id', 'status', 'keterangan'];
 
     protected $statusUjikom = [
         1 => 'Belum Ujikom',
@@ -18,6 +18,8 @@ class PendaftaranUjikom extends Model
         3 => 'Ujikom Selesai',
         4 => 'Tidak Kompeten',
         5 => 'Kompeten',
+        6 => 'Menunggu Konfirmasi Asesor',
+        7 => 'Asesor Tidak Dapat Hadir',
     ];
 
     public function getStatusTextAttribute()

@@ -29,6 +29,7 @@
                             <th>Tanggal Pembayaran</th>
                             <th>Bukti Pembayaran</th>
                             <th>Status</th>
+                            <th>Keterangan</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
@@ -49,7 +50,20 @@
                                         <span class="text-danger">Pendaftaran Pertama</span>
                                     @endif
                                 </td>
-                                <td>{{ $item->status_text }}</td>
+                                <td>
+                                    @if ($item->status == 1)
+                                        <span class="badge badge-warning">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 2)
+                                        <span class="badge badge-info">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 3)
+                                        <span class="badge badge-danger">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 4)
+                                        <span class="badge badge-success">{{ $item->status_text }}</span>
+                                    @else
+                                        <span class="badge badge-secondary">{{ $item->status_text }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $item->keterangan }}</td>
                                 <td class="text-center">
                                     @if ($item->status == 2)
                                         <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
@@ -63,36 +77,15 @@
                                                     <i class="fas fa-check text-success"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('admin.pembayaran-asesi.update', $item->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="status" value="2">
-                                                <button type="submit"
-                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Reject">
-                                                    <i class="fas fa-times text-danger"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                        <div class="modal fade" id="rejectModal" tabindex="-1"
-                                            aria-labelledby="rejectModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="rejectModalLabel">Reject Pembayaran</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>Apakah Anda yakin ingin menolak pembayaran ini?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Batal</button>
-                                                        <button type="submit" class="btn btn-danger">Tolak</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <button type="button"
+                                                class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                title="Reject"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#rejectModal"
+                                                data-id="{{ $item->id }}"
+                                                data-keterangan="{{ $item->keterangan ?? '' }}">
+                                                <i class="fas fa-times text-danger"></i>
+                                            </button>
                                         </div>
                                     @endif
                                 </td>
@@ -100,6 +93,34 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reject Pembayaran -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Tolak Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formReject" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="2">
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan Penolakan</label>
+                            <textarea name="keterangan" id="keterangan" class="form-control" rows="3"
+                                placeholder="Masukkan alasan penolakan pembayaran..." required></textarea>
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-danger">Tolak Pembayaran</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -116,6 +137,36 @@
             line-height: 1;
             font-size: 0.85rem;
         }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .badge-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
     </style>
 
     {{-- Scripts --}}
@@ -128,7 +179,7 @@
                 $('#skemaTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari pembayaran...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",
@@ -143,6 +194,22 @@
                         targets: -1,
                         orderable: false
                     }]
+                });
+
+                // Handle modal reject
+                $('#rejectModal').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var id = button.data('id');
+                    var keterangan = button.data('keterangan');
+
+                    var modal = $(this);
+                    modal.find('#keterangan').val(keterangan || '');
+                    modal.find('#formReject').attr('action', '{{ route("admin.pembayaran-asesi.update", "") }}/' + id);
+                });
+
+                // Reset modal when hidden
+                $('#rejectModal').on('hidden.bs.modal', function () {
+                    $(this).find('#keterangan').val('');
                 });
             });
         </script>

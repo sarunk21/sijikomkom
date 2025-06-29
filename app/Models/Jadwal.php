@@ -18,6 +18,7 @@ class Jadwal extends Model
         2 => 'Tidak Aktif',
         3 => 'Ujian Berlangsung',
         4 => 'Selesai',
+        5 => 'Menunggu Konfirmasi Kepala TUK',
     ];
 
     public function getStatusTextAttribute()

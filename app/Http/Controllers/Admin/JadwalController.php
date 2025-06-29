@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Jadwal;
+use App\Models\PendaftaranUjikom;
 use App\Models\Skema;
 use App\Models\Tuk;
 use App\Traits\MenuTrait;
@@ -149,5 +150,17 @@ class JadwalController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal gagal dihapus');
         }
+    }
+
+    /**
+     * Get the specified resource from storage.
+     */
+    public function getJadwalUjian(string $id)
+    {
+        $pendaftaranUjikom = PendaftaranUjikom::where('jadwal_id', $id)
+            ->groupBy('asesor_id')
+            ->get();
+
+        return view('components.pages.admin.jadwal.ujian', compact('pendaftaranUjikom'));
     }
 }

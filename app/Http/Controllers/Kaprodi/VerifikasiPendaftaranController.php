@@ -62,13 +62,24 @@ class VerifikasiPendaftaranController extends Controller
     {
         $request->validate([
             'status' => 'required|in:1,2,3',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
-        $pendaftaran = Pendaftaran::find($id);
+        $pendaftaran = Pendaftaran::findOrFail($id);
         $pendaftaran->status = $request->status;
+
+        // Jika status adalah 2 (verifikasi dengan keterangan), simpan keterangan
+        if ($request->status == 2) {
+            $pendaftaran->keterangan = $request->keterangan;
+        } else {
+            // Jika status bukan 2, hapus keterangan
+            $pendaftaran->keterangan = null;
+        }
+
         $pendaftaran->save();
 
-        return redirect()->route('kaprodi.verifikasi-pendaftaran.index')->with('success', 'Pendaftaran berhasil diupdate');
+        return redirect()->route('kaprodi.verifikasi-pendaftaran.index')
+            ->with('success', "Status pendaftaran berhasil diubah");
     }
 
     /**

@@ -14,6 +14,7 @@
                             <th>Tanggal Assesmen</th>
                             <th>TUK</th>
                             <th>Status</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -23,6 +24,7 @@
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>{{ $item->status_text }}</td>
+                                <td>{{ $item->keterangan }}</td>
                             </tr>
                         @endforeach
                     </tbody>

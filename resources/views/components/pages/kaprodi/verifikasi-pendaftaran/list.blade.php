@@ -46,6 +46,12 @@
                                         <span class="text-danger">{{ $item->status_text }}</span>
                                     @elseif ($item->status == 4)
                                         <span class="text-success">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 5)
+                                        <span class="text-success">{{ $item->status_text }}</span>
+                                    @elseif ($item->status == 6)
+                                        <span class="text-success">{{ $item->status_text }}</span>
+                                    @else
+                                        <span class="text-danger">{{ $item->status_text }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
@@ -62,17 +68,12 @@
                                                     <i class="fas fa-check text-success"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('kaprodi.verifikasi-pendaftaran.update', $item->id) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="status" value="2">
-                                                <button type="submit"
-                                                    class="btn btn-light btn-icon btn-sm border shadow-sm" title="Hapus">
-                                                    <i class="fas fa-times text-danger"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalKeterangan"
+                                                data-keterangan="{{ $item->keterangan ?? '' }}"
+                                                data-id="{{ $item->id }}">
+                                                <i class="fas fa-info-circle text-info"></i>
+                                            </button>
                                         </div>
                                     @endif
                                 </td>
@@ -80,6 +81,32 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalKeterangan" tabindex="-1" aria-labelledby="modalKeteranganLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalKeteranganLabel">Keterangan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formKeterangan" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="2">
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan</label>
+                            <textarea name="keterangan" id="keterangan" class="form-control" rows="3" placeholder="Masukkan keterangan..."></textarea>
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -123,6 +150,22 @@
                         targets: -1,
                         orderable: false
                     }]
+                });
+
+                // Handle modal keterangan
+                $('#modalKeterangan').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var keterangan = button.data('keterangan');
+                    var id = button.data('id');
+
+                    var modal = $(this);
+                    modal.find('#keterangan').val(keterangan || '');
+                    modal.find('#formKeterangan').attr('action', '{{ route("kaprodi.verifikasi-pendaftaran.update", "") }}/' + id);
+                });
+
+                // Reset modal when hidden
+                $('#modalKeterangan').on('hidden.bs.modal', function () {
+                    $(this).find('#keterangan').val('');
                 });
             });
         </script>
