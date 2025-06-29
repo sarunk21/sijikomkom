@@ -4,10 +4,6 @@
 @section('page-title', 'APL 2')
 
 @section('content')
-    <div class="mb-3">
-        <a href="{{ route('admin.apl-2.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah APL 2</a>
-    </div>
-
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
