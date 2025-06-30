@@ -11,7 +11,7 @@ class Jadwal extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'jadwal';
-    protected $fillable = ['skema_id', 'tuk_id', 'tanggal_ujian', 'tanggal_selesai', 'tanggal_maksimal_pendaftaran', 'status', 'kuota'];
+    protected $fillable = ['skema_id', 'tuk_id', 'tanggal_ujian', 'tanggal_selesai', 'tanggal_maksimal_pendaftaran', 'status', 'kuota', 'keterangan'];
 
     public $statusJadwal = [
         1 => 'Aktif',
@@ -19,6 +19,7 @@ class Jadwal extends Model
         3 => 'Ujian Berlangsung',
         4 => 'Selesai',
         5 => 'Menunggu Konfirmasi Kepala TUK',
+        6 => 'TUK Tidak Dapat Digunakan'
     ];
 
     public function getStatusTextAttribute()

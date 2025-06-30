@@ -23,10 +23,12 @@
 
                 <div class="mb-3">
                     <label for="skema" class="form-label">Skema <span class="text-danger">*</span></label>
-                    <select name="skema_id" id="skema_id" class="form-control @error('skema_id') is-invalid @enderror" required>
+                    <select name="skema_id" id="skema_id" class="form-control @error('skema_id') is-invalid @enderror"
+                        required>
                         <option value="" disabled selected>Pilih skema di sini...</option>
                         @foreach ($skema as $item)
-                            <option {{ old('skema_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">{{ $item->nama }}</option>
+                            <option {{ old('skema_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
+                                {{ $item->nama }}</option>
                         @endforeach
                     </select>
                     @error('skema_id')
@@ -36,10 +38,12 @@
 
                 <div class="mb-3">
                     <label for="tuk" class="form-label">TUK <span class="text-danger">*</span></label>
-                    <select name="tuk_id" id="tuk_id" class="form-control @error('tuk_id') is-invalid @enderror" required>
+                    <select name="tuk_id" id="tuk_id" class="form-control @error('tuk_id') is-invalid @enderror"
+                        required>
                         <option value="" disabled selected>Pilih TUK di sini...</option>
                         @foreach ($tuk as $item)
-                            <option {{ old('tuk_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">{{ $item->nama }}</option>
+                            <option {{ old('tuk_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
+                                {{ $item->nama }}</option>
                         @endforeach
                     </select>
                     @error('tuk_id')
@@ -47,21 +51,11 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
-                    <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
-                        <option value="" disabled selected>Pilih status di sini...</option>
-                        <option {{ old('status') == 1 ? 'selected' : '' }} value="1">Aktif</option>
-                        <option {{ old('status') == 2 ? 'selected' : '' }} value="2">Tidak Aktif</option>
-                    </select>
-                    @error('status')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
                 <div class="mb-4">
                     <label for="tanggal" class="form-label">Tanggal Ujian <span class="text-danger">*</span></label>
-                    <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian" class="form-control @error('tanggal_ujian') is-invalid @enderror" min="{{ date('Y-m-d H:i') }}" required>
+                    <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian"
+                        class="form-control @error('tanggal_ujian') is-invalid @enderror" min="{{ date('Y-m-d H:i') }}"
+                        required>
                     @error('tanggal_ujian')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -69,15 +63,20 @@
 
                 <div class="mb-4">
                     <label for="tanggal" class="form-label">Tanggal Selesai <span class="text-danger">*</span></label>
-                    <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai" class="form-control @error('tanggal_selesai') is-invalid @enderror" min="{{ date('Y-m-d H:i') }}" required>
+                    <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai"
+                        class="form-control @error('tanggal_selesai') is-invalid @enderror" min="{{ date('Y-m-d H:i') }}"
+                        required>
                     @error('tanggal_selesai')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label for="tanggal" class="form-label">Tanggal Maksimal Pendaftaran <span class="text-danger">*</span></label>
-                    <input type="datetime-local" id="tanggal_maksimal_pendaftaran" name="tanggal_maksimal_pendaftaran" class="form-control @error('tanggal_maksimal_pendaftaran') is-invalid @enderror" min="{{ date('Y-m-d H:i') }}" required>
+                    <label for="tanggal" class="form-label">Tanggal Maksimal Pendaftaran <span
+                            class="text-danger">*</span></label>
+                    <input type="datetime-local" id="tanggal_maksimal_pendaftaran" name="tanggal_maksimal_pendaftaran"
+                        class="form-control @error('tanggal_maksimal_pendaftaran') is-invalid @enderror"
+                        min="{{ date('Y-m-d H:i') }}" required>
                     @error('tanggal_maksimal_pendaftaran')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -85,8 +84,9 @@
 
                 <div class="mb-3">
                     <label for="kuota" class="form-label">Kuota <span class="text-danger">*</span></label>
-                    <input type="number" id="kuota" name="kuota" class="form-control @error('kuota') is-invalid @enderror"
-                        placeholder="Isi kuota di sini..." value="{{ old('kuota') }}" required>
+                    <input type="number" id="kuota" name="kuota"
+                        class="form-control @error('kuota') is-invalid @enderror" placeholder="Isi kuota di sini..."
+                        value="{{ old('kuota') }}" required>
                     @error('kuota')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

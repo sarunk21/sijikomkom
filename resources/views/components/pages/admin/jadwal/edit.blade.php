@@ -52,20 +52,6 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select name="status" id="status" class="form-control @error('status') is-invalid @enderror"
-                        required>
-                        <option value="" disabled>Pilih status di sini...</option>
-                        <option value="1" {{ old('status', $jadwal->status) == 1 ? 'selected' : '' }}>Aktif</option>
-                        <option value="2" {{ old('status', $jadwal->status) == 2 ? 'selected' : '' }}>Tidak Aktif</option>
-                        <option value="3" {{ old('status', $jadwal->status) == 3 ? 'selected' : '' }}>Selesai</option>
-                    </select>
-                    @error('status')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
                 <div class="mb-4">
                     <label for="tanggal" class="form-label">Tanggal</label>
                     <input type="datetime-local" id="tanggal_ujian" name="tanggal_ujian"

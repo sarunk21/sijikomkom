@@ -7,6 +7,7 @@ use App\Models\Jadwal;
 use App\Models\PendaftaranUjikom;
 use App\Models\Skema;
 use App\Models\Tuk;
+use App\Services\EmailService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -48,20 +49,23 @@ class JadwalController extends Controller
             'tanggal_ujian' => 'required',
             'tanggal_selesai' => 'required',
             'tanggal_maksimal_pendaftaran' => 'required',
-            'status' => 'required|integer',
             'kuota' => 'required',
         ]);
 
         try {
-            Jadwal::create([
+            $jadwal = Jadwal::create([
                 'skema_id' => $request->skema_id,
                 'tuk_id' => $request->tuk_id,
                 'tanggal_ujian' => $request->tanggal_ujian,
                 'tanggal_selesai' => $request->tanggal_selesai,
                 'tanggal_maksimal_pendaftaran' => $request->tanggal_maksimal_pendaftaran,
-                'status' => $request->status,
+                'status' => 5,
                 'kuota' => $request->kuota,
             ]);
+
+            // Kirim email notifikasi ke kepala TUK
+            $emailService = new EmailService();
+            $emailService->sendJadwalBaruNotification($jadwal);
 
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
         } catch (\Exception $e) {
@@ -105,21 +109,11 @@ class JadwalController extends Controller
             'tanggal_ujian' => 'required',
             'tanggal_selesai' => 'required',
             'tanggal_maksimal_pendaftaran' => 'required',
-            'status' => 'required|in:1,2,3,4',
             'kuota' => 'required',
         ]);
 
         try {
             $jadwal = Jadwal::find($id);
-
-            // Cek jika jadwal sudah ada pendaftaran, maka tidak bisa diubah
-            if ($jadwal->pendaftaran->count() > 0) {
-                return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah ada pendaftaran');
-            }
-            // Cek jika jadwal sudah selesai, maka tidak bisa diubah
-            if ($jadwal->status == 4) {
-                return redirect()->route('admin.jadwal.edit', $id)->with('error', 'Jadwal tidak bisa diubah karena sudah selesai');
-            }
 
             $jadwal->update($request->all());
 
