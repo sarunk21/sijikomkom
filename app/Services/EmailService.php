@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\JadwalBaruMail;
+use App\Mail\PendaftaranDitolakMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -25,6 +26,22 @@ class EmailService
             foreach ($kepalaTukUsers as $user) {
                 Mail::to($user->email)->send(new JadwalBaruMail($jadwal));
             }
+
+            return true;
+
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Kirim email notifikasi pendaftaran ditolak ke asesi
+     */
+    public function sendPendaftaranDitolakNotification($pendaftaran)
+    {
+        try {
+            // Kirim email ke asesi yang pendaftarannya ditolak
+            Mail::to($pendaftaran->user->email)->send(new PendaftaranDitolakMail($pendaftaran));
 
             return true;
 

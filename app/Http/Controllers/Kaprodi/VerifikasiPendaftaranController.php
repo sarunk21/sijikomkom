@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Kaprodi;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
+use App\Services\EmailService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,6 +78,12 @@ class VerifikasiPendaftaranController extends Controller
         }
 
         $pendaftaran->save();
+
+        // Kirim email notifikasi jika status berubah menjadi ditolak (status 2)
+        if ($request->status == 2) {
+            $emailService = new EmailService();
+            $emailService->sendPendaftaranDitolakNotification($pendaftaran);
+        }
 
         return redirect()->route('kaprodi.verifikasi-pendaftaran.index')
             ->with('success', "Status pendaftaran berhasil diubah");
