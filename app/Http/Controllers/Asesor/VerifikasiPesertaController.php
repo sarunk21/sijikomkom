@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Asesor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
+use App\Models\PendaftaranUjikom;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,18 +18,45 @@ class VerifikasiPesertaController extends Controller
      */
     public function index()
     {
-        $skema_id = null;
+        $lists = $this->getMenuListAsesor('verifikasi-peserta');
 
-        if (Auth::user()->skema_id) {
-            $skema_id = Auth::user()->skema_id;
+        // Ambil jadwal berdasarkan asesor yang login (distinct)
+        $jadwalList = PendaftaranUjikom::where('asesor_id', Auth::id())
+            ->with(['jadwal.skema', 'jadwal.tuk'])
+            ->select('jadwal_id')
+            ->distinct()
+            ->get()
+            ->map(function ($item) {
+                return $item->jadwal;
+            });
+
+        return view('components.pages.asesor.verifikasi-peserta.list', compact('lists', 'jadwalList'));
+    }
+
+    /**
+     * Show list asesi untuk jadwal tertentu
+     */
+    public function showAsesi($jadwalId)
+    {
+        $lists = $this->getMenuListAsesor('verifikasi-peserta');
+
+        // Ambil jadwal untuk validasi
+        $jadwal = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+            ->where('asesor_id', Auth::id())
+            ->with(['jadwal.skema', 'jadwal.tuk'])
+            ->first();
+
+        if (!$jadwal) {
+            return redirect()->route('asesor.verifikasi-peserta.index')
+                ->with('error', 'Jadwal tidak ditemukan');
         }
 
-        $lists = $this->getMenuListAsesor('verifikasi-peserta');
-        $pendaftaran = Pendaftaran::where('skema_id', $skema_id)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
-            ->orderBy('created_at', 'desc')
+        $asesiList = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+            ->where('asesor_id', Auth::id())
+            ->with(['asesi', 'pendaftar'])
             ->get();
-        return view('components.pages.asesor.verifikasi-peserta.list', data: compact('lists', 'pendaftaran'));
+
+        return view('components.pages.asesor.verifikasi-peserta.asesi-list', compact('lists', 'jadwal', 'asesiList'));
     }
 
     /**

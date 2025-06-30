@@ -39,11 +39,11 @@ class PendaftaranUjikom extends Model
 
     public function asesi()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'asesi_id');
     }
 
     public function asesor()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'asesor_id');
     }
 }

@@ -1,30 +1,44 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Verfikasi Peserta')
-@section('page-title', 'Verfikasi Peserta')
+@section('title', 'Verifikasi Peserta')
+@section('page-title', 'Verifikasi Peserta')
 
 @section('content')
     <div class="card shadow-sm">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">Daftar Jadwal Ujian Kompetensi</h6>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
+                <table id="jadwalTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama Asesi</th>
                             <th>Skema</th>
-                            <th>Tanggal Pendaftaran</th>
-                            <th>Status</th>
                             <th>TUK</th>
+                            <th>Tanggal Ujian</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pendaftaran as $item)
+                        @foreach ($jadwalList as $jadwal)
                             <tr>
-                                <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->skema->nama }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
-                                <td>{{ $item->status_text }}</td>
-                                <td>{{ $item->tuk->nama }}</td>
+                                <td>{{ $jadwal->skema->nama }}</td>
+                                <td>{{ $jadwal->tuk->nama }}</td>
+                                <td>{{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d-m-Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($jadwal->tanggal_selesai)->format('d-m-Y') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $jadwal->status == 5 ? 'warning' : ($jadwal->status == 6 ? 'info' : 'success') }}">
+                                        {{ $jadwal->status_text }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('asesor.verifikasi-peserta.show-asesi', $jadwal->id) }}"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-users"></i> Lihat Asesi
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -54,10 +68,10 @@
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#pendaftaranTable').DataTable({
+                $('#jadwalTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari jadwal...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",
