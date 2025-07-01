@@ -134,7 +134,7 @@
 
             <div class="info-row">
                 <span class="info-label">Tanggal Ujian:</span>
-                <span class="info-value">{{ \Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian)->format('d/m/Y') }}</span>
+                <span class="info-value">{{ \Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian)->format('d/m/Y H:i') }}</span>
             </div>
 
             <div class="info-row">

@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Mail\JadwalBaruMail;
 use App\Mail\PendaftaranDitolakMail;
+use App\Mail\AsesorTidakHadirMail;
+use App\Mail\AsesorTidakHadirAdminMail;
+use App\Mail\KonfirmasiKehadiranMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -16,7 +19,7 @@ class EmailService
     {
         try {
             // Ambil semua user dengan user_type kepala_tuk
-            $kepalaTukUsers = User::where('user_type', 'kepala_tuk')->get();
+            $kepalaTukUsers = User::where('user_type', 'tuk')->get();
 
             if ($kepalaTukUsers->isEmpty()) {
                 return false;
@@ -45,6 +48,45 @@ class EmailService
 
             return true;
 
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Kirim email notifikasi asesor tidak hadir ke asesi
+     */
+    public function sendAsesorTidakHadirEmail($email, $nama, $data)
+    {
+        try {
+            Mail::to($email)->send(new AsesorTidakHadirMail($nama, $data));
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Kirim email notifikasi asesor tidak hadir ke admin
+     */
+    public function sendAsesorTidakHadirAdminEmail($email, $nama, $data)
+    {
+        try {
+            Mail::to($email)->send(new AsesorTidakHadirAdminMail($nama, $data));
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Kirim email konfirmasi kehadiran ke asesor
+     */
+    public function sendKonfirmasiKehadiranEmail($email, $nama, $jadwal, $jumlahAsesi)
+    {
+        try {
+            Mail::to($email)->send(new KonfirmasiKehadiranMail($nama, $jadwal, $jumlahAsesi));
+            return true;
         } catch (\Exception $e) {
             return false;
         }

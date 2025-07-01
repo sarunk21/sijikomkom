@@ -20,6 +20,7 @@ class Pendaftaran extends Model
         4 => 'Menunggu Ujian',
         5 => 'Ujian Berlangsung',
         6 => 'Selesai',
+        7 => 'Asesor Tidak Dapat Hadir',
     ];
 
     public function getStatusTextAttribute()

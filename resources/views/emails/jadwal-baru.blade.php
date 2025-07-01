@@ -98,17 +98,17 @@
 
             <div class="info-row">
                 <span class="info-label">Tanggal Ujian:</span>
-                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d/m/Y') }}</span>
+                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d/m/Y H:i') }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">Tanggal Selesai:</span>
-                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_selesai)->format('d/m/Y') }}</span>
+                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_selesai)->format('d/m/Y H:i') }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">Tanggal Maksimal Pendaftaran:</span>
-                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_maksimal_pendaftaran)->format('d/m/Y') }}</span>
+                <span class="info-value">{{ \Carbon\Carbon::parse($jadwal->tanggal_maksimal_pendaftaran)->format('d/m/Y H:i') }}</span>
             </div>
 
             <div class="info-row">

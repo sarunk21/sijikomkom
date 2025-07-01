@@ -87,6 +87,7 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.asesor');
     Route::resource('verifikasi-peserta', VerifikasiPesertaController::class)->names('asesor.verifikasi-peserta');
     Route::get('verifikasi-peserta/show-asesi/{jadwalId}', [VerifikasiPesertaController::class, 'showAsesi'])->name('asesor.verifikasi-peserta.show-asesi');
+    Route::match(['PUT', 'DELETE'], 'verifikasi-peserta/update-status/{jadwalId}', [VerifikasiPesertaController::class, 'updateStatus'])->name('asesor.verifikasi-peserta.update-status');
     Route::resource('pembayaran-jasa', PembayaranJasaController::class)->names('asesor.pembayaran-jasa');
     Route::resource('hasil-ujikom', HasilUjikomController::class)->names('asesor.hasil-ujikom');
     Route::resource('profil-asesor', ProfilAsesorController::class)->names('asesor.profil-asesor');

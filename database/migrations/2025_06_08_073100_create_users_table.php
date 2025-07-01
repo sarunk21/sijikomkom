@@ -86,6 +86,13 @@ return new class extends Migration
             'password' => Hash::make('pimpinan'),
             'user_type' => 'pimpinan',
         ]);
+
+        User::create([
+            'name' => 'Kepala TUK',
+            'email' => 'tuk@mail.com',
+            'password' => Hash::make('tuk'),
+            'user_type' => 'tuk',
+        ]);
     }
 
     /**

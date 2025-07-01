@@ -22,6 +22,8 @@ Fitur ini memungkinkan asesor untuk melihat jadwal ujian yang ditugaskan kepada 
 - **Method**:
   - `index()` - List jadwal
   - `showAsesi($jadwalId)` - List asesi per jadwal
+  - `updateStatus()` - Menangani update status kehadiran
+  - `sendNotificationEmails()` - Mengirim email notifikasi
 
 ### Views
 - **File**: `resources/views/components/pages/asesor/verifikasi-peserta/list.blade.php`
@@ -32,10 +34,13 @@ Fitur ini memungkinkan asesor untuk melihat jadwal ujian yang ditugaskan kepada 
 ### Model
 - **File**: `app/Models/PendaftaranUjikom.php`
   - Diupdate relasi untuk membedakan asesi dan asesor
+- **File**: `app/Models/Jadwal.php`
+  - Menambahkan status 7 dan 8
 
 ### Routes
 - **File**: `routes/web.php`
   - Route untuk show asesi
+  - Route untuk update status dengan method PUT/DELETE
 
 ## Status Pendaftaran Ujikom
 - **Status 1**: Belum Ujikom
@@ -44,7 +49,8 @@ Fitur ini memungkinkan asesor untuk melihat jadwal ujian yang ditugaskan kepada 
 - **Status 4**: Tidak Kompeten
 - **Status 5**: Kompeten
 - **Status 6**: Menunggu Konfirmasi Asesor
-- **Status 7**: Asesor Tidak Dapat Hadir
+- **Status 7**: Asesor Dapat Hadir
+- **Status 8**: Asesor Tidak Dapat Hadir
 
 ## Cara Penggunaan
 
@@ -117,3 +123,72 @@ Fitur ini memungkinkan asesor untuk melihat jadwal ujian yang ditugaskan kepada 
 1. Pastikan DataTables CSS dan JS sudah dimuat
 2. Cek console browser untuk error JavaScript
 3. Pastikan jQuery sudah dimuat sebelum script custom
+
+## Alur Kerja
+
+```mermaid
+graph TD
+    A[Asesor Login] --> B[Akses Verifikasi Peserta]
+    B --> C[Lihat Daftar Jadwal]
+    C --> D{Pilih Aksi}
+    D -->|Dapat Hadir| E[Modal Konfirmasi Hadir]
+    D -->|Tidak Dapat Hadir| F[Modal Konfirmasi Tidak Hadir]
+    E --> G[Update Status 7]
+    F --> H[Update Status 8]
+    H --> I[Kirim Email ke Asesi]
+    H --> J[Kirim Email ke Admin]
+    G --> K[Selesai]
+    I --> K
+    J --> K
+```
+
+## Konfigurasi Email
+
+Pastikan konfigurasi email di `.env` sudah benar:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your-email
+MAIL_PASSWORD=your-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-email
+MAIL_FROM_NAME="Sistem Sertifikasi Kompetensi"
+```
+
+## Testing
+
+### Test Email
+Untuk testing email, gunakan Mailtrap atau service email testing lainnya.
+
+### Test Modal
+1. Login sebagai asesor
+2. Akses halaman verifikasi peserta
+3. Cari jadwal dengan status 6
+4. Test tombol "Asesor Dapat Hadir" dan "Asesor Tidak Dapat Hadir"
+5. Verifikasi modal muncul dan form berfungsi
+
+## Troubleshooting
+
+### Email Tidak Terkirim
+1. Periksa konfigurasi SMTP di `.env`
+2. Periksa log Laravel di `storage/logs/laravel.log`
+3. Pastikan queue worker berjalan jika menggunakan queue
+
+### Modal Tidak Muncul
+1. Periksa apakah Bootstrap dan jQuery dimuat
+2. Periksa console browser untuk error JavaScript
+3. Pastikan data attributes pada tombol sudah benar
+
+### Status Tidak Berubah
+1. Periksa apakah route sudah terdaftar dengan benar
+2. Periksa apakah method di controller berjalan
+3. Periksa log Laravel untuk error
+
+## Keamanan
+
+- Validasi input keterangan untuk ketidakhadiran
+- Validasi bahwa asesor terdaftar di jadwal tersebut
+- CSRF protection pada form
+- Database transaction untuk konsistensi data

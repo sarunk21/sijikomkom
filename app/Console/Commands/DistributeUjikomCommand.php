@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use App\Models\Pendaftaran;
 use App\Models\User;
 use App\Models\PendaftaranUjikom;
+use App\Models\Jadwal;
+use App\Services\EmailService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +27,14 @@ class DistributeUjikomCommand extends Command
      */
     protected $description = 'Distribusikan pendaftaran ujikom berdasarkan skema dan asesor yang tersedia';
 
+    protected $emailService;
+
+    public function __construct(EmailService $emailService)
+    {
+        parent::__construct();
+        $this->emailService = $emailService;
+    }
+
     /**
      * Execute the console command.
      */
@@ -34,7 +44,7 @@ class DistributeUjikomCommand extends Command
 
         // Ambil pendaftaran dengan status 4 dan tanggal maksimal pendaftaran sama dengan hari ini
         $pendaftaran = Pendaftaran::where('status', 4)
-            ->whereHas('jadwal', function($query) {
+            ->whereHas('jadwal', function ($query) {
                 $query->whereDate('tanggal_maksimal_pendaftaran', Carbon::today());
             })
             ->with(['jadwal', 'user'])
@@ -66,6 +76,7 @@ class DistributeUjikomCommand extends Command
         $pendaftaranBySkema = $pendaftaran->groupBy('skema_id');
 
         $totalInserted = 0;
+        $asesorWithJadwal = []; // Untuk tracking asesor yang mendapat jadwal
 
         foreach ($pendaftaranBySkema as $skemaId => $pendaftaranSkema) {
             $this->info("Memproses skema ID: {$skemaId}");
@@ -107,7 +118,14 @@ class DistributeUjikomCommand extends Command
                     'jadwal_id' => $pendaftar->jadwal_id,
                     'asesi_id' => $pendaftar->user_id,
                     'asesor_id' => $asesorId,
+                    'status' => 6,
                 ]);
+
+                // Track jadwal untuk asesor ini
+                if (!isset($asesorWithJadwal[$asesorId])) {
+                    $asesorWithJadwal[$asesorId] = [];
+                }
+                $asesorWithJadwal[$asesorId][] = $pendaftar->jadwal_id;
 
                 $totalInserted++;
 
@@ -119,5 +137,61 @@ class DistributeUjikomCommand extends Command
         }
 
         $this->info("Distribusi selesai! Total {$totalInserted} pendaftaran ujikom berhasil dibuat.");
+
+        // Kirim email konfirmasi kehadiran ke asesor
+        $this->sendConfirmationEmailsToAsesor($asesorWithJadwal);
+    }
+
+    /**
+     * Kirim email konfirmasi kehadiran ke asesor
+     */
+    private function sendConfirmationEmailsToAsesor($asesorWithJadwal)
+    {
+        $this->info('Mengirim email konfirmasi kehadiran ke asesor...');
+
+        $totalEmailsSent = 0;
+
+        foreach ($asesorWithJadwal as $asesorId => $jadwalIds) {
+            // Ambil data asesor
+            $asesor = User::find($asesorId);
+            if (!$asesor || !$asesor->email) {
+                $this->warn("Asesor ID {$asesorId} tidak ditemukan atau tidak memiliki email.");
+                continue;
+            }
+
+            // Ambil jadwal unik untuk asesor ini
+            $uniqueJadwalIds = array_unique($jadwalIds);
+
+            foreach ($uniqueJadwalIds as $jadwalId) {
+                // Ambil data jadwal
+                $jadwal = Jadwal::with(['skema', 'tuk'])->find($jadwalId);
+                if (!$jadwal) {
+                    $this->warn("Jadwal ID {$jadwalId} tidak ditemukan.");
+                    continue;
+                }
+
+                // Hitung jumlah asesi untuk jadwal ini
+                $jumlahAsesi = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+                    ->where('asesor_id', $asesorId)
+                    ->count();
+
+                try {
+                    // Kirim email konfirmasi kehadiran
+                    $this->emailService->sendKonfirmasiKehadiranEmail(
+                        $asesor->email,
+                        $asesor->name,
+                        $jadwal,
+                        $jumlahAsesi
+                    );
+
+                    $totalEmailsSent++;
+                    $this->info("✅ Email konfirmasi terkirim ke {$asesor->name} untuk jadwal {$jadwal->skema->nama} - {$jadwal->tuk->nama}");
+                } catch (\Exception $e) {
+                    $this->error("❌ Gagal mengirim email ke {$asesor->name}: " . $e->getMessage());
+                }
+            }
+        }
+
+        $this->info("Total {$totalEmailsSent} email konfirmasi kehadiran berhasil dikirim ke asesor.");
     }
 }

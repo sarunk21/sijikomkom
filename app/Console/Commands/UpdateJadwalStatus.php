@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Jadwal;
 use App\Models\Pendaftaran;
+use App\Models\PendaftaranUjikom;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -46,6 +47,14 @@ class UpdateJadwalStatus extends Command
                 $p->status = 5;
                 $p->save();
                 $this->info("Pendaftaran ID {$p->id} diupdate ke status Ujian Berlangsung");
+            }
+
+            // Update status pendaftaran ujikom yang terkait dengan jadwal berlangsung
+            $pendaftaranUjikom = PendaftaranUjikom::where('jadwal_id', $jadwal->id)->where('status', 4)->get();
+            foreach ($pendaftaranUjikom as $p) {
+                $p->status = 5;
+                $p->save();
+                $this->info("Pendaftaran Ujikom ID {$p->id} diupdate ke status Ujian Berlangsung");
             }
         }
 
