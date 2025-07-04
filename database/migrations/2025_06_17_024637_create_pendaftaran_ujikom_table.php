@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pendaftaran_ujikom', function (Blueprint $table) {
-            $table->foreignId('pendaftar_id')->constrained('pendaftaran');
+            $table->id();
+            $table->foreignId('pendaftaran_id')->constrained('pendaftaran');
             $table->foreignId('jadwal_id')->constrained('jadwal');
             $table->foreignId('asesi_id')->constrained('users');
             $table->foreignId('asesor_id')->constrained('users');
             $table->string('status')->nullable();
+            $table->timestamps();
         });
     }
 

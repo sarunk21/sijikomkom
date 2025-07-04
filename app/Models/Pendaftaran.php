@@ -50,6 +50,11 @@ class Pendaftaran extends Model
 
     public function pendaftaranUjikom()
     {
-        return $this->hasOne(PendaftaranUjikom::class);
+        return $this->hasOne(PendaftaranUjikom::class, 'pendaftaran_id');
+    }
+
+    public function report()
+    {
+        return $this->hasOne(Report::class, 'pendaftaran_id');
     }
 }

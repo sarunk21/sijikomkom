@@ -7,7 +7,6 @@ use App\Models\Pendaftaran;
 use App\Services\EmailService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class VerifikasiPendaftaranController extends Controller
 {

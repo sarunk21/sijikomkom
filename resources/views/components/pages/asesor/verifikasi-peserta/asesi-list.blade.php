@@ -70,7 +70,6 @@
                             <th>NIM</th>
                             <th>Telepon</th>
                             <th>Status</th>
-                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,16 +79,9 @@
                                 <td>{{ $asesi->asesi->nim }}</td>
                                 <td>{{ $asesi->asesi->telephone }}</td>
                                 <td>
-                                    <span class="badge badge-{{ $asesi->status == 6 ? 'info' : ($asesi->status == 7 ? 'danger' : 'success') }}">
-                                        {{ $asesi->status_text }}
+                                    <span class="badge badge-{{ $asesi->pendaftaran->status == 4 ? 'info' : ($asesi->pendaftaran->status == 7 ? 'danger' : 'success') }}">
+                                        {{ $asesi->pendaftaran->status_text }}
                                     </span>
-                                </td>
-                                <td>
-                                    @if($asesi->keterangan)
-                                        <span class="text-muted">{{ $asesi->keterangan }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
                                 </td>
                             </tr>
                         @endforeach

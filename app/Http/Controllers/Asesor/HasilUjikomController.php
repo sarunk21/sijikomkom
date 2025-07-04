@@ -21,7 +21,7 @@ class HasilUjikomController extends Controller
     public function index()
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
-        $hasilUjikom = Jadwal::where('status', 4)
+        $hasilUjikom = Jadwal::where('status', 3)
             ->with(['skema', 'tuk'])
             ->orderBy('tanggal_ujian', 'asc')
             ->get();
@@ -58,11 +58,11 @@ class HasilUjikomController extends Controller
             ->first();
 
         $asesi = PendaftaranUjikom::where('jadwal_id', $jadwal->id)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'pendaftaran'])
+            ->with(['asesi', 'jadwal', 'jadwal.skema', 'jadwal.tuk', 'pendaftaran'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('components.pages.asesor.hasil-ujikom.list-asesi', compact('lists', 'jadwal', 'asesi', 'apl2'));
+        return view('components.pages.asesor.hasil-ujikom.list-asesi', compact('lists', 'jadwal', 'asesi'));
     }
 
     /**
@@ -86,7 +86,7 @@ class HasilUjikomController extends Controller
         // Update status ujikom
         $pendaftaranUjikom = PendaftaranUjikom::find($id);
         $pendaftaranUjikom->asesor_id = Auth::user()->id;
-        $pendaftaranUjikom->status = $request->status;
+        $pendaftaranUjikom->status = 3;
         $pendaftaranUjikom->save();
 
         $status = $request->status == 4 ? 2 : 1;
@@ -94,7 +94,7 @@ class HasilUjikomController extends Controller
         // Insert ke report
         Report::create([
             'user_id' => $pendaftaranUjikom->asesi_id,
-            'pendaftaran_id' => $pendaftaranUjikom->pendaftaran_id,
+            'pendaftaran_id' => $id,
             'skema_id' => $pendaftaranUjikom->jadwal->skema_id,
             'jadwal_id' => $pendaftaranUjikom->jadwal_id,
             'status' => $status,
@@ -118,8 +118,10 @@ class HasilUjikomController extends Controller
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
 
-        $jawabanAsesi = Response::where('pendaftaran_id', $id)->get();
+        $jawabanAsesi = Response::where('pendaftaran_id', $id)
+            ->with(['pendaftaran', 'pendaftaran.jadwal', 'pendaftaran.jadwal.skema', 'pendaftaran.jadwal.tuk', 'pendaftaran.asesi'])
+            ->get();
 
-        return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'jawabanAsesi'));
+        return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'jawabanAsesi', 'id'));
     }
 }

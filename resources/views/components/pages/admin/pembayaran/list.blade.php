@@ -77,11 +77,13 @@
                                                     <i class="fas fa-check text-success"></i>
                                                 </button>
                                             </form>
-                                            <button type="button"
+                                            <button
+                                                type="button"
+                                                id="rejectButton"
                                                 class="btn btn-light btn-icon btn-sm border shadow-sm"
                                                 title="Reject"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#rejectModal"
+                                                data-toggle="modal"
+                                                data-target="#rejectModal"
                                                 data-id="{{ $item->id }}"
                                                 data-keterangan="{{ $item->keterangan ?? '' }}">
                                                 <i class="fas fa-times text-danger"></i>
@@ -103,7 +105,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="rejectModalLabel">Tolak Pembayaran</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="formReject" method="POST">
@@ -116,7 +120,7 @@
                                 placeholder="Masukkan alasan penolakan pembayaran..." required></textarea>
                         </div>
                         <div class="modal-footer px-0 pb-0">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-danger">Tolak Pembayaran</button>
                         </div>
                     </form>
@@ -197,19 +201,20 @@
                 });
 
                 // Handle modal reject
-                $('#rejectModal').on('show.bs.modal', function (event) {
-                    var button = $(event.relatedTarget);
+                $('#rejectButton').on('click', function (event) {
+                    var button = $(this);
                     var id = button.data('id');
                     var keterangan = button.data('keterangan');
+                    var modal = $('#rejectModal');
 
-                    var modal = $(this);
+                    modal.find('#formReject').attr('action', '{{ route("admin.pembayaran-asesi.update", ":id") }}'.replace(':id', id));
                     modal.find('#keterangan').val(keterangan || '');
-                    modal.find('#formReject').attr('action', '{{ route("admin.pembayaran-asesi.update", "") }}/' + id);
                 });
 
-                // Reset modal when hidden
+                // Reset modal when close
                 $('#rejectModal').on('hidden.bs.modal', function () {
-                    $(this).find('#keterangan').val('');
+                    $('#formReject').attr('action', '');
+                    $('#keterangan').val('');
                 });
             });
         </script>

@@ -21,6 +21,7 @@
                             <th>Tanggal Asesmen</th>
                             <th>TUK</th>
                             <th>Status</th>
+                            <th>Keterangan</th>
                             <th>Bukti Pembayaran</th>
                             <th>Aksi</th>
                         </tr>
@@ -34,6 +35,7 @@
                                 <td>
                                     {{ $item->status_text }}
                                 </td>
+                                <td>{{ $item->keterangan }}</td>
                                 <td>
                                     @if ($item->bukti_pembayaran)
                                         <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}" target="_blank">

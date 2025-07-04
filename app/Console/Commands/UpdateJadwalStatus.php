@@ -7,6 +7,7 @@ use App\Models\Pendaftaran;
 use App\Models\PendaftaranUjikom;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateJadwalStatus extends Command
 {
@@ -31,10 +32,12 @@ class UpdateJadwalStatus extends Command
     {
         $now = Carbon::now();
 
+        Log::info($now);
+
         // Update jadwal yang sedang berlangsung (status 3)
         $jadwalBerlangsung = Jadwal::where('status', 1) // Aktif
-            ->where('tanggal_ujian', '<=', $now)
-            ->where('tanggal_ujian', '>=', $now->copy()->subDay()) // Masih dalam hari yang sama
+            ->whereDate('tanggal_ujian', '<=', $now)
+            ->whereDate('tanggal_ujian', '>=', $now->copy()->subDay())
             ->get();
 
         foreach ($jadwalBerlangsung as $jadwal) {

@@ -9,7 +9,7 @@ use App\Models\PendaftaranUjikom;
 use App\Models\Jadwal;
 use App\Services\EmailService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DistributeUjikomCommand extends Command
 {
@@ -66,7 +66,7 @@ class DistributeUjikomCommand extends Command
             ->get();
 
         if ($asesor->isEmpty()) {
-            $this->error('Tidak ada asesor yang tersedia untuk skema yang diperlukan.');
+            Log::info('Tidak ada asesor yang tersedia untuk skema yang diperlukan.');
             return;
         }
 
@@ -79,13 +79,13 @@ class DistributeUjikomCommand extends Command
         $asesorWithJadwal = []; // Untuk tracking asesor yang mendapat jadwal
 
         foreach ($pendaftaranBySkema as $skemaId => $pendaftaranSkema) {
-            $this->info("Memproses skema ID: {$skemaId}");
+            Log::info("Memproses skema ID: {$skemaId}");
 
             // Ambil asesor untuk skema ini
             $asesorSkema = $asesor->where('skema_id', $skemaId);
 
             if ($asesorSkema->isEmpty()) {
-                $this->warn("Tidak ada asesor untuk skema ID: {$skemaId}");
+                Log::info("Tidak ada asesor untuk skema ID: {$skemaId}");
                 continue;
             }
 
@@ -108,7 +108,7 @@ class DistributeUjikomCommand extends Command
                 $existingUjikom = PendaftaranUjikom::where('pendaftar_id', $pendaftar->id)->first();
 
                 if ($existingUjikom) {
-                    $this->warn("Pendaftaran ID {$pendaftar->id} sudah memiliki ujikom, dilewati.");
+                    Log::info("Pendaftaran ID {$pendaftar->id} sudah memiliki ujikom, dilewati.");
                     continue;
                 }
 
@@ -155,7 +155,7 @@ class DistributeUjikomCommand extends Command
             // Ambil data asesor
             $asesor = User::find($asesorId);
             if (!$asesor || !$asesor->email) {
-                $this->warn("Asesor ID {$asesorId} tidak ditemukan atau tidak memiliki email.");
+                Log::info("Asesor ID {$asesorId} tidak ditemukan atau tidak memiliki email.");
                 continue;
             }
 
@@ -166,7 +166,7 @@ class DistributeUjikomCommand extends Command
                 // Ambil data jadwal
                 $jadwal = Jadwal::with(['skema', 'tuk'])->find($jadwalId);
                 if (!$jadwal) {
-                    $this->warn("Jadwal ID {$jadwalId} tidak ditemukan.");
+                    Log::info("Jadwal ID {$jadwalId} tidak ditemukan.");
                     continue;
                 }
 
@@ -185,9 +185,9 @@ class DistributeUjikomCommand extends Command
                     );
 
                     $totalEmailsSent++;
-                    $this->info("✅ Email konfirmasi terkirim ke {$asesor->name} untuk jadwal {$jadwal->skema->nama} - {$jadwal->tuk->nama}");
+                    Log::info("✅ Email konfirmasi terkirim ke {$asesor->name} untuk jadwal {$jadwal->skema->nama} - {$jadwal->tuk->nama}");
                 } catch (\Exception $e) {
-                    $this->error("❌ Gagal mengirim email ke {$asesor->name}: " . $e->getMessage());
+                    Log::info("❌ Gagal mengirim email ke {$asesor->name}: " . $e->getMessage());
                 }
             }
         }

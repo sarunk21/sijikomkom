@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('skema_id')->constrained('skema');
             $table->foreignId('jadwal_id')->constrained('jadwal');
+            $table->foreignId('pendaftaran_id')->constrained('pendaftaran');
             $table->integer('status')->nullable();
             $table->timestamps();
         });

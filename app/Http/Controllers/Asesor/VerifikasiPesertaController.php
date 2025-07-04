@@ -34,12 +34,9 @@ class VerifikasiPesertaController extends Controller
         // Ambil jadwal berdasarkan asesor yang login (distinct)
         $jadwalList = PendaftaranUjikom::where('asesor_id', operator: Auth::id())
             ->with(['jadwal.skema', 'jadwal.tuk'])
-            ->select('jadwal_id')
             ->distinct()
-            ->get()
-            ->map(function ($item) {
-                return $item->jadwal;
-            });
+            ->orderBy('jadwal_id', 'desc')
+            ->get();
 
         return view('components.pages.asesor.verifikasi-peserta.list', compact('lists', 'jadwalList'));
     }
@@ -64,7 +61,7 @@ class VerifikasiPesertaController extends Controller
 
         $asesiList = PendaftaranUjikom::where('jadwal_id', $jadwalId)
             ->where('asesor_id', Auth::id())
-            ->with(['asesi', 'pendaftar'])
+            ->with(['asesi', 'pendaftaran'])
             ->get();
 
         return view('components.pages.asesor.verifikasi-peserta.asesi-list', compact('lists', 'jadwal', 'asesiList'));
@@ -107,7 +104,7 @@ class VerifikasiPesertaController extends Controller
             } elseif ($request->isMethod('DELETE')) {
                 foreach ($pendaftaranUjikom as $p) {
                     $p->update([
-                        'status' => 8,
+                        'status' => 7,
                         'keterangan' => $request->keterangan ?? 'Asesor mengkonfirmasi tidak dapat hadir'
                     ]);
                 }

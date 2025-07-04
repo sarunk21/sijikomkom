@@ -34,11 +34,11 @@
                     <tbody>
                         @foreach ($asesi as $item)
                             <tr>
-                                <td>{{ $item->asesi->nama }} - {{ $item->asesi->nim }}</td>
+                                <td>{{ $item->asesi->name }} - {{ $item->asesi->nim }}</td>
                                 <td>{{ $item->status_text }}</td>
                                 <td>
-                                    @if ($item->status == 3)
-                                        <a href="{{ route('asesor.hasil-ujikom.show', $item->id) }}"
+                                    @if ($item->status == 2)
+                                        <a href="{{ route('asesor.hasil-ujikom.show-jawaban-asesi', $item->pendaftaran->id) }}"
                                             class="btn btn-outline-warning btn-sm shadow-sm">
                                             Mulai Pemeriksaan
                                         </a>

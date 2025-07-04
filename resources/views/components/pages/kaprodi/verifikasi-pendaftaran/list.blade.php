@@ -68,11 +68,14 @@
                                                     <i class="fas fa-check text-success"></i>
                                                 </button>
                                             </form>
-                                            <button type="button" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                                data-bs-toggle="modal" data-bs-target="#modalKeterangan"
+                                            <button
+                                                type="button"
+                                                id="keteranganButton"
+                                                class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                data-toggle="modal" data-target="#modalKeterangan"
                                                 data-keterangan="{{ $item->keterangan ?? '' }}"
                                                 data-id="{{ $item->id }}">
-                                                <i class="fas fa-info-circle text-info"></i>
+                                                <i class="fas fa-times text-danger"></i>
                                             </button>
                                         </div>
                                     @endif
@@ -90,7 +93,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalKeteranganLabel">Keterangan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="formKeterangan" method="POST">
@@ -98,11 +103,11 @@
                         @method('PUT')
                         <input type="hidden" name="status" value="2">
                         <div class="form-group">
-                            <label for="keterangan">Keterangan</label>
+                            <label for="keterangan">Keterangan Penolakan</label>
                             <textarea name="keterangan" id="keterangan" class="form-control" rows="3" placeholder="Masukkan keterangan..."></textarea>
                         </div>
                         <div class="modal-footer px-0 pb-0">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
@@ -153,18 +158,19 @@
                 });
 
                 // Handle modal keterangan
-                $('#modalKeterangan').on('show.bs.modal', function (event) {
-                    var button = $(event.relatedTarget);
+                $('#keteranganButton').on('click', function (event) {
+                    var button = $(this);
                     var keterangan = button.data('keterangan');
                     var id = button.data('id');
 
-                    var modal = $(this);
+                    var modal = $('#modalKeterangan');
+                    modal.find('#formKeterangan').attr('action', '{{ route("kaprodi.verifikasi-pendaftaran.update", ":id") }}'.replace(':id', id));
                     modal.find('#keterangan').val(keterangan || '');
-                    modal.find('#formKeterangan').attr('action', '{{ route("kaprodi.verifikasi-pendaftaran.update", "") }}/' + id);
                 });
 
-                // Reset modal when hidden
+                // Reset modal when close
                 $('#modalKeterangan').on('hidden.bs.modal', function () {
+                    $('#formKeterangan').attr('action', '');
                     $(this).find('#keterangan').val('');
                 });
             });

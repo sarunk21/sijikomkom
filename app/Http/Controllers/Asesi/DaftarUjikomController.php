@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Asesi;
 use App\Http\Controllers\Controller;
 use App\Models\Jadwal;
 use App\Models\Pembayaran;
+use App\Models\Pendaftaran;
 use App\Models\User;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
@@ -72,8 +73,8 @@ class DaftarUjikomController extends Controller
         ]);
 
         // Check apakah asesi sudah pernah daftar ujikom
-        $pembayaran = Pembayaran::where('user_id', Auth::user()->id)->first();
-        if ($pembayaran) {
+        $pendaftaran = Pendaftaran::where('user_id', Auth::user()->id)->first();
+        if ($pendaftaran) {
             Pembayaran::create([
                 'user_id' => Auth::user()->id,
                 'jadwal_id' => $request->jadwal_id,

@@ -120,11 +120,11 @@
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
 
     <!-- Page level plugins -->
-    <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
+    <!-- <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script> -->
 
     <!-- Page level custom scripts -->
-    <script src="{{ asset('js/demo/chart-area-demo.js') }}"></script>
-    <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script>
+    <!-- <script src="{{ asset('js/demo/chart-area-demo.js') }}"></script> -->
+    <!-- <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script> -->
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

@@ -10,7 +10,7 @@ class PendaftaranUjikom extends Model
     use HasFactory;
 
     protected $table = 'pendaftaran_ujikom';
-    protected $fillable = ['pendaftar_id', 'jadwal_id', 'asesi_id', 'asesor_id', 'status', 'keterangan'];
+    protected $fillable = ['pendaftaran_id', 'jadwal_id', 'asesi_id', 'asesor_id', 'status', 'keterangan'];
 
     protected $statusUjikom = [
         1 => 'Belum Ujikom',
@@ -27,9 +27,9 @@ class PendaftaranUjikom extends Model
         return $this->statusUjikom[$this->status] ?? 'Tidak Diketahui';
     }
 
-    public function pendaftar()
+    public function pendaftaran()
     {
-        return $this->belongsTo(Pendaftaran::class);
+        return $this->belongsTo(Pendaftaran::class, 'pendaftaran_id');
     }
 
     public function jadwal()

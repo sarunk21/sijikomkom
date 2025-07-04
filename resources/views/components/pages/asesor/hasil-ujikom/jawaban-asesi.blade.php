@@ -64,15 +64,15 @@
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <div class="text-muted">
                         <i class="fas fa-list me-1"></i>
-                        Total pertanyaan: <strong>{{ count($apl2) }}</strong>
+                        Total pertanyaan: <strong>{{ count($jawabanAsesi) }}</strong>
                     </div>
                 </div>
             </form>
 
             {{-- Button Update Status Kompenten atau tidak kompenten, buat 2 button ny, 1 button untuk kompenten dan 1 button untuk tidak kompenten --}}
             <div class="d-flex justify-content-end align-items-center mt-4 gap-2">
-                <form action="{{ route('asesor.hasil-ujikom.update', $pendaftaran->id) }}" method="post"
-                    onsubmit="return confirm('Apakah Anda yakin ingin menetapkan asesi tidak kompenten?');">
+                <form action="{{ route('asesor.hasil-ujikom.update', $id) }}" method="post"
+                    onsubmit="return confirm('Apakah Anda yakin ingin menetapkan asesi tidak kompenten?');" class="mr-2">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="status" value="4">
@@ -81,7 +81,7 @@
                         Tidak Kompenten
                     </button>
                 </form>
-                <form action="{{ route('asesor.hasil-ujikom.update', $pendaftaran->id) }}" method="post"
+                <form action="{{ route('asesor.hasil-ujikom.update', $id) }}" method="post"
                     onsubmit="return confirm('Apakah Anda yakin ingin menetapkan asesi kompenten?');">
                     @csrf
                     @method('PUT')
