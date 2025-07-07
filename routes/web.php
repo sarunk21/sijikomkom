@@ -36,6 +36,7 @@ use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AnalyticsController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -70,6 +71,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('apl-2/create/question/{skema_id}', [APL2Controller::class, 'create'])->name('admin.apl-2.create.question');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
+
+    // Analytics routes
+    Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('admin.analytics.dashboard-data');
+    Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('admin.analytics.clear-cache');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -99,6 +104,10 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
     Route::resource('report-hasil-uji', ReportHasilUjiController::class)->names('kaprodi.report-hasil-uji');
     Route::resource('verifikasi-pendaftaran', VerifikasiPendaftaranController::class)->names('kaprodi.verifikasi-pendaftaran');
     Route::resource('profil-kaprodi', ProfilKaprodiController::class)->names('kaprodi.profil-kaprodi');
+
+    // Analytics routes
+    Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('kaprodi.analytics.dashboard-data');
+    Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('kaprodi.analytics.clear-cache');
 });
 
 Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () {
@@ -106,4 +115,8 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
     Route::resource('report-pimpinan', ReportPimpinanController::class)->names('pimpinan.report-pimpinan');
     Route::resource('laporan-iku', LaporanIKUController::class)->names('pimpinan.laporan-iku');
     Route::resource('profil-pimpinan', ProfilPimpinanController::class)->names('pimpinan.profil-pimpinan');
+
+    // Analytics routes
+    Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('pimpinan.analytics.dashboard-data');
+    Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('pimpinan.analytics.clear-cache');
 });
