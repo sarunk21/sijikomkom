@@ -35,6 +35,8 @@ use App\Http\Controllers\Pimpinan\ReportPimpinanController;
 use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
+use App\Http\Controllers\Tuk\KonfirmasiJadwalController;
+
 use App\Http\Controllers\DashboardController;
 
 use Illuminate\Support\Facades\Auth;
@@ -106,4 +108,9 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
     Route::resource('report-pimpinan', ReportPimpinanController::class)->names('pimpinan.report-pimpinan');
     Route::resource('laporan-iku', LaporanIKUController::class)->names('pimpinan.laporan-iku');
     Route::resource('profil-pimpinan', ProfilPimpinanController::class)->names('pimpinan.profil-pimpinan');
+});
+
+Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.tuk');
+    Route::resource('konfirmasi-jadwal', KonfirmasiJadwalController::class)->names('tuk.konfirmasi-jadwal');
 });

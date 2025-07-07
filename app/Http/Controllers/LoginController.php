@@ -37,6 +37,9 @@ class LoginController extends Controller
             if (Auth::user()->user_type == 'pimpinan') {
                 return redirect()->route('dashboard.pimpinan');
             }
+            if (Auth::user()->user_type == 'tuk') {
+                return redirect()->route('dashboard.tuk');
+            }
 
             Auth::logout();
             return redirect()->route('login')->withInput()->with('error', 'Tipe pengguna tidak valid');
