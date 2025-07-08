@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UploadSertifikatAdminController;
 
 use App\Http\Controllers\Asesi\DaftarUjikomController;
+use App\Http\Controllers\Asesi\DashboardController as AsesiDashboardController;
 use App\Http\Controllers\Asesi\InformasiPembayaranController;
 use App\Http\Controllers\Asesi\UploadSertifikatController;
 use App\Http\Controllers\Asesi\ProfilAsesiController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
+use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController;
 use App\Http\Controllers\Asesor\PembayaranJasaController;
 use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
@@ -36,6 +38,7 @@ use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
 use App\Http\Controllers\Tuk\KonfirmasiJadwalController;
+use App\Http\Controllers\Tuk\DashboardController as TukDashboardController;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalyticsController;
@@ -80,7 +83,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.asesi');
+    Route::get('/', [AsesiDashboardController::class, 'index'])->name('dashboard.asesi');
     Route::resource('informasi-pembayaran', InformasiPembayaranController::class)->names('asesi.informasi-pembayaran');
     Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('asesi.upload-sertifikat');
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
@@ -91,7 +94,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.asesor');
+    Route::get('/', [AsesorDashboardController::class, 'index'])->name('dashboard.asesor');
     Route::resource('verifikasi-peserta', VerifikasiPesertaController::class)->names('asesor.verifikasi-peserta');
     Route::get('verifikasi-peserta/show-asesi/{jadwalId}', [VerifikasiPesertaController::class, 'showAsesi'])->name('asesor.verifikasi-peserta.show-asesi');
     Route::match(['PUT', 'DELETE'], 'verifikasi-peserta/update-status/{jadwalId}', [VerifikasiPesertaController::class, 'updateStatus'])->name('asesor.verifikasi-peserta.update-status');
@@ -124,6 +127,6 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
 });
 
 Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.tuk');
+    Route::get('/', [TukDashboardController::class, 'index'])->name('dashboard.tuk');
     Route::resource('konfirmasi-jadwal', KonfirmasiJadwalController::class)->names('tuk.konfirmasi-jadwal');
 });
