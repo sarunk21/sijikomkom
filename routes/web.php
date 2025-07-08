@@ -35,6 +35,8 @@ use App\Http\Controllers\Pimpinan\ReportPimpinanController;
 use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
+use App\Http\Controllers\Tuk\KonfirmasiJadwalController;
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalyticsController;
 
@@ -119,4 +121,9 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
     // Analytics routes
     Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('pimpinan.analytics.dashboard-data');
     Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('pimpinan.analytics.clear-cache');
+});
+
+Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.tuk');
+    Route::resource('konfirmasi-jadwal', KonfirmasiJadwalController::class)->names('tuk.konfirmasi-jadwal');
 });

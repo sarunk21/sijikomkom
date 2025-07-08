@@ -34,7 +34,8 @@ class UserTypeValidation
             ($userType === 'asesi' && (str_starts_with($currentRoute, 'asesi.') || $currentRoute === 'dashboard.asesi')) ||
             ($userType === 'asesor' && (str_starts_with($currentRoute, 'asesor.') || $currentRoute === 'dashboard.asesor')) ||
             ($userType === 'kaprodi' && (str_starts_with($currentRoute, 'kaprodi.') || $currentRoute === 'dashboard.kaprodi')) ||
-            ($userType === 'pimpinan' && (str_starts_with($currentRoute, 'pimpinan.') || $currentRoute === 'dashboard.pimpinan'))
+            ($userType === 'pimpinan' && (str_starts_with($currentRoute, 'pimpinan.') || $currentRoute === 'dashboard.pimpinan')) ||
+            ($userType === 'tuk' && (str_starts_with($currentRoute, 'tuk.') || $currentRoute === 'dashboard.tuk'))
         ) {
             return $next($request);
         }
@@ -54,6 +55,9 @@ class UserTypeValidation
         }
         if ($userType === 'pimpinan') {
             return redirect()->route('dashboard.pimpinan');
+        }
+        if ($userType === 'tuk') {
+            return redirect()->route('dashboard.tuk');
         }
 
         // Jika user type tidak valid, logout dan redirect ke login
