@@ -4,14 +4,11 @@ namespace App\Http\Controllers\Tuk;
 
 use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
-use Illuminate\Http\Request;
 use App\Models\Pendaftaran;
 use App\Models\Jadwal;
 use App\Models\Report;
-use App\Models\Tuk;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -21,12 +18,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil TUK yang dikelola oleh user ini
-        $tuk = Tuk::where('user_id', $user->id)->first();
+        $lists = $this->getMenuListKepalaTuk('dashboard');
 
-                $lists = $this->getMenuListKepalaTuk('dashboard');
-
-        if (!$tuk) {
+        if (!$user) {
             // Jika tidak ada TUK, return data kosong
             $totalAsesi = 0;
             $kapasitasTuk = 0;
@@ -45,39 +39,33 @@ class DashboardController extends Controller
             return view('components.pages.tuk.dashboard', compact('lists', 'totalAsesi', 'kapasitasTuk', 'jadwalHariIni', 'pendapatanBulanan', 'trenKunjungan', 'distribusiSkema', 'jadwalMingguan', 'laporanBulanan'));
         }
 
-        // Total asesi di TUK ini
-        $totalAsesi = Pendaftaran::where('tuk_id', $tuk->id)->count();
+        $totalAsesi = Pendaftaran::count();
 
-        // Kapasitas TUK (berdasarkan jadwal yang aktif)
-        $jadwalAktif = Jadwal::where('tuk_id', $tuk->id)
-            ->where('status', 1)
+        $jadwalAktif = Jadwal::where('status', 1)
             ->sum('kuota');
-        $pendaftaranAktif = Pendaftaran::where('tuk_id', $tuk->id)
-            ->whereIn('status', [4, 5, 6])
+        $pendaftaranAktif = Pendaftaran::whereIn('status', [4, 5, 6])
             ->count();
         $kapasitasTuk = $jadwalAktif > 0 ? round(($pendaftaranAktif / $jadwalAktif) * 100) : 0;
 
         // Jadwal hari ini
-        $jadwalHariIni = Pendaftaran::where('tuk_id', $tuk->id)
-            ->whereHas('jadwal', function($query) {
+        $jadwalHariIni = Pendaftaran::whereIn('status', [4, 5, 6])
+            ->whereHas('jadwal', function ($query) {
                 $query->whereDate('tanggal_ujian', today());
             })
             ->count();
 
         // Pendapatan bulanan (hitung berdasarkan jumlah pembayaran yang dikonfirmasi)
-        $pendapatanBulanan = Pembayaran::whereHas('jadwal', function($query) use ($tuk) {
-            $query->where('tuk_id', $tuk->id);
-        })
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
-        ->where('status', 4) // Dikonfirmasi
-        ->count() * 1000000; // Asumsi 1 juta per pendaftaran
+        $pendapatanBulanan = Pembayaran::whereIn('status', [4, 5, 6])
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('status', 4) // Dikonfirmasi
+            ->count() * 1000000; // Asumsi 1 juta per pendaftaran
 
         // Tren kunjungan (6 bulan terakhir)
         $trenKunjungan = [];
         for ($i = 5; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
-            $count = Pendaftaran::where('tuk_id', $tuk->id)
+            $count = Pendaftaran::whereIn('status', [4, 5, 6])
                 ->whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
                 ->count();
@@ -88,11 +76,11 @@ class DashboardController extends Controller
         }
 
         // Distribusi skema
-        $distribusiSkema = Pendaftaran::where('tuk_id', $tuk->id)
+        $distribusiSkema = Pendaftaran::whereIn('status', [4, 5, 6])
             ->with('skema')
             ->get()
             ->groupBy('skema.nama')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return $group->count();
             });
 
@@ -102,8 +90,8 @@ class DashboardController extends Controller
 
         foreach ($hari as $index => $namaHari) {
             $tanggal = now()->startOfWeek()->addDays($index);
-            $jumlah = Pendaftaran::where('tuk_id', $tuk->id)
-                ->whereHas('jadwal', function($query) use ($tanggal) {
+            $jumlah = Pendaftaran::whereIn('status', [4, 5, 6])
+                ->whereHas('jadwal', function ($query) use ($tanggal) {
                     $query->whereDate('tanggal_ujian', $tanggal);
                 })
                 ->count();
@@ -121,26 +109,22 @@ class DashboardController extends Controller
         }
 
         // Laporan bulanan
-        $totalUjikomBulan = Pendaftaran::where('tuk_id', $tuk->id)
+        $totalUjikomBulan = Pendaftaran::whereIn('status', [4, 5, 6])
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
-        $lulusBulan = Report::whereHas('pendaftaran', function($query) use ($tuk) {
-            $query->where('tuk_id', $tuk->id);
-        })
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
-        ->where('status', 1)
-        ->count();
+        $lulusBulan = Report::whereIn('status', [4, 5, 6])
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('status', 1)
+            ->count();
 
-        $tidakLulusBulan = Report::whereHas('pendaftaran', function($query) use ($tuk) {
-            $query->where('tuk_id', $tuk->id);
-        })
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
-        ->where('status', 2)
-        ->count();
+        $tidakLulusBulan = Report::whereIn('status', [4, 5, 6])
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('status', 2)
+            ->count();
 
         $persentaseLulus = $totalUjikomBulan > 0 ? round(($lulusBulan / $totalUjikomBulan) * 100) : 0;
 
