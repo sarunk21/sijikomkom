@@ -119,7 +119,7 @@ class HasilUjikomController extends Controller
         $lists = $this->getMenuListAsesor('hasil-ujikom');
 
         $jawabanAsesi = Response::where('pendaftaran_id', $id)
-            ->with(['pendaftaran', 'pendaftaran.jadwal', 'pendaftaran.jadwal.skema', 'pendaftaran.jadwal.tuk', 'pendaftaran.asesi'])
+            ->with(['pendaftaran', 'pendaftaran.jadwal', 'pendaftaran.jadwal.skema', 'pendaftaran.jadwal.tuk'])
             ->get();
 
         return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'jawabanAsesi', 'id'));
