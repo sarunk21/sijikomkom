@@ -66,7 +66,7 @@ class UjikomController extends Controller
         $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $id)
             ->where('asesi_id', Auth::user()->id)
             ->first();
-        $pendaftaranUjikom->status = 2;
+        $pendaftaranUjikom->status = 3;
         $pendaftaranUjikom->save();
 
         return redirect()->route('asesi.ujikom.index')->with('success', 'Jawaban berhasil disimpan!');
