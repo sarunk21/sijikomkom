@@ -86,7 +86,7 @@ class HasilUjikomController extends Controller
         // Update status ujikom
         $pendaftaranUjikom = PendaftaranUjikom::find($id);
         $pendaftaranUjikom->asesor_id = Auth::user()->id;
-        $pendaftaranUjikom->status = 3;
+        $pendaftaranUjikom->status = $request->status;
         $pendaftaranUjikom->save();
 
         $status = $request->status == 4 ? 2 : 1;
