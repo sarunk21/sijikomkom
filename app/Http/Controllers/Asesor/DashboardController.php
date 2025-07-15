@@ -67,9 +67,11 @@ class DashboardController extends Controller
             $query->where('tanggal_ujian', '>=', now());
         })
         ->with(['user', 'jadwal', 'skema', 'tuk'])
-        ->orderBy('jadwal.tanggal_ujian')
-        ->limit(5)
         ->get()
+        ->sortBy(function($pendaftaran) {
+            return $pendaftaran->jadwal->tanggal_ujian ?? now()->addYears(10);
+        })
+        ->take(5)
         ->map(function($pendaftaran) {
             return [
                 'tanggal' => $pendaftaran->jadwal->tanggal_ujian->format('Y-m-d H:i'),
@@ -78,7 +80,8 @@ class DashboardController extends Controller
                 'tuk' => $pendaftaran->tuk->nama ?? 'Tidak diketahui',
                 'status' => $this->getStatusText($pendaftaran->status)
             ];
-        });
+        })
+        ->values();
 
         $lists = $this->getMenuListAsesor('dashboard');
 
