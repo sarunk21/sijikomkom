@@ -20,7 +20,7 @@
                     <tbody>
                         @foreach ($reports as $item)
                             <tr>
-                                <td>{{ $item->skema->nama }}</td>
+                                <td>{{ $item->skema->nama ?? '' }}</td>
                                 <td>{{ $item->jumlah_asesi()->count() }}</td>
                                 <td>{{ $item->tanggal_ujian }}</td>
                                 <td>{{ $item->jumlah_kompeten()->count() }}</td>
