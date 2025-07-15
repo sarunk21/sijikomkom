@@ -32,7 +32,7 @@ class PembayaranAsesorController extends Controller
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
         $asesor = User::where('user_type', 'asesor')->get();
-        $jadwal = Jadwal::where('status', 3)->orderBy('tanggal_ujian', 'asc')->get();
+        $jadwal = Jadwal::where('status', 4)->orderBy('tanggal_ujian', 'asc')->get();
         return view('components.pages.admin.pembayaranasesor.create', compact('lists', 'asesor', 'jadwal'));
     }
 
