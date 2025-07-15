@@ -61,7 +61,7 @@ class PembayaranAsesorController extends Controller
                 'asesor_id' => $request->asesor_id,
                 'jadwal_id' => $request->jadwal_id,
                 'bukti_pembayaran' => $buktiPembayaran->hashName(),
-                'status' => 1,
+                'status' => 3,
             ]);
 
             return redirect()->route('admin.pembayaran-asesor.index')->with('success', 'Pembayaran asesor berhasil ditambahkan');
