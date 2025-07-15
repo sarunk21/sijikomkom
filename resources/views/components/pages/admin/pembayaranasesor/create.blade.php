@@ -18,45 +18,20 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="{{ route('admin.pembayaran-asesor.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.pembayaran-asesor.update', $pembayaranAsesor->id) }}" method="POST"
+                enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
 
-                <div class="mb-3">
-                    <label for="asesor" class="form-label">Asesor <span class="text-danger">*</span></label>
-                    <select name="asesor_id" id="asesor_id" class="form-control @error('asesor_id') is-invalid @enderror"
-                        required>
-                        <option value="" disabled selected>Pilih asesor di sini...</option>
-                        @foreach ($asesor as $item)
-                            <option {{ old('asesor_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
-                                {{ $item->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('asesor_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                    <label for="jadwal" class="form-label">Jadwal <span class="text-danger">*</span></label>
-                    <select name="jadwal_id" id="jadwal_id" class="form-control @error('jadwal_id') is-invalid @enderror"
-                        required>
-                        <option value="" disabled selected>Pilih jadwal di sini...</option>
-                        @foreach ($jadwal as $item)
-                            <option {{ old('jadwal_id') == $item->id ? 'selected' : '' }} value="{{ $item->id }}">
-                                {{ $item->skema->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('jadwal_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <input type="hidden" name="asesor_id" value="{{ $pembayaranAsesor->asesor_id }}">
+                <input type="hidden" name="jadwal_id" value="{{ $pembayaranAsesor->jadwal_id }}">
 
                 <div class="mb-3">
                     <label for="bukti_pembayaran" class="form-label">Bukti Pembayaran <span
                             class="text-danger">*</span></label>
                     <input type="file" id="bukti_pembayaran" name="bukti_pembayaran"
                         class="form-control @error('bukti_pembayaran') is-invalid @enderror"
-                        placeholder="Isi bukti pembayaran di sini..." value="{{ old('bukti_pembayaran') }}" required
+                        placeholder="Isi bukti pembayaran di sini..." required
                         accept="image/*">
                     @error('bukti_pembayaran')
                         <div class="invalid-feedback">{{ $message }}</div>

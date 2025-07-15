@@ -87,6 +87,9 @@ class HasilUjikomController extends Controller
         $pendaftaranUjikom = PendaftaranUjikom::find($id);
         $pendaftaranUjikom->asesor_id = Auth::user()->id;
         $pendaftaranUjikom->status = $request->status;
+
+        $request->status == 4 ? $pendaftaranUjikom->keterangan = 'Tidak Kompeten' : $pendaftaranUjikom->keterangan = 'Kompeten';
+
         $pendaftaranUjikom->save();
 
         $status = $request->status == 4 ? 2 : 1;

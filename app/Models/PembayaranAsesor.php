@@ -12,8 +12,7 @@ class PembayaranAsesor extends Model
 
     public $statusPembayaran = [
         1 => 'Menunggu Pembayaran',
-        2 => 'Menunggu Verifikasi',
-        3 => 'Selesai',
+        2 => 'Selesai',
     ];
 
     public function getStatusTextAttribute()

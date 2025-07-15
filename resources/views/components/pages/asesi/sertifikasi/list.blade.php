@@ -24,7 +24,7 @@
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>{{ $item->status_text }}</td>
-                                <td>{{ $item->keterangan }}</td>
+                                <td>{{ $item->pendaftaranUjikom ? $item->pendaftaranUjikom->keterangan : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

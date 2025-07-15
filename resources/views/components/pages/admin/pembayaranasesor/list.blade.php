@@ -4,11 +4,6 @@
 @section('page-title', 'Pembayaran Asesor')
 
 @section('content')
-    <div class="mb-3">
-        <a href="{{ route('admin.pembayaran-asesor.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i>
-            Upload Bukti Pembayaran</a>
-    </div>
-
     @if (session('error'))
         <div class="alert alert-danger">
             {{ session('error') }}
@@ -32,6 +27,8 @@
                             <th>Skema</th>
                             <th>Tanggal Ujian</th>
                             <th>Bukti Pembayaran</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,6 +42,13 @@
                                     <a href="{{ asset('storage/public/bukti_pembayaran/' . $item->bukti_pembayaran) }}"
                                         class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti" target="_blank">
                                         <i class="fas fa-eye text-primary"></i>
+                                    </a>
+                                </td>
+                                <td>{{ $item->status_text }}</td>
+                                <td>
+                                    <a href="{{ route('admin.pembayaran-asesor.edit', $item->id) }}"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
+                                        <i class="fas fa-edit text-primary"></i>
                                     </a>
                                 </td>
                             </tr>

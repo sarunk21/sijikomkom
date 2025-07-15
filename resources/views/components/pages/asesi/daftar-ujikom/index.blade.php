@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="photo_sertifikat" class="form-label">Foto Sertifikat <span
+                    <label for="photo_sertifikat" class="form-label">Surat Rekomendasi <span
                             class="text-danger">*</span></label>
                     <input type="file" id="photo_sertifikat" name="photo_sertifikat"
                         class="form-control @error('photo_sertifikat') is-invalid @enderror" required>

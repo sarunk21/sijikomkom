@@ -83,7 +83,10 @@ class PembayaranAsesorController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
+        $pembayaranAsesor = PembayaranAsesor::where('id', $id)->first();
+
+        return view('components.pages.admin.pembayaranasesor.create', compact('lists', 'pembayaranAsesor'));
     }
 
     /**
@@ -91,7 +94,22 @@ class PembayaranAsesorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'asesor_id' => 'required|exists:users,id',
+            'jadwal_id' => 'required|exists:jadwal,id',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        $buktiPembayaran = $request->file('bukti_pembayaran');
+        $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
+
+        $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $request->jadwal_id)->first();
+        $pembayaranAsesor->asesor_id = $request->asesor_id;
+        $pembayaranAsesor->bukti_pembayaran = $buktiPembayaran->hashName();
+        $pembayaranAsesor->status = 2;
+        $pembayaranAsesor->save();
+
+        return redirect()->route('admin.pembayaran-asesor.index')->with('success', 'Status pembayaran asesor berhasil diubah');
     }
 
     /**

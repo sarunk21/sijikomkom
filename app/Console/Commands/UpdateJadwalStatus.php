@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Jadwal;
+use App\Models\PembayaranAsesor;
 use App\Models\Pendaftaran;
 use App\Models\PendaftaranUjikom;
 use Carbon\Carbon;
@@ -68,6 +69,18 @@ class UpdateJadwalStatus extends Command
 
         foreach ($jadwalSelesai as $jadwal) {
             $jadwal->update(['status' => 4]); // Selesai
+
+            // Create pembayaran asesor
+            $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $jadwal->id)->first();
+            if ($pembayaranAsesor) {
+                PembayaranAsesor::create([
+                    'jadwal_id' => $jadwal->id,
+                    'asesor_id' => $jadwal->asesor_id,
+                    'status' => 1,
+                ]);
+                $this->info("Pembayaran Asesor ID {$pembayaranAsesor->id} dibuat");
+            }
+
             $this->info("Jadwal ID {$jadwal->id} diupdate ke status Selesai");
         }
 

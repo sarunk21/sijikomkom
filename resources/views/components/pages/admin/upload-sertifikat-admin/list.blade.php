@@ -44,8 +44,15 @@
                                 </td>
                                 <td>{{ $item->pendaftaran->tuk->nama }}</td>
                                 <td class="text-center">
-                                    @if ($item->status == 1)
-                                        <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                    {{-- Button Download Sertifikat --}}
+                                    <a href="{{ asset('storage/sertifikat/' . $item->sertifikat) }}" target="_blank"
+                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Download Sertifikat">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+
+                                    {{-- Button Approve & Reject --}}
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        @if ($item->status == 1)
                                             <form action="{{ route('admin.upload-sertifikat-admin.update', $item->id) }}"
                                                 method="POST">
                                                 @csrf
@@ -66,10 +73,10 @@
                                                     <i class="fas fa-times text-danger"></i>
                                                 </button>
                                             </form>
-                                        </div>
-                                    @elseif ($item->status == 2 || $item->status == 3)
-                                        -
-                                    @endif
+                                        @elseif ($item->status == 2 || $item->status == 3)
+                                            -
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
