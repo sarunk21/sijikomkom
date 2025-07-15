@@ -44,11 +44,11 @@
                                     Pertanyaan {{ $index + 1 }}:
                                 </label>
                                 <div class="mb-2">
-                                    {{ $form->question_text }} <span class="text-danger">*</span>
+                                    {{ $form->apl2->question_text ?? '' }} <span class="text-danger">*</span>
                                 </div>
                                 <textarea name="answers[{{ $form->id }}]" id="answer_{{ $form->id }}"
                                     class="form-control @error('answers.' . $form->id) is-invalid @enderror" rows="5"
-                                    placeholder="Tulis jawaban Anda di sini..." required>{{ old('answers.' . $form->id) ?? ($form->responses != null ? $form->responses->where('pendaftaran_id', $pendaftaran->id)->first()->answer_text : '') }}</textarea>
+                                    placeholder="Tulis jawaban Anda di sini..." required>{{ old('answers.' . $form->id) ?? ($form->answer_text ?? '') }}</textarea>
 
                                 @error('answers.' . $form->id)
                                     <div class="invalid-feedback">
