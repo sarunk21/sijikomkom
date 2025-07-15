@@ -74,7 +74,7 @@ class DashboardController extends Controller
         ->take(5)
         ->map(function($pendaftaran) {
             return [
-                'tanggal' => $pendaftaran->jadwal->tanggal_ujian->format('Y-m-d H:i'),
+                'tanggal' => $pendaftaran->jadwal->tanggal_ujian,
                 'nama' => $pendaftaran->user->name,
                 'skema' => $pendaftaran->skema->nama ?? 'Tidak diketahui',
                 'tuk' => $pendaftaran->tuk->nama ?? 'Tidak diketahui',
