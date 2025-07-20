@@ -60,13 +60,6 @@ return new class extends Migration
         ]);
 
         User::create([
-            'name' => 'Asesi',
-            'email' => 'asesi@mail.com',
-            'password' => Hash::make('asesi'),
-            'user_type' => 'asesi',
-        ]);
-
-        User::create([
             'name' => 'Asesor',
             'email' => 'asesor@mail.com',
             'password' => Hash::make('asesor'),
