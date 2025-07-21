@@ -326,6 +326,11 @@ trait MenuTrait
                 'url' => 'tuk.konfirmasi-jadwal.index',
                 'key' => 'konfirmasi-jadwal'
             ],
+            [
+                'title' => 'Profil',
+                'url' => 'profile.index',
+                'key' => 'profil-tuk'
+            ],
         ];
 
         return collect($menus)->map(function ($menu) use ($activeMenu, $activeSubMenu) {

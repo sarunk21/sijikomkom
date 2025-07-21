@@ -39,6 +39,7 @@ use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
 
 use App\Http\Controllers\Tuk\KonfirmasiJadwalController;
 use App\Http\Controllers\Tuk\DashboardController as TukDashboardController;
+use App\Http\Controllers\Tuk\ProfileTUKController;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalyticsController;
@@ -129,4 +130,5 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
 Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
     Route::get('/', [TukDashboardController::class, 'index'])->name('dashboard.tuk');
     Route::resource('konfirmasi-jadwal', KonfirmasiJadwalController::class)->names('tuk.konfirmasi-jadwal');
+    Route::resource('profil-tuk', ProfileTUKController::class)->names('tuk.profil-tuk');
 });

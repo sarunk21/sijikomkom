@@ -26,6 +26,8 @@ class ProfileController extends Controller
                 return redirect()->route('kaprodi.profil-kaprodi.index');
             case 'pimpinan':
                 return redirect()->route('pimpinan.profil-pimpinan.index');
+            case 'tuk':
+                return redirect()->route('tuk.profil-tuk.index');
             default:
                 return redirect()->route('login');
         }
@@ -148,6 +150,8 @@ class ProfileController extends Controller
                     return redirect()->route('kaprodi.profil-kaprodi.index')->with('success', 'Profile berhasil diubah');
                 case 'pimpinan':
                     return redirect()->route('pimpinan.profil-pimpinan.index')->with('success', 'Profile berhasil diubah');
+                case 'tuk':
+                    return redirect()->route('tuk.profil-tuk.index')->with('success', 'Profile berhasil diubah');
                 default:
                     return redirect()->route('login');
             }
