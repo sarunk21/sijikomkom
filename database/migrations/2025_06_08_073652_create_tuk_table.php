@@ -21,13 +21,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        Tuk::create([
-            'nama' => 'TUK 1',
-            'kode' => 'TUK1',
-            'kategori' => 'Lab',
-            'alamat' => 'Jl. Raya No. 1',
-        ]);
     }
 
     /**

@@ -25,13 +25,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('skema_id')->nullable()->constrained('skema');
         });
-
-        Skema::create([
-            'nama' => 'Sistem Analisis',
-            'kode' => 'SA',
-            'kategori' => 'Sertifikasi',
-            'bidang' => 'S1 Sistem Informasi',
-        ]);
     }
 
     /**
