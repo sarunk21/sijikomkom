@@ -61,8 +61,9 @@ class APL2Controller extends Controller
     public function show(string $skema_id)
     {
         $lists = $this->getMenuListAdmin('apl-2');
+        $skema = Skema::find($skema_id);
         $questions = APL2::where('skema_id', $skema_id)->get();
-        return view('components.pages.admin.apl2.show', compact('lists', 'questions', 'skema_id'));
+        return view('components.pages.admin.apl2.show', compact('lists', 'questions', 'skema'));
     }
 
     /**
@@ -72,7 +73,8 @@ class APL2Controller extends Controller
     {
         $lists = $this->getMenuListAdmin('apl-2');
         $apl2 = APL2::find($id);
-        return view('components.pages.admin.apl2.edit', compact('lists', 'apl2'));
+        $skema = Skema::find($apl2->skema_id);
+        return view('components.pages.admin.apl2.edit', compact('lists', 'apl2', 'skema'));
     }
 
     /**

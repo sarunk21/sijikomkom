@@ -16,6 +16,16 @@
         </div>
     @endif
 
+    <!-- Informasi Skema Sertifikasi -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Detail Skema Sertifikasi yang Dipilih</h5>
+            <p class="card-text font-weight-bold text-primary" style="font-size: 1.2rem;">
+                {{ $skema->nama }}
+            </p>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('admin.apl-2.store') }}" method="POST">

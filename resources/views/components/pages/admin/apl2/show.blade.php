@@ -16,9 +16,20 @@
         </div>
     @endif
 
+    <!-- Informasi Skema Sertifikasi -->
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Detail Skema Sertifikasi yang Dipilih</h5>
+            <p class="card-text font-weight-bold text-primary" style="font-size: 1.2rem;">
+                {{ $skema->nama }}
+            </p>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body">
-            <a href="{{ route('admin.apl-2.create.question', $skema_id) }}" class="btn btn-dark mb-3"><i
+            <a href="{{ route('admin.apl-2.create.question', $skema->id) }}" class="btn btn-dark mb-3"><i
                     class="fas fa-plus mr-2"></i> Tambah Pertanyaan</a>
 
             <div class="table-responsive">
