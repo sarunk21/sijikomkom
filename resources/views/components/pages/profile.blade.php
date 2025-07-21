@@ -107,7 +107,7 @@
                             <label>Email <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                                 value="{{ old('email', $user->email) }}"
-                                placeholder="Masukkan email" disabled>
+                                placeholder="Masukkan email" readonly>
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

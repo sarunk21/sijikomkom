@@ -75,7 +75,7 @@ class ProfileController extends Controller
         // Validasi dasar untuk semua user
         $baseValidation = [
             'name' => 'required|string|max:255',
-            'email' => 'email|unique:users,email,' . $id . ',id,deleted_at,NULL',
+            'email' => 'required|email|unique:users,email,' . $id . ',id,deleted_at,NULL',
             'nik' => 'required|string|size:16|unique:users,nik,' . $id . ',id,deleted_at,NULL',
             'telephone' => 'required|string|max:15|unique:users,telephone,' . $id . ',id,deleted_at,NULL',
             'alamat' => 'required|string',
