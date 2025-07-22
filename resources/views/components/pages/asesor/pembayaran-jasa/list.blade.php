@@ -28,7 +28,7 @@
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>
                                     @if($item->bukti_pembayaran)
-                                        <a href="{{ asset('storage/public/bukti_pembayaran/' . $item->bukti_pembayaran) }}" target="_blank" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti Pembayaran">
+                                        <a href="{{ asset('storage/bukti_pembayaran/' . $item->bukti_pembayaran) }}" target="_blank" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti Pembayaran">
                                             <i class="fas fa-file text-success"></i>
                                         </a>
                                     @else

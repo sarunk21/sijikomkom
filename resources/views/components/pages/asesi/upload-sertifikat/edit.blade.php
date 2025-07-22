@@ -38,7 +38,7 @@
 
                     @if ($uploadSertifikat->sertifikat)
                         <small class="form-text text-muted mt-1">
-                            Sertifikat saat ini: <a href="{{ asset('storage/' . $uploadSertifikat->sertifikat) }}" target="_blank">Lihat File</a>
+                            Sertifikat saat ini: <a href="{{ asset('storage/sertifikat/' . $uploadSertifikat->sertifikat) }}" target="_blank">Lihat File</a>
                         </small>
                     @endif
                 </div>

@@ -39,7 +39,7 @@
                                 <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>
-                                    <a href="{{ asset('storage/public/bukti_pembayaran/' . $item->bukti_pembayaran) }}"
+                                    <a href="{{ asset('storage/bukti_pembayaran/' . $item->bukti_pembayaran) }}"
                                         class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti" target="_blank">
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
@@ -83,7 +83,7 @@
                 $('#skemaTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari pembayaran...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

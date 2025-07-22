@@ -68,7 +68,7 @@ class UploadSertifikatController extends Controller
             // Upload file sertifikat
             $file = $request->file('sertifikat');
             $fileName = 'sertifikat_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('uploads/sertifikat', $fileName, 'public'); // simpan di storage/app/public/uploads/sertifikat
+            $filePath = $file->storeAs('sertifikat', $fileName, 'public'); // simpan di storage/app/public/sertifikat
 
             Sertif::create([
                 'pendaftaran_id' => $pendaftaran->id,

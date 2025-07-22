@@ -49,7 +49,7 @@ class PembayaranAsesorController extends Controller
             ]);
 
             $buktiPembayaran = $request->file('bukti_pembayaran');
-            $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
+            $buktiPembayaran->storeAs('bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
 
             // cek apakah jadwal sudah ada pembayaran
             $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $request->jadwal_id)->first();
@@ -101,7 +101,7 @@ class PembayaranAsesorController extends Controller
         ]);
 
         $buktiPembayaran = $request->file('bukti_pembayaran');
-        $buktiPembayaran->storeAs('public/bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
+        $buktiPembayaran->storeAs('bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
 
         $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $request->jadwal_id)->first();
         $pembayaranAsesor->asesor_id = $request->asesor_id;
