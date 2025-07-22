@@ -33,6 +33,7 @@ class UserTypeValidation
             ($userType === 'admin' && (str_starts_with($currentRoute, 'admin.') || $currentRoute === 'dashboard.admin')) ||
             ($userType === 'asesi' && (str_starts_with($currentRoute, 'asesi.') || $currentRoute === 'dashboard.asesi')) ||
             ($userType === 'asesor' && (str_starts_with($currentRoute, 'asesor.') || $currentRoute === 'dashboard.asesor')) ||
+            ($userType === 'asesor_nonaktif' && (str_starts_with($currentRoute, 'asesor.') || $currentRoute === 'dashboard.asesor')) ||
             ($userType === 'kaprodi' && (str_starts_with($currentRoute, 'kaprodi.') || $currentRoute === 'dashboard.kaprodi')) ||
             ($userType === 'pimpinan' && (str_starts_with($currentRoute, 'pimpinan.') || $currentRoute === 'dashboard.pimpinan')) ||
             ($userType === 'tuk' && (str_starts_with($currentRoute, 'tuk.') || $currentRoute === 'dashboard.tuk'))

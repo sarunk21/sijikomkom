@@ -31,9 +31,27 @@
                             <tr>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>{{ ucfirst($user->user_type) }}</td>
+                                <td>{{ ucwords(str_replace('_', ' ', $user->user_type)) }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                        @if ($user->user_type === 'asesor_nonaktif')
+                                            <form action="{{ route('admin.user.aktifkan', $user->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                    title="Aktifkan">
+                                                    <i class="fas fa-check text-success"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        @if ($user->user_type === 'asesor')
+                                            <form action="{{ route('admin.user.nonaktifkan', $user->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
+                                                    title="Nonaktifkan">
+                                                    <i class="fas fa-times text-danger"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                         <a href="{{ route('admin.user.edit', $user->id) }}"
                                             class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                             <i class="fas fa-pen text-primary"></i>

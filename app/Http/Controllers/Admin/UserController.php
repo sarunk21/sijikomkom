@@ -42,7 +42,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
             'nik' => 'required|unique:users,nik,NULL,id,deleted_at,NULL',
             'telephone' => 'required|unique:users,telephone,NULL,id,deleted_at,NULL',
-            'user_type' => 'required|in:asesi,asesor,kaprodi,pimpinan,admin',
+            'user_type' => 'required|in:asesi,asesor,asesor_nonaktif,kaprodi,pimpinan,admin',
             'alamat' => 'required',
         ]);
 
@@ -126,5 +126,19 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.user.index')->with('error', 'User gagal dihapus');
         }
+    }
+
+    public function nonaktifkan(string $id)
+    {
+        $user = User::find($id);
+        $user->update(['user_type' => 'asesor_nonaktif']);
+        return redirect()->route('admin.user.index')->with('success', 'User berhasil dinonaktifkan');
+    }
+
+    public function aktifkan(string $id)
+    {
+        $user = User::find($id);
+        $user->update(['user_type' => 'asesor']);
+        return redirect()->route('admin.user.index')->with('success', 'User berhasil diaktifkan');
     }
 }

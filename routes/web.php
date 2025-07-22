@@ -69,6 +69,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('tuk', TUKController::class)->names('admin.tuk');
     Route::resource('jadwal', JadwalController::class)->names('admin.jadwal');
     Route::resource('user', UserController::class)->names('admin.user');
+    Route::post('user/nonaktifkan/{id}', [UserController::class, 'nonaktifkan'])->name('admin.user.nonaktifkan');
+    Route::post('user/aktifkan/{id}', [UserController::class, 'aktifkan'])->name('admin.user.aktifkan');
     Route::resource('pendaftaran', PendaftaranController::class)->names('admin.pendaftaran');
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
