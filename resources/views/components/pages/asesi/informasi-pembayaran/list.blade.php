@@ -85,7 +85,7 @@
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari skema...",
+                        searchPlaceholder: "Cari Informasi Pembayaran...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

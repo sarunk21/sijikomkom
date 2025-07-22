@@ -71,7 +71,7 @@
                 $('#ujikomTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari data...",
+                        searchPlaceholder: "Cari Ujian Kompetensi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

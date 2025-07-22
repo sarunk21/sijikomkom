@@ -101,7 +101,7 @@
                 $('#asesiTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari asesi...",
+                        searchPlaceholder: "Cari Asesi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

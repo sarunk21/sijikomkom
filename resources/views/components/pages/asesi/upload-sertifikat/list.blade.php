@@ -80,7 +80,7 @@
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari sertifikat...",
+                        searchPlaceholder: "Cari Upload Sertifikat...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

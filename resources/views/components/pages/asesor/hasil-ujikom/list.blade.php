@@ -59,7 +59,7 @@
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari skema...",
+                        searchPlaceholder: "Cari Hasil Ujian Kompetensi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

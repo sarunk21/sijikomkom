@@ -64,6 +64,8 @@
                         <option value="" disabled selected>Pilih Role di sini...</option>
                         <option value="asesi" {{ old('user_type') == 'asesi' ? 'selected' : '' }}>Asesi</option>
                         <option value="asesor" {{ old('user_type') == 'asesor' ? 'selected' : '' }}>Asesor</option>
+                        <option value="asesor_nonaktif" {{ old('user_type') == 'asesor_nonaktif' ? 'selected' : '' }}>Asesor
+                            Nonaktif</option>
                         <option value="kaprodi" {{ old('user_type') == 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
                         <option value="pimpinan" {{ old('user_type') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
                         <option value="admin" {{ old('user_type') == 'admin' ? 'selected' : '' }}>Admin</option>

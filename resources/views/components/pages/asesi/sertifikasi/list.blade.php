@@ -57,7 +57,7 @@
                 $('#sertifikasiTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari data...",
+                        searchPlaceholder: "Cari Sertifikasi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

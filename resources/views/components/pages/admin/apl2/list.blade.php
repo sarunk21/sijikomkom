@@ -63,7 +63,7 @@
                 $('#skemaTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari APL 2...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

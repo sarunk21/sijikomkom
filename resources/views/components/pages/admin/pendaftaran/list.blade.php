@@ -75,7 +75,7 @@
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari TUK...",
+                        searchPlaceholder: "Cari Pendaftaran...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

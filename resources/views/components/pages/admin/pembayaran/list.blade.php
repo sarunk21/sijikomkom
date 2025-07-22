@@ -183,7 +183,7 @@
                 $('#skemaTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari pembayaran...",
+                        searchPlaceholder: "Cari Pembayaran Asesi...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",
