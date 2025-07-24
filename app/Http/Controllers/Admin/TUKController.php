@@ -39,7 +39,7 @@ class TUKController extends Controller
     {
         $request->validate([
             'nama' => 'required',
-            'kode' => 'required|unique:tuk',
+            'kode' => 'required|unique:tuk,kode,NULL,id,deleted_at,NULL',
             'kategori' => 'required',
             'alamat' => 'required',
         ]);
@@ -85,7 +85,7 @@ class TUKController extends Controller
     {
         $request->validate([
             'nama' => 'required',
-            'kode' => 'required|unique:tuk,kode,' . $id,
+            'kode' => 'required|unique:tuk,kode,' . $id . ',id,deleted_at,NULL',
             'kategori' => 'required',
             'alamat' => 'required',
         ]);

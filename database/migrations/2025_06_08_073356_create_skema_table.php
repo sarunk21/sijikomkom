@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('kode');
             $table->string('kategori');
             $table->string('bidang');
+            $table->text('deskripsi')->nullable();
+            $table->string('mapa')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

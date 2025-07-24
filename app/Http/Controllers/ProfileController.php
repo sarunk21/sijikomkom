@@ -86,7 +86,6 @@ class ProfileController extends Controller
             'pekerjaan' => 'required|string|max:255',
             'pendidikan' => 'required|string|max:255',
             'photo_diri' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'tanda_tangan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ];
 
         // Tambahan validasi untuk asesi
@@ -125,15 +124,6 @@ class ProfileController extends Controller
                 }
                 $photoPath = $request->file('photo_diri')->store('photos', 'public');
                 $data['photo_diri'] = $photoPath;
-            }
-
-            // Handle tanda tangan upload
-            if ($request->hasFile('tanda_tangan')) {
-                if ($user->tanda_tangan) {
-                    Storage::delete('public/tanda-tangan/' . $user->tanda_tangan);
-                }
-                $tandaTanganPath = $request->file('tanda_tangan')->store('tanda-tangan', 'public');
-                $data['tanda_tangan'] = $tandaTanganPath;
             }
 
             $user->update($data);

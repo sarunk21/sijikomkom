@@ -214,20 +214,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col">
-                                <label>Tanda Tangan</label>
-                                @if ($user->tanda_tangan)
-                                    <div><img src="{{ asset('storage/' . $user->tanda_tangan) }}" alt="Tanda Tangan"
-                                            class="img-fluid"></div>
-                                @else
-                                    <div><i class="fas fa-user fa-5x text-dark"></i></div>
-                                @endif
-                                <input type="file" name="tanda_tangan" class="form-control-file mt-2 @error('tanda_tangan') is-invalid @enderror">
-                                <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
-                                @error('tanda_tangan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
                         </div>
 
                         <div class="text-right mt-4">

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('pendaftaran_id')->constrained('pendaftaran');
             $table->foreignId('apl2_id')->constrained('apl2');
             $table->string('answer_text');
+            $table->string('kesimpulan');
             $table->timestamps();
         });
     }

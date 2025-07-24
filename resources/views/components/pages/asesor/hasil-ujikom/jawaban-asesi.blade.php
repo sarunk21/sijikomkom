@@ -78,7 +78,7 @@
                     <input type="hidden" name="status" value="4">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-times-circle me-1"></i>
-                        Tidak Kompenten
+                        Belum Kompenten
                     </button>
                 </form>
                 <form action="{{ route('asesor.hasil-ujikom.update', $id) }}" method="post"
@@ -88,7 +88,7 @@
                     <input type="hidden" name="status" value="5">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-check-circle me-1"></i>
-                        Kompenten
+                        Kompeten
                     </button>
                 </form>
             </div>

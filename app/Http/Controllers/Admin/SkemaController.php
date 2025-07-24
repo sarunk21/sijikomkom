@@ -102,7 +102,7 @@ class SkemaController extends Controller
     {
         $request->validate([
             'nama' => 'required',
-            'kode' => 'required|unique:skema,kode,' . $id,
+            'kode' => 'required|unique:skema,kode,' . $id . ',id,deleted_at,NULL',
             'kategori' => 'required',
             'bidang' => 'required',
             'asesor_id' => 'array',
