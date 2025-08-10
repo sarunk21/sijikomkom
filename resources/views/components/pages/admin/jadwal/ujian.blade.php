@@ -178,6 +178,6 @@
     </style>
 
     @push('scripts')
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     @endpush
 @endsection

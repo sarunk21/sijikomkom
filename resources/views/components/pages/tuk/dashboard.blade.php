@@ -279,7 +279,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
 <script>
 // Data dari controller
 const trenData = @json($trenKunjungan);
