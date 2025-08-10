@@ -69,6 +69,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('tuk', TUKController::class)->names('admin.tuk');
     Route::resource('jadwal', JadwalController::class)->names('admin.jadwal');
     Route::resource('user', UserController::class)->names('admin.user');
+    // Import User (CSV)
+    Route::post('user/import', [UserController::class, 'import'])->name('admin.user.import');
+    Route::get('user/import/template', [UserController::class, 'downloadTemplate'])->name('admin.user.import.template');
+    Route::get('user/import/template-excel', [UserController::class, 'downloadTemplateExcel'])->name('admin.user.import.template.excel');
     Route::post('user/nonaktifkan/{id}', [UserController::class, 'nonaktifkan'])->name('admin.user.nonaktifkan');
     Route::post('user/aktifkan/{id}', [UserController::class, 'aktifkan'])->name('admin.user.aktifkan');
     Route::resource('pendaftaran', PendaftaranController::class)->names('admin.pendaftaran');

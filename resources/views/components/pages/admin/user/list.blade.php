@@ -6,6 +6,15 @@
 @section('content')
     <div class="mb-3">
         <a href="{{ route('admin.user.create') }}" class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Tambah User</a>
+        <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#importModal">
+            <i class="fas fa-file-upload mr-2"></i> Import Data (CSV/Excel)
+        </button>
+        <a href="{{ route('admin.user.import.template') }}" class="btn btn-outline-secondary ml-2">
+            <i class="fas fa-download mr-2"></i> Download Template CSV
+        </a>
+        <a href="{{ route('admin.user.import.template.excel') }}" class="btn btn-outline-success ml-2">
+            <i class="fas fa-file-excel mr-2"></i> Download Template Excel
+        </a>
     </div>
 
     @if (session('success'))
@@ -71,6 +80,49 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import User (CSV/Excel)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('admin.user.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <div><strong>Format file</strong>: .csv, .xlsx, .xls (disarankan gunakan Template Excel).</div>
+                            <div><strong>Header yang didukung</strong>:
+                                <ul class="mb-1">
+                                    <li>Readable: <em>Name, NIK, NIM, Telephone, Email, Tempat Lahir, Tanggal Lahir, Jenis Kelamin, Alamat, Kebangsaan, Pekerjaan, Pendidikan, Jurusan, User Type</em></li>
+                                    <li>Snake case: <code>name, nik, nim, telephone, email, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, kebangsaan, pekerjaan, pendidikan, jurusan, user_type</code></li>
+                                </ul>
+                            </div>
+                            <div><strong>Catatan</strong>:
+                                <ul class="mb-0">
+                                    <li>Password otomatis sama dengan email user.</li>
+                                    <li>Template Excel sudah aman untuk angka (nol di depan tidak hilang).</li>
+                                    <li>Ukuran maks. 10 MB.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="file">Pilih File CSV</label>
+                            <input type="file" name="file" id="file" class="form-control" accept=".csv,.xlsx,.xls" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
