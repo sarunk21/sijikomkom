@@ -10,7 +10,7 @@ class Response extends Model
     use HasFactory;
 
     protected $table = 'responses';
-    protected $fillable = ['pendaftaran_id', 'apl2_id', 'answer_text'];
+    protected $fillable = ['pendaftaran_id', 'apl2_id', 'answer_text', 'kesimpulan'];
 
     public function pendaftaran()
     {
