@@ -74,8 +74,7 @@ class User extends Authenticatable
             'pekerjaan',
             'pendidikan',
             'jurusan',
-            'photo_diri',
-            'tanda_tangan',
+            'photo_diri'
         ];
 
         foreach ($requiredFields as $field) {
