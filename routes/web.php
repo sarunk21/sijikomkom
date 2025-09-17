@@ -114,6 +114,8 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.kaprodi');
     Route::resource('report-hasil-uji', ReportHasilUjiController::class)->names('kaprodi.report-hasil-uji');
+    Route::get('report-hasil-uji/list-nama-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaKompeten'])->name('kaprodi.report-hasil-uji.list-nama-kompeten');
+    Route::get('report-hasil-uji/list-nama-tidak-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaTidakKompeten'])->name('kaprodi.report-hasil-uji.list-nama-tidak-kompeten');
     Route::resource('verifikasi-pendaftaran', VerifikasiPendaftaranController::class)->names('kaprodi.verifikasi-pendaftaran');
     Route::resource('profil-kaprodi', ProfilKaprodiController::class)->names('kaprodi.profil-kaprodi');
 

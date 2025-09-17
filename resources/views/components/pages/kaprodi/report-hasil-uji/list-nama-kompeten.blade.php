@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Report Hasil Ujikom')
-@section('page-title', 'Report Hasil Ujikom')
+@section('title', 'Report Hasil Ujikom - Nama Kompeten')
+@section('page-title', 'Report Hasil Ujikom - Nama Kompeten')
 
 @section('content')
     <div class="card shadow-sm">
@@ -11,28 +11,16 @@
                     <thead class="thead-light">
                         <tr>
                             <th>Skema</th>
-                            <th>Jumlah Asesi</th>
-                            <th>Tanggal</th>
-                            <th>Jumlah Kompeten</th>
-                            <th>Jumlah Tidak Kompeten</th>
+                            <th>Nama</th>
+                            <th>NIM</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($reports as $item)
                             <tr>
-                                <td>{{ $item->skema->nama }}</td>
-                                <td>{{ $item->jumlah_asesi()->count() }}</td>
-                                <td>{{ $item->tanggal_ujian }}</td>
-                                <td>
-                                    <a href="{{ route('kaprodi.report-hasil-uji.list-nama-kompeten', $item->id) }}" class="btn btn-primary">
-                                        {{ $item->jumlah_kompeten()->count() }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{ route('kaprodi.report-hasil-uji.list-nama-tidak-kompeten', $item->id) }}" class="btn btn-primary">
-                                        {{ $item->jumlah_tidak_kompeten()->count() }}
-                                    </a>
-                                </td>
+                                <td>{{ $item['skema'] }}</td>
+                                <td>{{ $item['nama'] }}</td>
+                                <td>{{ $item['nim'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>
