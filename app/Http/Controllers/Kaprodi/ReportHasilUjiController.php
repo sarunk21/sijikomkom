@@ -72,4 +72,36 @@ class ReportHasilUjiController extends Controller
     {
         //
     }
+
+    public function listNamaKompeten(string $id)
+    {
+        $lists = $this->getMenuListKaprodi('report-hasil-uji');
+
+        $reports = Jadwal::find($id)->jumlah_kompeten()->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'skema' => $report->skema->nama,
+                'nama' => $report->user->name,
+                'nim' => $report->user->nim,
+            ];
+        });
+
+        return view('components.pages.kaprodi.report-hasil-uji.list-nama-kompeten', compact('lists', 'reports'));
+    }
+
+    public function listNamaTidakKompeten(string $id)
+    {
+        $lists = $this->getMenuListKaprodi('report-hasil-uji');
+
+        $reports = Jadwal::find($id)->jumlah_tidak_kompeten()->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'skema' => $report->skema->nama,
+                'nama' => $report->user->name,
+                'nim' => $report->user->nim,
+            ];
+        });
+
+        return view('components.pages.kaprodi.report-hasil-uji.list-nama-tidak-kompeten', compact('lists', 'reports'));
+    }
 }
