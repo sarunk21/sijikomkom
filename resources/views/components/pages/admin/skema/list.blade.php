@@ -24,6 +24,7 @@
                             <th>Kode</th>
                             <th>Kategori Skema</th>
                             <th>Bidang</th>
+                            <th>Asesor</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
@@ -34,6 +35,15 @@
                                 <td>{{ $item->kode }}</td>
                                 <td>{{ $item->kategori }}</td>
                                 <td>{{ $item->bidang }}</td>
+                                <td>
+                                    @if($item->asesors->count() > 0)
+                                        @foreach($item->asesors as $asesor)
+                                            <span class="badge badge-info mr-1 mb-1">{{ $asesor->name }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">Belum ada asesor</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                         <a href="{{ route('admin.skema.edit', $item->id) }}"

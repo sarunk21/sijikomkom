@@ -22,4 +22,16 @@ class Skema extends Model
     {
         return $this->hasMany(APL2::class);
     }
+
+    // Relasi many-to-many dengan User (asesor)
+    public function asesors()
+    {
+        return $this->belongsToMany(User::class, 'asesor_skema', 'skema_id', 'asesor_id');
+    }
+
+    // Relasi untuk asesor_skema
+    public function asesorSkemas()
+    {
+        return $this->hasMany(AsesorSkema::class, 'skema_id');
+    }
 }

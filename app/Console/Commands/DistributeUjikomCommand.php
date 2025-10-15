@@ -57,21 +57,6 @@ class DistributeUjikomCommand extends Command
 
         $this->info('Ditemukan ' . $pendaftaran->count() . ' pendaftaran untuk didistribusikan.');
 
-        // Ambil skema yang unik dari pendaftaran
-        $skemaIds = $pendaftaran->pluck('skema_id')->unique();
-
-        // Ambil asesor berdasarkan skema
-        $asesor = User::where('user_type', 'asesor')
-            ->whereIn('skema_id', $skemaIds)
-            ->get();
-
-        if ($asesor->isEmpty()) {
-            Log::info('Tidak ada asesor yang tersedia untuk skema yang diperlukan.');
-            return;
-        }
-
-        $this->info('Ditemukan ' . $asesor->count() . ' asesor yang tersedia.');
-
         // Grup pendaftaran berdasarkan skema
         $pendaftaranBySkema = $pendaftaran->groupBy('skema_id');
 
@@ -81,11 +66,16 @@ class DistributeUjikomCommand extends Command
         foreach ($pendaftaranBySkema as $skemaId => $pendaftaranSkema) {
             Log::info("Memproses skema ID: {$skemaId}");
 
-            // Ambil asesor untuk skema ini
-            $asesorSkema = $asesor->where('skema_id', $skemaId);
+            // Ambil asesor AKTIF yang memiliki skema ini melalui relasi many-to-many
+            $asesorSkema = User::where('user_type', 'asesor') // Hanya asesor aktif, bukan asesor_nonaktif
+                ->whereHas('skema', function ($query) use ($skemaId) {
+                    $query->where('skema_id', $skemaId);
+                })
+                ->get();
 
             if ($asesorSkema->isEmpty()) {
-                Log::info("Tidak ada asesor untuk skema ID: {$skemaId}");
+                Log::info("Tidak ada asesor aktif untuk skema ID: {$skemaId}");
+                $this->warn("Tidak ada asesor aktif untuk skema ID: {$skemaId}");
                 continue;
             }
 
@@ -105,7 +95,7 @@ class DistributeUjikomCommand extends Command
                 $asesorId = $asesorArray[$asesorIndex]['id'];
 
                 // Cek apakah sudah ada pendaftaran ujikom untuk pendaftar ini
-                $existingUjikom = PendaftaranUjikom::where('pendaftar_id', $pendaftar->id)->first();
+                $existingUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftar->id)->first();
 
                 if ($existingUjikom) {
                     Log::info("Pendaftaran ID {$pendaftar->id} sudah memiliki ujikom, dilewati.");
@@ -114,11 +104,11 @@ class DistributeUjikomCommand extends Command
 
                 // Insert ke tabel PendaftaranUjikom
                 PendaftaranUjikom::create([
-                    'pendaftar_id' => $pendaftar->id,
+                    'pendaftaran_id' => $pendaftar->id,
                     'jadwal_id' => $pendaftar->jadwal_id,
                     'asesi_id' => $pendaftar->user_id,
                     'asesor_id' => $asesorId,
-                    'status' => 6,
+                    'status' => 6, // Menunggu Konfirmasi Asesor
                 ]);
 
                 // Track jadwal untuk asesor ini

@@ -11,7 +11,11 @@ class Pendaftaran extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'pendaftaran';
-    protected $fillable = ['jadwal_id', 'user_id', 'skema_id', 'tuk_id', 'status', 'keterangan'];
+    protected $fillable = ['jadwal_id', 'user_id', 'skema_id', 'tuk_id', 'status', 'keterangan', 'custom_variables', 'ttd_asesi_path'];
+
+    protected $casts = [
+        'custom_variables' => 'array',
+    ];
 
     protected $statusPendaftaran = [
         1 => 'Menunggu Verifikasi Kaprodi',

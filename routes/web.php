@@ -14,14 +14,18 @@ use App\Http\Controllers\Admin\SkemaController;
 use App\Http\Controllers\Admin\TUKController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UploadSertifikatAdminController;
+use App\Http\Controllers\Admin\TestingController;
+use App\Http\Controllers\Admin\AdminTemplateController;
 
 use App\Http\Controllers\Asesi\DaftarUjikomController;
+use App\Http\Controllers\Asesi\CustomDataController;
 use App\Http\Controllers\Asesi\DashboardController as AsesiDashboardController;
 use App\Http\Controllers\Asesi\InformasiPembayaranController;
 use App\Http\Controllers\Asesi\UploadSertifikatController;
 use App\Http\Controllers\Asesi\ProfilAsesiController;
 use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
+use App\Http\Controllers\Asesi\TemplateController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController;
@@ -78,6 +82,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pendaftaran', PendaftaranController::class)->names('admin.pendaftaran');
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
+    Route::get('pembayaran-asesor/{id}/download', [PembayaranAsesorController::class, 'download'])->name('admin.pembayaran-asesor.download');
+    Route::resource('template-master', AdminTemplateController::class)->names('admin.template-master');
+    Route::get('template-master/{id}/download', [AdminTemplateController::class, 'download'])->name('admin.template-master.download');
+    Route::post('template-master/{id}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('admin.template-master.toggle-status');
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('upload-sertifikat', UploadSertifikatAdminController::class)->names('admin.upload-sertifikat-admin');
     Route::get('apl-2/create/question/{skema_id}', [APL2Controller::class, 'create'])->name('admin.apl-2.create.question');
@@ -87,6 +95,17 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     // Analytics routes
     Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('admin.analytics.dashboard-data');
     Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('admin.analytics.clear-cache');
+
+    // Testing routes
+    Route::get('testing', [TestingController::class, 'index'])->name('admin.testing');
+    Route::post('testing/update-status-pendaftaran', [TestingController::class, 'updateStatusPendaftaran'])->name('admin.testing.update-status-pendaftaran');
+    Route::post('testing/trigger-distribusi', [TestingController::class, 'triggerDistribusi'])->name('admin.testing.trigger-distribusi');
+    Route::post('testing/start-jadwal', [TestingController::class, 'startJadwal'])->name('admin.testing.start-jadwal');
+    Route::post('testing/simulasi-ujikom', [TestingController::class, 'simulasiUjikom'])->name('admin.testing.simulasi-ujikom');
+    Route::post('testing/selesaikan-ujikom', [TestingController::class, 'selesaikanUjikom'])->name('admin.testing.selesaikan-ujikom');
+    Route::post('testing/selesaikan-jadwal', [TestingController::class, 'selesaikanJadwal'])->name('admin.testing.selesaikan-jadwal');
+    Route::post('testing/trigger-pembayaran-asesor', [TestingController::class, 'triggerPembayaranAsesor'])->name('admin.testing.trigger-pembayaran-asesor');
+    Route::post('testing/upload-sertifikat', [TestingController::class, 'uploadSertifikat'])->name('admin.testing.upload-sertifikat');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -96,6 +115,14 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
     Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom');
     Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
+
+    // Template routes
+    Route::get('template/generate-apl1/{pendaftaranId}', [TemplateController::class, 'generateApl1'])->name('asesi.template.generate-apl1');
+    Route::get('template/preview-apl1-data/{pendaftaranId}', [TemplateController::class, 'previewApl1Data'])->name('asesi.template.preview-apl1-data');
+
+    // Custom data routes
+    Route::get('custom-data/{pendaftaranId}', [CustomDataController::class, 'showForm'])->name('asesi.custom-data.show');
+    Route::post('custom-data/{pendaftaranId}', [CustomDataController::class, 'store'])->name('asesi.custom-data.store');
     Route::post('ujikom/jawaban/{id}', [UjikomController::class, 'store'])->name('asesi.ujikom.store.jawaban');
     Route::resource('ujikom', UjikomController::class)->names('asesi.ujikom');
 });

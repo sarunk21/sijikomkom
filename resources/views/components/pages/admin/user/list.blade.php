@@ -32,6 +32,7 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Skema</th>
                             <th class="text-center" style="width: 90px;">Aksi</th>
                         </tr>
                     </thead>
@@ -41,6 +42,19 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ ucwords(str_replace('_', ' ', $user->user_type)) }}</td>
+                                <td>
+                                    @if(in_array($user->user_type, ['asesor', 'asesor_nonaktif']))
+                                        @if($user->skemas->count() > 0)
+                                            @foreach($user->skemas as $skema)
+                                                <span class="badge badge-info">{{ $skema->nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <small class="text-muted">Belum ada skema</small>
+                                        @endif
+                                    @else
+                                        <small class="text-muted">-</small>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
                                         @if ($user->user_type === 'asesor_nonaktif')

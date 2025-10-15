@@ -1,0 +1,348 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\TemplateMaster;
+use App\Models\Skema;
+use App\Traits\MenuTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class AdminTemplateController extends Controller
+{
+    use MenuTrait;
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $lists = $this->getMenuListAdmin('template-master');
+        $activeMenu = 'template-master';
+
+        $templates = TemplateMaster::with('skema')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('components.pages.admin.template-master.list', compact('lists', 'activeMenu', 'templates'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $lists = $this->getMenuListAdmin('template-master');
+        $activeMenu = 'template-master';
+
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        $tipeTemplateOptions = [
+            'APL1' => 'APL 1 (Asesmen Mandiri)',
+            // Nanti bisa ditambah APL2, APL3, dll
+        ];
+
+        // Field database yang tersedia untuk variable
+        $availableFields = [
+            // User fields
+            'user.name' => 'Nama Lengkap',
+            'user.email' => 'Email',
+            'user.telephone' => 'Nomor Telepon',
+            'user.alamat' => 'Alamat',
+            'user.nik' => 'NIK',
+            'user.nim' => 'NIM',
+            'user.tempat_lahir' => 'Tempat Lahir',
+            'user.tanggal_lahir' => 'Tanggal Lahir',
+            'user.jenis_kelamin' => 'Jenis Kelamin',
+            'user.kebangsaan' => 'Kebangsaan',
+            'user.pekerjaan' => 'Pekerjaan',
+            'user.pendidikan' => 'Pendidikan',
+            'user.jurusan' => 'Jurusan',
+
+            // Skema fields
+            'skema.nama' => 'Nama Skema',
+            'skema.kode' => 'Kode Skema',
+            'skema.kategori' => 'Kategori Skema',
+            'skema.bidang' => 'Bidang Skema',
+
+            // Jadwal fields
+            'jadwal.tanggal_ujian' => 'Tanggal Ujian',
+            'jadwal.waktu_mulai' => 'Waktu Mulai',
+            'jadwal.waktu_selesai' => 'Waktu Selesai',
+            'jadwal.tuk.nama' => 'Lokasi Ujian (TUK)',
+
+            // System fields
+            'system.tanggal_generate' => 'Tanggal Generate',
+            'system.waktu_generate' => 'Waktu Generate',
+            'system.nomor_pendaftaran' => 'Nomor Pendaftaran',
+        ];
+
+        return view('components.pages.admin.template-master.create', compact('lists', 'activeMenu', 'skemas', 'tipeTemplateOptions', 'availableFields'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_template' => 'required|string|max:255',
+            'tipe_template' => 'required|string|in:APL1',
+            'skema_id' => 'required|exists:skema,id',
+            'deskripsi' => 'nullable|string',
+            'file_template' => 'required|file|mimes:docx|max:10240', // Max 10MB
+            'ttd_digital' => 'nullable|file|mimes:png,jpg,jpeg|max:2048', // Max 2MB
+            'variables' => 'required|string', // JSON string dari JavaScript
+        ]);
+
+        try {
+            // Parse variables dari JSON
+            $variables = json_decode($request->variables, true);
+            if (!$variables || !is_array($variables)) {
+                return redirect()->back()->with('error', 'Variable tidak valid.')->withInput();
+            }
+
+            // Upload template file
+            $templateFile = $request->file('file_template');
+            $templateFileName = 'template_' . time() . '_' . Str::slug($request->nama_template) . '.docx';
+            $templatePath = $templateFile->storeAs('templates', $templateFileName, 'public');
+
+            // Upload TTD file jika ada
+            $ttdPath = null;
+            if ($request->hasFile('ttd_digital')) {
+                $ttdFile = $request->file('ttd_digital');
+                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->nama_template) . '.' . $ttdFile->getClientOriginalExtension();
+                $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
+            }
+
+            // Cek apakah sudah ada template dengan tipe dan skema yang sama
+            $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
+                ->where('skema_id', $request->skema_id)
+                ->first();
+
+            if ($existingTemplate) {
+                return redirect()->back()->withInput()->with('error', 'Template dengan tipe dan skema yang sama sudah ada. Silakan edit template yang sudah ada atau pilih tipe/skema yang berbeda.');
+            }
+
+            // Buat template master
+            $template = TemplateMaster::create([
+                'nama_template' => $request->nama_template,
+                'tipe_template' => $request->tipe_template,
+                'skema_id' => $request->skema_id,
+                'deskripsi' => $request->deskripsi,
+                'file_path' => $templatePath,
+                'ttd_path' => $ttdPath,
+                'variables' => $request->variables,
+                'is_active' => true,
+            ]);
+
+            return redirect()->route('admin.template-master.index')->with('success', 'Template berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $template = TemplateMaster::with('skema')->findOrFail($id);
+        $lists = $this->getMenuListAdmin('template-master');
+        $activeMenu = 'template-master';
+
+        return view('components.pages.admin.template-master.show', compact('lists', 'activeMenu', 'template'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $template = TemplateMaster::with('skema')->findOrFail($id);
+        $lists = $this->getMenuListAdmin('template-master');
+        $activeMenu = 'template-master';
+
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        $tipeTemplateOptions = [
+            'APL1' => 'APL 1 (Asesmen Mandiri)',
+        ];
+
+        // Field database yang tersedia untuk variable
+        $availableFields = [
+            // User fields
+            'user.name' => 'Nama Lengkap',
+            'user.email' => 'Email',
+            'user.telephone' => 'Nomor Telepon',
+            'user.alamat' => 'Alamat',
+            'user.nik' => 'NIK',
+            'user.nim' => 'NIM',
+            'user.tempat_lahir' => 'Tempat Lahir',
+            'user.tanggal_lahir' => 'Tanggal Lahir',
+            'user.jenis_kelamin' => 'Jenis Kelamin',
+            'user.kebangsaan' => 'Kebangsaan',
+            'user.pekerjaan' => 'Pekerjaan',
+            'user.pendidikan' => 'Pendidikan',
+            'user.jurusan' => 'Jurusan',
+
+            // Skema fields
+            'skema.nama' => 'Nama Skema',
+            'skema.kode' => 'Kode Skema',
+            'skema.kategori' => 'Kategori Skema',
+            'skema.bidang' => 'Bidang Skema',
+
+            // Jadwal fields
+            'jadwal.tanggal_ujian' => 'Tanggal Ujian',
+            'jadwal.waktu_mulai' => 'Waktu Mulai',
+            'jadwal.waktu_selesai' => 'Waktu Selesai',
+            'jadwal.tuk.nama' => 'Lokasi Ujian (TUK)',
+
+            // System fields
+            'system.tanggal_generate' => 'Tanggal Generate',
+            'system.waktu_generate' => 'Waktu Generate',
+            'system.nomor_pendaftaran' => 'Nomor Pendaftaran',
+        ];
+
+        return view('components.pages.admin.template-master.edit', compact('lists', 'activeMenu', 'template', 'skemas', 'tipeTemplateOptions', 'availableFields'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $template = TemplateMaster::findOrFail($id);
+
+        $request->validate([
+            'nama_template' => 'required|string|max:255',
+            'tipe_template' => 'required|string|in:APL1',
+            'skema_id' => 'required|exists:skema,id',
+            'deskripsi' => 'nullable|string',
+            'file_template' => 'nullable|file|mimes:docx|max:10240',
+            'ttd_digital' => 'nullable|file|mimes:png,jpg,jpeg|max:2048',
+            'variables' => 'required|string', // JSON string dari JavaScript
+            'is_active' => 'boolean',
+        ]);
+
+        try {
+            // Parse variables dari JSON
+            $variables = json_decode($request->variables, true);
+            if (!$variables || !is_array($variables)) {
+                return redirect()->back()->with('error', 'Variable tidak valid.')->withInput();
+            }
+
+            $templatePath = $template->file_path;
+            $ttdPath = $template->ttd_path;
+
+            // Upload template file baru jika ada
+            if ($request->hasFile('file_template')) {
+                // Hapus file lama
+                if (Storage::disk('public')->exists($template->file_path)) {
+                    Storage::disk('public')->delete($template->file_path);
+                }
+
+                $templateFile = $request->file('file_template');
+                $templateFileName = 'template_' . time() . '_' . Str::slug($request->nama_template) . '.docx';
+                $templatePath = $templateFile->storeAs('templates', $templateFileName, 'public');
+            }
+
+            // Upload TTD file baru jika ada
+            if ($request->hasFile('ttd_digital')) {
+                // Hapus file lama
+                if ($template->ttd_path && Storage::disk('public')->exists($template->ttd_path)) {
+                    Storage::disk('public')->delete($template->ttd_path);
+                }
+
+                $ttdFile = $request->file('ttd_digital');
+                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->nama_template) . '.' . $ttdFile->getClientOriginalExtension();
+                $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
+            }
+
+            // Cek apakah sudah ada template lain dengan tipe dan skema yang sama
+            $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
+                ->where('skema_id', $request->skema_id)
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existingTemplate) {
+                return redirect()->back()->withInput()->with('error', 'Template dengan tipe dan skema yang sama sudah ada.');
+            }
+
+            // Update template
+            $template->update([
+                'nama_template' => $request->nama_template,
+                'tipe_template' => $request->tipe_template,
+                'skema_id' => $request->skema_id,
+                'deskripsi' => $request->deskripsi,
+                'file_path' => $templatePath,
+                'ttd_path' => $ttdPath,
+                'variables' => $variables,
+                'is_active' => $request->has('is_active'),
+            ]);
+
+            return redirect()->route('admin.template-master.index')->with('success', 'Template berhasil diupdate!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        try {
+            $template = TemplateMaster::findOrFail($id);
+
+            // Hapus file dari storage
+            if (Storage::disk('public')->exists($template->file_path)) {
+                Storage::disk('public')->delete($template->file_path);
+            }
+
+            if ($template->ttd_path && Storage::disk('public')->exists($template->ttd_path)) {
+                Storage::disk('public')->delete($template->ttd_path);
+            }
+
+            // Hapus record dari database
+            $template->delete();
+
+            return redirect()->route('admin.template-master.index')->with('success', 'Template berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download template file
+     */
+    public function download(string $id)
+    {
+        $template = TemplateMaster::findOrFail($id);
+        $filePath = storage_path('app/public/' . $template->file_path);
+
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File template tidak ditemukan.');
+        }
+
+        return response()->download($filePath, $template->nama_template . '.docx');
+    }
+
+    /**
+     * Toggle status aktif/nonaktif
+     */
+    public function toggleStatus(string $id)
+    {
+        try {
+            $template = TemplateMaster::findOrFail($id);
+            $template->update(['is_active' => !$template->is_active]);
+
+            $status = $template->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            return redirect()->back()->with('success', "Template berhasil {$status}!");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+}

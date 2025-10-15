@@ -85,4 +85,16 @@ class User extends Authenticatable
 
         return true;
     }
+
+    // Relasi many-to-many dengan Skema (untuk asesor)
+    public function skemas()
+    {
+        return $this->belongsToMany(Skema::class, 'asesor_skema', 'asesor_id', 'skema_id');
+    }
+
+    // Relasi untuk asesor_skema
+    public function asesorSkemas()
+    {
+        return $this->hasMany(AsesorSkema::class, 'asesor_id');
+    }
 }

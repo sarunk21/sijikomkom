@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Skema;
+use App\Models\AsesorSkema;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +26,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::orderBy('name', 'asc')->get();
+        $users = User::with('skemas')->orderBy('name', 'asc')->get();
         $lists = $this->getMenuListAdmin('user');
         return view('components.pages.admin.user.list', compact('lists', 'users'));
     }
@@ -53,6 +55,7 @@ class UserController extends Controller
             'alamat' => 'required',
         ]);
 
+        DB::beginTransaction();
         try {
             $user = User::create([
                 'name' => $request->name,
@@ -63,9 +66,13 @@ class UserController extends Controller
                 'alamat' => $request->alamat,
                 'user_type' => $request->user_type,
             ]);
+
+
+            DB::commit();
             return redirect()->route('admin.user.index')->with('success', 'User berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.user.index')->with('error', 'User gagal ditambahkan');
+            DB::rollBack();
+            return redirect()->route('admin.user.index')->with('error', 'User gagal ditambahkan: ' . $e->getMessage());
         }
     }
 
@@ -74,10 +81,11 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
+        $user = User::with('skemas')->find($id);
         $lists = $this->getMenuListAdmin('user');
         $activeMenu = 'user';
-        return view('components.pages.admin.user.edit', compact('lists', 'activeMenu', 'user'));
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+        return view('components.pages.admin.user.edit', compact('lists', 'activeMenu', 'user', 'skemas'));
     }
 
     /**
@@ -98,12 +106,15 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
-            'nik' => 'required|unique:users,nik,NULL,id,deleted_at,NULL',
-            'telephone' => 'required|unique:users,telephone,NULL,id,deleted_at,NULL',
+            'email' => 'required|email|unique:users,email,' . $id . ',id,deleted_at,NULL',
+            'nik' => 'required|unique:users,nik,' . $id . ',id,deleted_at,NULL',
+            'telephone' => 'required|unique:users,telephone,' . $id . ',id,deleted_at,NULL',
             'alamat' => 'required',
+            'skemas' => 'nullable|array',
+            'skemas.*' => 'exists:skema,id',
         ]);
 
+        DB::beginTransaction();
         try {
             $user = User::find($id);
             $user->update([
@@ -115,9 +126,31 @@ class UserController extends Controller
                 'alamat' => $request->alamat,
                 'user_type' => $request->user_type,
             ]);
+
+            // Update skema untuk asesor
+            if (in_array($request->user_type, ['asesor', 'asesor_nonaktif'])) {
+                // Hapus skema lama
+                AsesorSkema::where('asesor_id', $user->id)->delete();
+
+                // Tambah skema baru
+                if ($request->has('skemas') && is_array($request->skemas)) {
+                    foreach ($request->skemas as $skemaId) {
+                        AsesorSkema::create([
+                            'asesor_id' => $user->id,
+                            'skema_id' => $skemaId,
+                        ]);
+                    }
+                }
+            } else {
+                // Jika bukan asesor, hapus semua skema yang terkait
+                AsesorSkema::where('asesor_id', $user->id)->delete();
+            }
+
+            DB::commit();
             return redirect()->route('admin.user.index')->with('success', 'User berhasil diubah');
         } catch (\Exception $e) {
-            return redirect()->route('admin.user.index')->with('error', 'User gagal diubah');
+            DB::rollBack();
+            return redirect()->route('admin.user.index')->with('error', 'User gagal diubah: ' . $e->getMessage());
         }
     }
 

@@ -66,20 +66,44 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="asesor_id" class="form-label">Asesor </label>
-                    <select name="asesor_id[]" id="asesor_id" class="form-control @error('asesor_id') is-invalid @enderror" multiple>
-                        <option value="" disabled>Pilih Asesor di sini...</option>
-                        @foreach ($asesor as $item)
-                            <option value="{{ $item->id }}" {{ in_array($item->id, $asesor_skema->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                {{ $item->name }}</option>
-                            {{-- Jika asesor sudah ada skema nya, dibuat disabled --}}
-                            @if ($item->skema_id && $item->skema_id != $skema->id)
-                                <option value="{{ $item->id }}" disabled>{{ $item->name }}</option>
-                            @endif
-                        @endforeach
-                    </select>
-                    @error('asesor_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <label class="form-label">Asesor</label>
+                    <div class="mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="select-all-asesors">
+                            <label class="form-check-label text-primary font-weight-bold" for="select-all-asesors">
+                                <i class="fas fa-check-square"></i> Pilih Semua Asesor
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card border-light">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                @foreach ($asesors as $asesor)
+                                    @php
+                                        $selected = false;
+                                        if (old('asesors')) {
+                                            $selected = in_array($asesor->id, old('asesors'));
+                                        } else {
+                                            $selected = $skema->asesors->contains($asesor->id);
+                                        }
+                                    @endphp
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="asesors[]" value="{{ $asesor->id }}" id="asesor_{{ $asesor->id }}"
+                                                {{ $selected ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="asesor_{{ $asesor->id }}">
+                                                <strong>{{ $asesor->name }}</strong>
+                                                <br><small class="text-muted">{{ $asesor->email }}</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Pilih satu atau lebih asesor yang bisa menguji skema ini</small>
+                    @error('asesors')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -106,5 +130,32 @@
             color: white;
         }
     </style>
+
+    {{-- Script untuk select all asesor --}}
+    @push('scripts')
+    <script>
+        $(document).ready(function() {
+            // Select All functionality
+            $('#select-all-asesors').on('change', function() {
+                const isChecked = $(this).is(':checked');
+                $('input[name="asesors[]"]').prop('checked', isChecked);
+            });
+
+            // Update select all checkbox when individual checkboxes change
+            $('input[name="asesors[]"]').on('change', function() {
+                const totalCheckboxes = $('input[name="asesors[]"]').length;
+                const checkedCheckboxes = $('input[name="asesors[]"]:checked').length;
+                $('#select-all-asesors').prop('checked', totalCheckboxes === checkedCheckboxes);
+            });
+
+            // Update select all on page load
+            setTimeout(function() {
+                const totalCheckboxes = $('input[name="asesors[]"]').length;
+                const checkedCheckboxes = $('input[name="asesors[]"]:checked').length;
+                $('#select-all-asesors').prop('checked', totalCheckboxes === checkedCheckboxes);
+            }, 100);
+        });
+    </script>
+    @endpush
 
 @endsection

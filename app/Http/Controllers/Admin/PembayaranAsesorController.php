@@ -49,6 +49,13 @@ class PembayaranAsesorController extends Controller
             ]);
 
             $buktiPembayaran = $request->file('bukti_pembayaran');
+
+            // Pastikan folder bukti_pembayaran ada
+            $folderPath = storage_path('app/public/bukti_pembayaran');
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0755, true);
+            }
+
             $buktiPembayaran->storeAs('bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
 
             // cek apakah jadwal sudah ada pembayaran
@@ -75,7 +82,16 @@ class PembayaranAsesorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $pembayaranAsesor = PembayaranAsesor::with(['jadwal', 'asesor'])->findOrFail($id);
+
+        // Check if file exists
+        $filePath = storage_path('app/public/bukti_pembayaran/' . $pembayaranAsesor->bukti_pembayaran);
+
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File bukti pembayaran tidak ditemukan.');
+        }
+
+        return response()->file($filePath);
     }
 
     /**
@@ -101,6 +117,13 @@ class PembayaranAsesorController extends Controller
         ]);
 
         $buktiPembayaran = $request->file('bukti_pembayaran');
+
+        // Pastikan folder bukti_pembayaran ada
+        $folderPath = storage_path('app/public/bukti_pembayaran');
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0755, true);
+        }
+
         $buktiPembayaran->storeAs('bukti_pembayaran', $buktiPembayaran->hashName(), 'public');
 
         $pembayaranAsesor = PembayaranAsesor::where('jadwal_id', $request->jadwal_id)->first();
@@ -110,6 +133,23 @@ class PembayaranAsesorController extends Controller
         $pembayaranAsesor->save();
 
         return redirect()->route('admin.pembayaran-asesor.index')->with('success', 'Status pembayaran asesor berhasil diubah');
+    }
+
+    /**
+     * Download bukti pembayaran
+     */
+    public function download(string $id)
+    {
+        $pembayaranAsesor = PembayaranAsesor::with(['jadwal', 'asesor'])->findOrFail($id);
+
+        // Check if file exists
+        $filePath = storage_path('app/public/bukti_pembayaran/' . $pembayaranAsesor->bukti_pembayaran);
+
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File bukti pembayaran tidak ditemukan.');
+        }
+
+        return response()->download($filePath, 'bukti_pembayaran_' . $pembayaranAsesor->asesor->name . '_' . $pembayaranAsesor->jadwal->tanggal_ujian . '.jpg');
     }
 
     /**

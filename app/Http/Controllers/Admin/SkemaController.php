@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Skema;
+use App\Models\AsesorSkema;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SkemaController extends Controller
 {
@@ -17,7 +19,7 @@ class SkemaController extends Controller
      */
     public function index()
     {
-        $skema = Skema::orderBy('nama', 'asc')->get();
+        $skema = Skema::with('asesors')->orderBy('nama', 'asc')->get();
         $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.list', compact('lists', 'activeMenu', 'skema'));
@@ -30,11 +32,10 @@ class SkemaController extends Controller
     {
         $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
-        $asesor = User::where('user_type', 'asesor')
-            ->where('skema_id', null)
+        $asesors = User::where('user_type', 'asesor')
             ->orderBy('name', 'asc')
             ->get();
-        return view('components.pages.admin.skema.create', compact('lists', 'activeMenu', 'asesor'));
+        return view('components.pages.admin.skema.create', compact('lists', 'activeMenu', 'asesors'));
     }
 
     /**
@@ -47,9 +48,11 @@ class SkemaController extends Controller
             'kode' => 'required|unique:skema,kode,NULL,id,deleted_at,NULL',
             'kategori' => 'required',
             'bidang' => 'required',
-            'asesor_id' => 'array',
+            'asesors' => 'nullable|array',
+            'asesors.*' => 'exists:users,id',
         ]);
 
+        DB::beginTransaction();
         try {
             $skema = Skema::create([
                 'nama' => $request->nama,
@@ -58,13 +61,21 @@ class SkemaController extends Controller
                 'bidang' => $request->bidang,
             ]);
 
-            foreach ($request->asesor_id as $asesor_id) {
-                User::where('id', $asesor_id)->update(['skema_id' => $skema->id]);
+            // Assign asesor ke skema (many-to-many)
+            if ($request->has('asesors') && is_array($request->asesors)) {
+                foreach ($request->asesors as $asesorId) {
+                    AsesorSkema::create([
+                        'skema_id' => $skema->id,
+                        'asesor_id' => $asesorId,
+                    ]);
+                }
             }
 
+            DB::commit();
             return redirect()->route('admin.skema.index')->with('success', 'Skema berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->route('admin.skema.create')->withInput()->with('error', 'Skema gagal ditambahkan');
+            DB::rollBack();
+            return redirect()->route('admin.skema.create')->withInput()->with('error', 'Skema gagal ditambahkan: ' . $e->getMessage());
         }
     }
 
@@ -73,8 +84,13 @@ class SkemaController extends Controller
      */
     public function show(string $id)
     {
-        $skema = Skema::find($id);
-        return view('components.pages.admin.skema.edit', compact('skema'));
+        $skema = Skema::with('asesors')->find($id);
+        $lists = $this->getMenuListAdmin('skema');
+        $activeMenu = 'skema';
+        $asesors = User::where('user_type', 'asesor')
+            ->orderBy('name', 'asc')
+            ->get();
+        return view('components.pages.admin.skema.edit', compact('lists', 'activeMenu', 'skema', 'asesors'));
     }
 
     /**
@@ -83,16 +99,12 @@ class SkemaController extends Controller
     public function edit(string $id)
     {
         $lists = $this->getMenuListAdmin('skema');
-        $skema = Skema::find($id);
-        $asesor = User::where('user_type', 'asesor')
-            ->where('skema_id', null)
+        $activeMenu = 'skema';
+        $skema = Skema::with('asesors')->find($id);
+        $asesors = User::where('user_type', 'asesor')
             ->orderBy('name', 'asc')
             ->get();
-        $asesor_skema = User::where('user_type', 'asesor')
-            ->where('skema_id', $skema->id)
-            ->orderBy('name', 'asc')
-            ->get();
-        return view('components.pages.admin.skema.edit', compact('lists', 'skema', 'asesor', 'asesor_skema'));
+        return view('components.pages.admin.skema.edit', compact('lists', 'activeMenu', 'skema', 'asesors'));
     }
 
     /**
@@ -105,24 +117,37 @@ class SkemaController extends Controller
             'kode' => 'required|unique:skema,kode,' . $id . ',id,deleted_at,NULL',
             'kategori' => 'required',
             'bidang' => 'required',
-            'asesor_id' => 'array',
+            'asesors' => 'nullable|array',
+            'asesors.*' => 'exists:users,id',
         ]);
 
+        DB::beginTransaction();
         try {
             $skema = Skema::find($id);
-            $skema->update($request->all());
+            $skema->update([
+                'nama' => $request->nama,
+                'kode' => $request->kode,
+                'kategori' => $request->kategori,
+                'bidang' => $request->bidang,
+            ]);
 
-            // Kosongkan asesor_id yang lama
-            User::where('skema_id', $skema->id)->update(['skema_id' => null]);
+            // Update asesor assignments (many-to-many)
+            AsesorSkema::where('skema_id', $skema->id)->delete();
 
-            // Tambahkan asesor_id yang baru
-            foreach ($request->asesor_id as $asesor_id) {
-                User::where('id', $asesor_id)->update(['skema_id' => $skema->id]);
+            if ($request->has('asesors') && is_array($request->asesors)) {
+                foreach ($request->asesors as $asesorId) {
+                    AsesorSkema::create([
+                        'skema_id' => $skema->id,
+                        'asesor_id' => $asesorId,
+                    ]);
+                }
             }
 
+            DB::commit();
             return redirect()->route('admin.skema.index')->with('success', 'Skema berhasil diubah');
         } catch (\Exception $e) {
-            return redirect()->route('admin.skema.index')->withInput()->with('error', 'Skema gagal diubah');
+            DB::rollBack();
+            return redirect()->route('admin.skema.edit', $id)->withInput()->with('error', 'Skema gagal diubah: ' . $e->getMessage());
         }
     }
 

@@ -75,6 +75,7 @@
                     @enderror
                 </div>
 
+
                 <div class="mb-4">
                     <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
                     <textarea name="alamat" id="alamat" class="form-control" required>{{ old('alamat') }}</textarea>
@@ -107,5 +108,6 @@
             color: white;
         }
     </style>
+
 
 @endsection

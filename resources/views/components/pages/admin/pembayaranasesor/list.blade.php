@@ -39,10 +39,20 @@
                                 <td>{{ $item->jadwal->skema->nama }}</td>
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>
-                                    <a href="{{ asset('storage/bukti_pembayaran/' . $item->bukti_pembayaran) }}"
-                                        class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti" target="_blank">
-                                        <i class="fas fa-eye text-primary"></i>
-                                    </a>
+                                    @if($item->bukti_pembayaran)
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('admin.pembayaran-asesor.show', $item->id) }}"
+                                                class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Bukti" target="_blank">
+                                                <i class="fas fa-eye text-primary"></i>
+                                            </a>
+                                            <a href="{{ route('admin.pembayaran-asesor.download', $item->id) }}"
+                                                class="btn btn-light btn-icon btn-sm border shadow-sm" title="Download Bukti">
+                                                <i class="fas fa-download text-success"></i>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">Belum ada bukti</span>
+                                    @endif
                                 </td>
                                 <td>{{ $item->status_text }}</td>
                                 <td>
