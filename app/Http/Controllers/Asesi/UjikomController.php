@@ -7,6 +7,7 @@ use App\Models\APL2;
 use App\Models\Pendaftaran;
 use App\Models\PendaftaranUjikom;
 use App\Models\Response;
+use App\Models\TemplateMaster;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,13 +44,15 @@ class UjikomController extends Controller
     public function store(Request $request, string $id)
     {
         $rules = [];
+
+        // Validasi jawaban soal APL2
         foreach ($request->input('answers', []) as $apl2_id => $answer) {
             $rules['answers.' . $apl2_id] = 'required|string';
         }
 
         $validated = $request->validate($rules);
 
-        // Simpan jawaban ke database, misalnya model Response
+        // Simpan jawaban soal APL2
         foreach ($validated['answers'] as $apl2_id => $answer_text) {
             Response::updateOrCreate(
                 [
@@ -66,8 +69,11 @@ class UjikomController extends Controller
         $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $id)
             ->where('asesi_id', Auth::user()->id)
             ->first();
-        $pendaftaranUjikom->status = 3;
-        $pendaftaranUjikom->save();
+
+        if ($pendaftaranUjikom) {
+            $pendaftaranUjikom->status = 3;
+            $pendaftaranUjikom->save();
+        }
 
         return redirect()->route('asesi.ujikom.index')->with('success', 'Jawaban berhasil disimpan!');
     }
@@ -78,21 +84,33 @@ class UjikomController extends Controller
     public function show(string $id)
     {
         $asesi = Auth::user();
-        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)->first();
+        $pendaftaran = Pendaftaran::where('id', $id)
+            ->where('user_id', $asesi->id)
+            ->first();
+
+        if (!$pendaftaran) {
+            return redirect()->route('asesi.ujikom.index')->with('error', 'Pendaftaran tidak ditemukan.');
+        }
+
+        // Ambil soal APL2 untuk skema ini
         $apl2 = APL2::where('skema_id', $pendaftaran->skema_id)
+            ->orderBy('urutan', 'asc')
             ->orderBy('created_at', 'asc')
             ->get();
+
         $lists = $this->getMenuListAsesi('ujikom');
 
         // Update status ujikom
         $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftaran->id)
             ->where('asesi_id', Auth::user()->id)
             ->first();
-        $pendaftaranUjikom->status = 2;
-        $pendaftaranUjikom->save();
+
+        if ($pendaftaranUjikom) {
+            $pendaftaranUjikom->status = 2;
+            $pendaftaranUjikom->save();
+        }
 
         // Update status pendaftaran
-        $pendaftaran = Pendaftaran::where('id', $pendaftaran->id)->first();
         $pendaftaran->status = 5;
         $pendaftaran->save();
 

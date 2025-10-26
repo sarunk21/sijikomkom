@@ -14,6 +14,7 @@
                             <th>Tanggal Assesmen</th>
                             <th>TUK</th>
                             <th>Status</th>
+                            <th>Status APL2</th>
                             <th>Keterangan</th>
                             <th class="text-center" style="width: 150px;">Aksi</th>
                         </tr>
@@ -33,16 +34,62 @@
                                         <span class="badge badge-secondary">{{ $item->status_text }}</span>
                                     @endif
                                 </td>
+                                <td>
+                                    @php
+                                        $isReviewedByAsesor = !empty($item->asesor_assessment);
+                                        $hasCustomVariables = !empty($item->custom_variables);
+                                    @endphp
+
+                                    @if($isReviewedByAsesor)
+                                        <span class="badge badge-danger">Direview Asesor</span>
+                                    @elseif($hasCustomVariables)
+                                        <span class="badge badge-warning">Sudah Diisi</span>
+                                    @else
+                                        <span class="badge badge-secondary">Belum Diisi</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->pendaftaranUjikom ? $item->pendaftaranUjikom->keterangan : '-' }}</td>
                                 <td class="text-center">
-                                    @if($item->status == 4)
-                                        {{-- Status Menunggu Ujian - bisa generate APL 1 --}}
-                                        <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
+                                    @if(in_array($item->status, [3, 4, 5]))
+                                        {{-- Status yang bisa generate APL 1 dan APL 2 --}}
+                                        <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 0.5rem;">
                                             <a href="{{ route('asesi.custom-data.show', $item->id) }}"
                                                 class="btn btn-success btn-sm"
                                                 title="Input Data Custom">
                                                 <i class="fas fa-edit"></i> Custom
                                             </a>
+                                            @php
+                                                $isReviewedByAsesor = !empty($item->asesor_assessment);
+                                            @endphp
+
+                                            @if($isReviewedByAsesor)
+                                                <button type="button"
+                                                    class="btn btn-secondary btn-sm"
+                                                    title="APL2 sudah direview asesor"
+                                                    disabled>
+                                                    <i class="fas fa-lock"></i> APL 2 (Locked)
+                                                </button>
+                                                @if($hasCustomVariables)
+                                                    <a href="{{ route('asesi.sertifikasi.generate-apl2', $item->id) }}"
+                                                        class="btn btn-success btn-sm"
+                                                        title="Generate APL 2">
+                                                        <i class="fas fa-file-word"></i> Generate APL 2
+                                                    </a>
+                                                @endif
+                                            @else
+                                                <a href="{{ route('asesi.sertifikasi.apl2', $item->id) }}"
+                                                    class="btn btn-warning btn-sm"
+                                                    title="Isi Form APL 2">
+                                                    <i class="fas fa-file-alt"></i> APL 2
+                                                </a>
+                                                @if($hasCustomVariables)
+                                                    <a href="{{ route('asesi.sertifikasi.generate-apl2', $item->id) }}"
+                                                        class="btn btn-success btn-sm"
+                                                        title="Generate APL 2">
+                                                        <i class="fas fa-file-word"></i> Generate APL 2
+                                                    </a>
+                                                @endif
+                                            @endif
                                             <a href="{{ route('asesi.template.generate-apl1', $item->id) }}"
                                                 class="btn btn-primary btn-sm"
                                                 title="Generate APL 1">
@@ -56,7 +103,7 @@
                                             </button>
                                         </div>
                                     @else
-                                        <span class="text-muted">-</span>
+                                        <span class="text-muted">Status: {{ $item->status_text }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -184,11 +231,15 @@
 
                                 // Data Asesi
                                 html += '<tr><td colspan="2" class="bg-primary text-white"><strong>Data Asesi</strong></td></tr>';
-                                html += `<tr><td>Nama</td><td>${response.data['user.name'] || '-'}</td></tr>`;
-                                html += `<tr><td>Email</td><td>${response.data['user.email'] || '-'}</td></tr>`;
-                                html += `<tr><td>Telepon</td><td>${response.data['user.telephone'] || '-'}</td></tr>`;
-                                html += `<tr><td>NIK</td><td>${response.data['user.nik'] || '-'}</td></tr>`;
-                                html += `<tr><td>Alamat</td><td>${response.data['user.alamat'] || '-'}</td></tr>`;
+                                html += `<tr><td>Nama</td><td>${response.data['nama_lengkap'] || response.data['user.name'] || '-'}</td></tr>`;
+                                html += `<tr><td>Email</td><td>${response.data['email_pribadi'] || response.data['user.email'] || '-'}</td></tr>`;
+                                html += `<tr><td>Telepon</td><td>${response.data['no_hp'] || response.data['user.telephone'] || '-'}</td></tr>`;
+                                html += `<tr><td>NIK</td><td>${response.data['nik'] || response.data['user.nik'] || '-'}</td></tr>`;
+                                html += `<tr><td>Alamat</td><td>${response.data['alamat'] || response.data['user.alamat'] || '-'}</td></tr>`;
+                                html += `<tr><td>Tempat Lahir</td><td>${response.data['tempat_lahir'] || response.data['user.tempat_lahir'] || '-'}</td></tr>`;
+                                html += `<tr><td>Tanggal Lahir</td><td>${response.data['tanggal_lahir'] || response.data['user.tanggal_lahir'] || '-'}</td></tr>`;
+                                html += `<tr><td>Pengalaman Kerja</td><td>${response.data['pengalaman_kerja'] || '-'}</td></tr>`;
+                                html += `<tr><td>Motivasi Sertifikasi</td><td>${response.data['motivasi_sertifikasi'] || '-'}</td></tr>`;
 
                                 // Data Skema
                                 html += '<tr><td colspan="2" class="bg-info text-white"><strong>Data Skema</strong></td></tr>';

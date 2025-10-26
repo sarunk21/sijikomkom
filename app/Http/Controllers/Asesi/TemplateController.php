@@ -28,7 +28,7 @@ class TemplateController extends Controller
             // Cek apakah pendaftaran milik user yang login
             $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
                 ->where('user_id', Auth::id())
-                ->where('status', 4) // Status menunggu ujian
+                ->whereIn('status', [3, 4, 5]) // Status yang bisa generate APL1
                 ->with(['user', 'skema', 'jadwal.tuk'])
                 ->first();
 
@@ -78,7 +78,7 @@ class TemplateController extends Controller
 
             $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
                 ->where('user_id', Auth::id())
-                ->where('status', 4)
+                ->whereIn('status', [3, 4, 5])
                 ->with(['user', 'skema', 'jadwal.tuk'])
                 ->first();
 

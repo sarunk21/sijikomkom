@@ -10,7 +10,23 @@ class APL2 extends Model
     use HasFactory;
 
     protected $table = 'apl2';
-    protected $fillable = ['skema_id', 'question_text'];
+    protected $fillable = [
+        'skema_id',
+        'question_text',
+        'question_config',
+        'question_type',
+        'question_options',
+        'bukti_isian_tes',
+        'is_bk_k_question',
+        'urutan',
+        'custom_data'
+    ];
+
+    protected $casts = [
+        'question_config' => 'array',
+        'question_options' => 'array',
+        'is_bk_k_question' => 'boolean'
+    ];
 
     public function skema()
     {

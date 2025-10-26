@@ -4,6 +4,11 @@ namespace App\Http\Controllers\Asesi;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
+use App\Models\TemplateMaster;
+use App\Models\APL2;
+use App\Models\Response;
+use App\Services\TemplateGeneratorService;
+use Illuminate\Support\Facades\Storage;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +16,13 @@ use Illuminate\Support\Facades\Auth;
 class SertifikasiController extends Controller
 {
     use MenuTrait;
+
+    protected $templateGenerator;
+
+    public function __construct(TemplateGeneratorService $templateGenerator)
+    {
+        $this->templateGenerator = $templateGenerator;
+    }
 
     /**
      * Display a listing of the resource.
@@ -44,11 +56,112 @@ class SertifikasiController extends Controller
     }
 
     /**
+     * Store APL2 data
+     */
+    public function storeApl2(Request $request, string $id)
+    {
+        $asesi = Auth::user();
+        $pendaftaran = Pendaftaran::where('id', $id)
+            ->where('user_id', $asesi->id)
+            ->first();
+
+        if (!$pendaftaran) {
+            return redirect()->route('asesi.sertifikasi.index')->with('error', 'Pendaftaran tidak ditemukan.');
+        }
+
+        // Cek apakah APL2 sudah direview asesor
+        $isReviewedByAsesor = !empty($pendaftaran->asesor_assessment);
+
+        if ($isReviewedByAsesor) {
+            return redirect()->route('asesi.sertifikasi.index')->with('error', 'APL2 sudah direview oleh asesor dan tidak dapat diedit lagi.');
+        }
+
+        $rules = [];
+
+        // Validasi custom variables dari template APL2
+        if ($request->has('custom_variables')) {
+            foreach ($request->input('custom_variables', []) as $variable_name => $value) {
+                $rules['custom_variables.' . $variable_name] = 'nullable|string';
+            }
+        }
+
+        // Validasi signature data
+        $rules['signature_data'] = 'required|string';
+
+        $validated = $request->validate($rules);
+
+        try {
+            // Simpan custom variables ke pendaftaran
+            if (isset($validated['custom_variables'])) {
+                $customVariables = $pendaftaran->custom_variables ?? [];
+
+                foreach ($validated['custom_variables'] as $variable_name => $value) {
+                    $customVariables[$variable_name] = $value;
+                }
+
+                $pendaftaran->custom_variables = $customVariables;
+            }
+
+            // Simpan signature digital
+            if ($validated['signature_data']) {
+                // Hapus TTD lama jika ada
+                if ($pendaftaran->ttd_asesi_path && Storage::disk('public')->exists($pendaftaran->ttd_asesi_path)) {
+                    Storage::disk('public')->delete($pendaftaran->ttd_asesi_path);
+                }
+
+                // Simpan signature digital sebagai file PNG
+                $signatureData = $validated['signature_data'];
+                $image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signatureData));
+
+                $ttdFileName = 'ttd_asesi_' . $id . '_' . time() . '.png';
+                $ttdAsesiPath = 'ttd_asesi/' . $ttdFileName;
+
+                Storage::disk('public')->put($ttdAsesiPath, $image);
+                $pendaftaran->ttd_asesi_path = $ttdAsesiPath;
+            }
+
+            $pendaftaran->save();
+
+            return redirect()->route('asesi.sertifikasi.index')->with('success', 'Data APL2 berhasil disimpan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
+        $asesi = Auth::user();
+        $pendaftaran = Pendaftaran::where('id', $id)
+            ->where('user_id', $asesi->id)
+            ->first();
+
+        if (!$pendaftaran) {
+            return redirect()->route('asesi.sertifikasi.index')->with('error', 'Pendaftaran tidak ditemukan.');
+        }
+
+        // Cek apakah APL2 sudah direview asesor
+        $isReviewedByAsesor = !empty($pendaftaran->asesor_assessment);
+
+        if ($isReviewedByAsesor) {
+            return redirect()->route('asesi.sertifikasi.index')->with('error', 'APL2 sudah direview oleh asesor dan tidak dapat diedit lagi.');
+        }
+
+        // Ambil template APL2 untuk skema ini
+        $template = TemplateMaster::where('tipe_template', 'APL2')
+            ->where('skema_id', $pendaftaran->skema_id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$template) {
+            return redirect()->route('asesi.sertifikasi.index')->with('error', 'Template APL2 untuk skema ini belum tersedia.');
+        }
+
+        $lists = $this->getMenuListAsesi('sertifikasi');
+
+        return view('components.pages.asesi.sertifikasi.apl2-form', compact('pendaftaran', 'lists', 'template'));
     }
 
     /**
@@ -65,6 +178,40 @@ class SertifikasiController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Generate APL2 document for asesi
+     */
+    public function generateApl2(string $id)
+    {
+        $asesi = Auth::user();
+        $pendaftaran = Pendaftaran::where('id', $id)
+            ->where('user_id', $asesi->id)
+            ->with(['skema', 'user'])
+            ->first();
+
+        if (!$pendaftaran) {
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan.');
+        }
+
+        // Cek apakah APL2 sudah diisi
+        if (empty($pendaftaran->custom_variables)) {
+            return redirect()->back()->with('error', 'APL2 belum diisi. Silakan isi APL2 terlebih dahulu.');
+        }
+
+        try {
+            // Generate DOCX menggunakan TemplateGeneratorService
+            $result = $this->templateGenerator->generateApl2($pendaftaran, false); // false untuk asesi view
+
+            if ($result['success']) {
+                return response()->download($result['file_path'], $result['filename']);
+            } else {
+                return redirect()->back()->with('error', $result['message']);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat generate: ' . $e->getMessage());
+        }
     }
 
     /**

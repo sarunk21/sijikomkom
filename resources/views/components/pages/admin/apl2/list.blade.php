@@ -26,8 +26,8 @@
                                 <td class="text-center align-middle">{{ $item->apl2->count() ?? 0 }}</td>
                                 <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                        <a href="{{ route('admin.apl-2.show', $item->id) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
-                                            <i class="fas fa-pen text-primary"></i>
+                                        <a href="{{ route('admin.apl-2.show-by-skema', $item->id) }}" class="btn btn-light btn-icon btn-sm border shadow-sm" title="Lihat Pertanyaan">
+                                            <i class="fas fa-eye text-primary"></i>
                                         </a>
                                     </div>
                                 </td>

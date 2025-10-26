@@ -73,13 +73,17 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if($template->variables && count($template->variables) > 0)
+                                    @php
+                                        $variables = is_string($template->variables) ? json_decode($template->variables, true) : $template->variables;
+                                        $variables = is_array($variables) ? $variables : [];
+                                    @endphp
+                                    @if($variables && count($variables) > 0)
                                         <div class="d-flex flex-wrap gap-1">
-                                            @foreach(array_slice($template->variables, 0, 3) as $variable)
+                                            @foreach(array_slice($variables, 0, 3) as $variable)
                                                 <span class="badge badge-secondary badge-sm">{{ $variable }}</span>
                                             @endforeach
-                                            @if(count($template->variables) > 3)
-                                                <span class="badge badge-light badge-sm">+{{ count($template->variables) - 3 }}</span>
+                                            @if(count($variables) > 3)
+                                                <span class="badge badge-light badge-sm">+{{ count($variables) - 3 }}</span>
                                             @endif
                                         </div>
                                     @else

@@ -16,6 +16,40 @@
         </div>
     @endif
 
+    @if (session('warning'))
+        <div class="alert alert-warning">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    <!-- Registration Info Card -->
+    @if($registrationInfo['has_previous_registration'])
+        <div class="card border-left-warning shadow mb-4">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <i class="fas fa-info-circle"></i> Informasi Pendaftaran Kedua
+                        </div>
+                        <div class="h6 mb-0 text-gray-800">
+                            @if($registrationInfo['last_payment'])
+                                Status Pembayaran Terakhir: <strong>{{ $registrationInfo['last_payment']->status_text }}</strong>
+                                @if($registrationInfo['last_payment']->keterangan)
+                                    <br><small class="text-muted">{{ $registrationInfo['last_payment']->keterangan }}</small>
+                                @endif
+                            @else
+                                Anda sudah pernah mendaftar sebelumnya
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('asesi.daftar-ujikom.store') }}" method="POST" enctype="multipart/form-data">
@@ -83,8 +117,19 @@
         </div>
     </div>
 
+    {{-- Include Payment Confirmation Modal --}}
+    @include('components.modals.payment-confirmation-modal')
+
     {{-- Scripts --}}
     @push('scripts')
         <!-- DataTables sudah dimuat global dari layout -->
+        <script>
+            $(document).ready(function() {
+                // Tampilkan modal jika ini pendaftaran kedua
+                @if($isSecondRegistration)
+                    $('#paymentConfirmationModal').modal('show');
+                @endif
+            });
+        </script>
     @endpush
 @endsection

@@ -81,6 +81,13 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Pembayaran Pending</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pembayaranPending }}</div>
+                            @if($pembayaranPending > 0)
+                                <div class="mt-1">
+                                    <a href="{{ route('asesi.informasi-pembayaran.index') }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-credit-card"></i> Lihat Detail
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-credit-card fa-2x text-gray-300"></i>
@@ -193,6 +200,8 @@
         </div>
     </div>
 
+    {{-- Include Payment Confirmation Modal --}}
+    @include('components.modals.payment-confirmation-modal')
 @endsection
 
 @push('scripts')

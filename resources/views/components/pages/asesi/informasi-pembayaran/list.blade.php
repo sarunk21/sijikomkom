@@ -23,6 +23,7 @@
                             <th>Status</th>
                             <th>Keterangan</th>
                             <th>Bukti Pembayaran</th>
+                            <th>Tanggal Daftar</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -43,14 +44,29 @@
                                                 <i class="fas fa-eye text-orange"></i>
                                             </div>
                                         </a>
+                                    @else
+                                        <span class="text-muted">Belum ada</span>
                                     @endif
                                 </td>
+                                <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if ($item->status == 1)
                                         <a href="{{ route('asesi.informasi-pembayaran.edit', $item->id) }}"
                                             class="btn btn-outline-warning btn-sm shadow-sm">
-                                            Upload Bukti Pembayaran
+                                            <i class="fas fa-upload"></i> Upload Bukti
                                         </a>
+                                    @elseif ($item->status == 2)
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-clock"></i> Menunggu Verifikasi
+                                        </span>
+                                    @elseif ($item->status == 3)
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-times"></i> Ditolak
+                                        </span>
+                                    @elseif ($item->status == 4)
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check"></i> Dikonfirmasi
+                                        </span>
                                     @endif
                                 </td>
                             </tr>
@@ -74,6 +90,9 @@
             font-size: 0.85rem;
         }
     </style>
+
+    {{-- Include Payment Confirmation Modal --}}
+    @include('components.modals.payment-confirmation-modal')
 
     {{-- Scripts --}}
     @push('scripts')

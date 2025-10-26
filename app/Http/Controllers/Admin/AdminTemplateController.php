@@ -41,7 +41,7 @@ class AdminTemplateController extends Controller
 
         $tipeTemplateOptions = [
             'APL1' => 'APL 1 (Asesmen Mandiri)',
-            // Nanti bisa ditambah APL2, APL3, dll
+            'APL2' => 'APL 2 (Portofolio)',
         ];
 
         // Field database yang tersedia untuk variable
@@ -89,12 +89,21 @@ class AdminTemplateController extends Controller
     {
         $request->validate([
             'nama_template' => 'required|string|max:255',
-            'tipe_template' => 'required|string|in:APL1',
+            'tipe_template' => 'required|string|in:APL1,APL2',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
             'file_template' => 'required|file|mimes:docx|max:10240', // Max 10MB
             'ttd_digital' => 'nullable|file|mimes:png,jpg,jpeg|max:2048', // Max 2MB
             'variables' => 'required|string', // JSON string dari JavaScript
+            'custom_variables' => 'nullable|array',
+            'custom_variables.*.name' => 'nullable|string|max:255',
+            'custom_variables.*.label' => 'nullable|string|max:255',
+            'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file',
+            'custom_variables.*.options' => 'nullable|string',
+            'custom_variables.*.required' => 'nullable|boolean',
+            // Dynamic field configurations
+            'field_configurations' => 'nullable|string',
+            'field_mappings' => 'nullable|string',
         ]);
 
         try {
@@ -126,6 +135,32 @@ class AdminTemplateController extends Controller
                 return redirect()->back()->withInput()->with('error', 'Template dengan tipe dan skema yang sama sudah ada. Silakan edit template yang sudah ada atau pilih tipe/skema yang berbeda.');
             }
 
+            // Parse APL2 config jika ada
+            $apl2Config = null;
+            $apl2Questions = null;
+            $apl2CheckboxConfig = null;
+            $fieldConfigurations = null;
+            $fieldMappings = null;
+
+            // Parse field configurations untuk semua tipe template
+            if ($request->field_configurations) {
+                $fieldConfigurations = json_decode($request->field_configurations, true);
+            }
+
+            if ($request->field_mappings) {
+                $fieldMappings = json_decode($request->field_mappings, true);
+            }
+
+            // Handle custom variables
+            $customVariables = [];
+            if ($request->custom_variables) {
+                foreach ($request->custom_variables as $customVar) {
+                    if (!empty($customVar['name']) && !empty($customVar['label'])) {
+                        $customVariables[] = $customVar;
+                    }
+                }
+            }
+
             // Buat template master
             $template = TemplateMaster::create([
                 'nama_template' => $request->nama_template,
@@ -136,6 +171,9 @@ class AdminTemplateController extends Controller
                 'ttd_path' => $ttdPath,
                 'variables' => $request->variables,
                 'is_active' => true,
+                'field_configurations' => $fieldConfigurations,
+                'field_mappings' => $fieldMappings,
+                'custom_variables' => $customVariables,
             ]);
 
             return redirect()->route('admin.template-master.index')->with('success', 'Template berhasil ditambahkan!');
@@ -169,6 +207,7 @@ class AdminTemplateController extends Controller
 
         $tipeTemplateOptions = [
             'APL1' => 'APL 1 (Asesmen Mandiri)',
+            'APL2' => 'APL 2 (Portofolio)',
         ];
 
         // Field database yang tersedia untuk variable
@@ -218,7 +257,7 @@ class AdminTemplateController extends Controller
 
         $request->validate([
             'nama_template' => 'required|string|max:255',
-            'tipe_template' => 'required|string|in:APL1',
+            'tipe_template' => 'required|string|in:APL1,APL2',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
             'file_template' => 'nullable|file|mimes:docx|max:10240',
@@ -232,6 +271,26 @@ class AdminTemplateController extends Controller
             $variables = json_decode($request->variables, true);
             if (!$variables || !is_array($variables)) {
                 return redirect()->back()->with('error', 'Variable tidak valid.')->withInput();
+            }
+
+            // Parse field configurations untuk semua tipe template
+            $fieldConfigurations = null;
+            $fieldMappings = null;
+            if ($request->field_configurations) {
+                $fieldConfigurations = json_decode($request->field_configurations, true);
+            }
+            if ($request->field_mappings) {
+                $fieldMappings = json_decode($request->field_mappings, true);
+            }
+
+            // Handle custom variables
+            $customVariables = [];
+            if ($request->custom_variables) {
+                foreach ($request->custom_variables as $customVar) {
+                    if (!empty($customVar['name']) && !empty($customVar['label'])) {
+                        $customVariables[] = $customVar;
+                    }
+                }
             }
 
             $templatePath = $template->file_path;
@@ -281,8 +340,19 @@ class AdminTemplateController extends Controller
                 'ttd_path' => $ttdPath,
                 'variables' => $variables,
                 'is_active' => $request->has('is_active'),
+                'field_configurations' => $fieldConfigurations,
+                'field_mappings' => $fieldMappings,
+                'custom_variables' => $customVariables,
             ]);
 
+            // Redirect berdasarkan tipe template
+            \Log::info('Template update redirect check', [
+                'tipe_template' => $request->tipe_template,
+                'template_id' => $template->id,
+                'template_tipe' => $template->tipe_template
+            ]);
+
+            // Selalu redirect ke template master index untuk konsistensi
             return redirect()->route('admin.template-master.index')->with('success', 'Template berhasil diupdate!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

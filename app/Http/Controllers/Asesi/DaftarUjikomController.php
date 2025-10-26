@@ -7,6 +7,7 @@ use App\Models\Jadwal;
 use App\Models\Pembayaran;
 use App\Models\Pendaftaran;
 use App\Models\User;
+use App\Services\SecondRegistrationService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,15 +15,35 @@ use Illuminate\Support\Facades\Auth;
 class DaftarUjikomController extends Controller
 {
     use MenuTrait;
+
+    protected $secondRegistrationService;
+
+    public function __construct(SecondRegistrationService $secondRegistrationService)
+    {
+        $this->secondRegistrationService = $secondRegistrationService;
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Cek asesi harus melengkapi profile
         $asesi = User::where('id', Auth::user()->id)->first();
         if (!$asesi->checkProfileLengkapAsesi()) {
             return redirect()->route('asesi.profil-asesi.index')->with('error', 'Asesi harus melengkapi profil');
+        }
+
+        // Cek apakah ini pendaftaran kedua
+        $isSecondRegistration = $request->has('second_registration');
+        $registrationInfo = $this->secondRegistrationService->getSecondRegistrationInfo();
+
+        // Cek apakah user bisa mendaftar lagi
+        if (!$this->secondRegistrationService->canRegisterAgain()) {
+            $lastPayment = $registrationInfo['last_payment'];
+            if ($lastPayment && in_array($lastPayment->status, [1, 2])) {
+                return redirect()->route('asesi.informasi-pembayaran.index')
+                    ->with('warning', 'Anda memiliki pembayaran yang belum diselesaikan. Silakan selesaikan pembayaran terlebih dahulu.');
+            }
         }
 
         $jadwal = Jadwal::with('skema', 'tuk')
@@ -35,7 +56,7 @@ class DaftarUjikomController extends Controller
             ->get();
 
         $lists = $this->getMenuListAsesi('daftar-ujikom');
-        return view('components.pages.asesi.daftar-ujikom.index', compact('lists', 'jadwal'));
+        return view('components.pages.asesi.daftar-ujikom.index', compact('lists', 'jadwal', 'registrationInfo', 'isSecondRegistration'));
     }
 
     /**
@@ -72,20 +93,18 @@ class DaftarUjikomController extends Controller
             'photo_administatif' => $photoAdministatif,
         ]);
 
-        // Check apakah asesi sudah pernah daftar ujikom
-        $pendaftaran = Pendaftaran::where('user_id', Auth::user()->id)->first();
-        if ($pendaftaran) {
-            Pembayaran::create([
-                'user_id' => Auth::user()->id,
-                'jadwal_id' => $request->jadwal_id,
-                'status' => 1,
-            ]);
-        } else {
-            Pembayaran::create([
-                'user_id' => Auth::user()->id,
-                'jadwal_id' => $request->jadwal_id,
-                'status' => 2,
-            ]);
+        // Gunakan service untuk membuat pembayaran
+        try {
+            $pembayaran = $this->secondRegistrationService->createSecondRegistrationPayment($request->jadwal_id);
+
+            // Set session untuk menampilkan informasi pembayaran
+            session()->flash('payment_status_message', 'Pendaftaran berhasil! Silakan lakukan pembayaran dan upload bukti pembayaran.');
+            session()->flash('payment_status_type', 'success');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error saat membuat pembayaran: ' . $e->getMessage());
         }
 
         return redirect()->route('asesi.informasi-pembayaran.index')->with('success', 'Berhasil daftar ujikom');

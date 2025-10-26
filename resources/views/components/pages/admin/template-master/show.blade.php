@@ -64,18 +64,36 @@
                     <h5 class="mb-0"><i class="fas fa-code"></i> Variables Template</h5>
                 </div>
                 <div class="card-body">
-                    @if($template->variables && count($template->variables) > 0)
+                    @php
+                        $customVariables = is_string($template->custom_variables) ? json_decode($template->custom_variables, true) : $template->custom_variables;
+                        $customVariables = is_array($customVariables) ? $customVariables : [];
+                    @endphp
+
+                    @if(count($customVariables) > 0)
                         <div class="row">
-                            @foreach($template->variables as $variable)
+                            @foreach($customVariables as $variable)
                                 <div class="col-md-6 mb-2">
                                     <div class="border rounded p-2 bg-light">
-                                        <code>@{{ $variable }}</code>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ $variable['label'] ?? $variable['name'] ?? $variable }}</strong>
+                                                @if(isset($variable['type']))
+                                                    <small class="text-muted d-block">Tipe: {{ ucfirst($variable['type']) }}</small>
+                                                @endif
+                                                @if(isset($variable['options']))
+                                                    <small class="text-muted d-block">Opsi: {{ $variable['options'] }}</small>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <code>${ {{ $variable['name'] ?? $variable }} }</code>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-muted">Tidak ada variables yang didefinisikan.</p>
+                        <p class="text-muted">Tidak ada custom variables yang didefinisikan.</p>
                     @endif
                 </div>
             </div>

@@ -2,252 +2,251 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AnalyticsService;
+use App\Http\Requests\SkemaTrendRequest;
+use App\Http\Requests\WorkloadAsesorRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class AnalyticsController extends Controller
 {
-    private $pythonApiBase = 'http://127.0.0.1:3000';
-    private $timeout = 10; // 10 detik
+    protected $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
 
     /**
-     * Get analytics data for dashboard
+     * Mendapatkan trend pendaftaran skema berdasarkan periode waktu
      */
-    public function getDashboardData()
+    public function skemaTrend(SkemaTrendRequest $request): JsonResponse
     {
         try {
-            // Get all analytics data
-            $skemaTrend = $this->getSkemaTrend();
-            $statistikKeberhasilan = $this->getStatistikKeberhasilan();
-            $segmentasiDemografi = $this->getSegmentasiDemografi();
-            $workloadAsesor = $this->getWorkloadAsesor();
-            $trenPeminatSkema = $this->getTrenPeminatSkema();
+            $validated = $request->validated();
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'skema_trend' => $skemaTrend,
-                    'statistik_keberhasilan' => $statistikKeberhasilan,
-                    'segmentasi_demografi' => $segmentasiDemografi,
-                    'workload_asesor' => $workloadAsesor,
-                    'tren_peminat_skema' => $trenPeminatSkema
-                ]
-            ]);
+            $results = $this->analyticsService->getTrendPendaftaran(
+                $validated['skema_id'] ?? null,
+                $validated['start_date'] ?? null,
+                $validated['end_date'] ?? null
+            );
 
+            return response()->json($results);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat data analytics: ' . $e->getMessage(),
-                'data' => [
-                    'skema_trend' => [],
-                    'statistik_keberhasilan' => [],
-                    'segmentasi_demografi' => [],
-                    'workload_asesor' => [],
-                    'tren_peminat_skema' => []
-                ]
+                'error' => 'Error mengambil data trend: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get skema trend data
+     * Mendapatkan statistik kompetensi berdasarkan skema dan status pendaftaran
      */
-    private function getSkemaTrend()
+    public function kompetensiSkema(Request $request): JsonResponse
     {
-        $cacheKey = 'analytics_skema_trend';
+        try {
+            $startDate = $request->query('start_date') ? Carbon::parse($request->query('start_date')) : null;
+            $endDate = $request->query('end_date') ? Carbon::parse($request->query('end_date')) : null;
 
-        return Cache::remember($cacheKey, 300, function () { // Cache 5 menit
-            $startDate = now()->subMonths(6)->format('Y-m-d');
-            $endDate = now()->format('Y-m-d');
+            $results = $this->analyticsService->getStatistikKompetensi($startDate, $endDate);
 
-            $response = Http::timeout($this->timeout)
-                ->get($this->pythonApiBase . '/analytics/skema-trend', [
-                    'start_date' => $startDate,
-                    'end_date' => $endDate
-                ]);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Return dummy data jika API error
-            return [
-                [
-                    'skema_id' => 1,
-                    'skema_name' => 'Skema Manajemen Proyek',
-                    'total_registrations' => 150
-                ],
-                [
-                    'skema_id' => 2,
-                    'skema_name' => 'Skema IT Networking',
-                    'total_registrations' => 95
-                ]
-            ];
-        });
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil statistik kompetensi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Get statistik keberhasilan data
+     * Mendapatkan data segmentasi demografi pengguna
      */
-    private function getStatistikKeberhasilan()
+    public function segmentasiDemografi(): JsonResponse
     {
-        $cacheKey = 'analytics_statistik_keberhasilan';
+        try {
+            $results = $this->analyticsService->getSegmentasiDemografi();
 
-        return Cache::remember($cacheKey, 300, function () {
-            $response = Http::timeout($this->timeout)
-                ->get($this->pythonApiBase . '/analytics/statistik-keberhasilan');
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Return dummy data jika API error
-            return [
-                [
-                    'skema_id' => 1,
-                    'skema_name' => 'Skema Manajemen Proyek',
-                    'participant_count' => 140,
-                    'passed_count' => 120,
-                    'pass_rate' => 85.7
-                ],
-                [
-                    'skema_id' => 2,
-                    'skema_name' => 'Skema IT Networking',
-                    'participant_count' => 90,
-                    'passed_count' => 60,
-                    'pass_rate' => 66.7
-                ]
-            ];
-        });
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil segmentasi demografi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Get segmentasi demografi data
+     * Mendapatkan data workload asesor berdasarkan jumlah laporan dan pembayaran
      */
-    private function getSegmentasiDemografi()
+    public function workloadAsesor(WorkloadAsesorRequest $request): JsonResponse
     {
-        $cacheKey = 'analytics_segmentasi_demografi';
+        try {
+            $validated = $request->validated();
 
-        return Cache::remember($cacheKey, 300, function () {
-            $response = Http::timeout($this->timeout)
-                ->get($this->pythonApiBase . '/analytics/segmentasi-demografi');
+            $results = $this->analyticsService->getWorkloadAsesor(
+                $validated['start_date'] ?? null,
+                $validated['end_date'] ?? null
+            );
 
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Return dummy data jika API error
-            return [
-                'gender_distribution' => [
-                    'male' => 120,
-                    'female' => 80,
-                    'other' => 5
-                ],
-                'age_distribution' => [
-                    '18-25' => 30,
-                    '26-35' => 90,
-                    '36-50' => 60,
-                    '51+' => 25
-                ]
-            ];
-        });
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil workload asesor: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Get workload asesor data
+     * Mendapatkan ringkasan data untuk dashboard utama
      */
-    private function getWorkloadAsesor()
+    public function dashboardSummary(): JsonResponse
     {
-        $cacheKey = 'analytics_workload_asesor';
+        try {
+            $results = $this->analyticsService->getDashboardSummary();
 
-        return Cache::remember($cacheKey, 300, function () {
-            $response = Http::timeout($this->timeout)
-                ->get($this->pythonApiBase . '/analytics/workload-asesor');
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Return dummy data jika API error
-            return [
-                [
-                    'asesor_name' => 'Budi Santoso',
-                    'total_reports_handled' => 40
-                ],
-                [
-                    'asesor_name' => 'Sari Dewi',
-                    'total_reports_handled' => 35
-                ],
-                [
-                    'asesor_name' => 'Ahmad Hidayat',
-                    'total_reports_handled' => 28
-                ]
-            ];
-        });
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil dashboard summary: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Get tren peminat skema data
+     * Endpoint untuk debugging struktur tabel database
      */
-    private function getTrenPeminatSkema()
+    public function debugTables(): JsonResponse
     {
-        $cacheKey = 'analytics_tren_peminat_skema';
+        try {
+            $results = $this->analyticsService->getDebugTables();
 
-        return Cache::remember($cacheKey, 300, function () {
-            $response = Http::timeout($this->timeout)
-                ->get($this->pythonApiBase . '/analytics/tren-peminat-skema', [
-                    'interval' => 'monthly'
-                ]);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Return dummy data jika API error
-            return [
-                [
-                    'skema_id' => 1,
-                    'skema_name' => 'Skema Manajemen Proyek',
-                    'trend' => [
-                        ['period' => '2023-01', 'registrations' => 20],
-                        ['period' => '2023-02', 'registrations' => 25],
-                        ['period' => '2023-03', 'registrations' => 30],
-                        ['period' => '2023-04', 'registrations' => 35],
-                        ['period' => '2023-05', 'registrations' => 40],
-                        ['period' => '2023-06', 'registrations' => 45]
-                    ]
-                ],
-                [
-                    'skema_id' => 2,
-                    'skema_name' => 'Skema IT Networking',
-                    'trend' => [
-                        ['period' => '2023-01', 'registrations' => 15],
-                        ['period' => '2023-02', 'registrations' => 18],
-                        ['period' => '2023-03', 'registrations' => 22],
-                        ['period' => '2023-04', 'registrations' => 25],
-                        ['period' => '2023-05', 'registrations' => 28],
-                        ['period' => '2023-06', 'registrations' => 32]
-                    ]
-                ]
-            ];
-        });
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil info tabel: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Clear analytics cache
+     * Root endpoint untuk mengecek status API
      */
-    public function clearCache()
+    public function root(): JsonResponse
     {
+        return response()->json([
+            'message' => 'Sijikomkom Analytics API running',
+            'version' => '1.0.0',
+            'docs' => '/analytics/docs',
+            'endpoints' => [
+                'skema-trend' => '/analytics/skema-trend',
+                'kompetensi-skema' => '/analytics/kompetensi-skema',
+                'segmentasi-demografi' => '/analytics/segmentasi-demografi',
+                'workload-asesor' => '/analytics/workload-asesor',
+                'dashboard-summary' => '/analytics/dashboard-summary',
+                'debug-tables' => '/analytics/debug-tables'
+            ]
+        ]);
+    }
+
+    /**
+     * Endpoint untuk health check
+     */
+    public function healthCheck(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'healthy',
+            'message' => 'API is running normally'
+        ]);
+    }
+
+    /**
+     * Mendapatkan data dashboard untuk frontend (legacy method)
+     */
+    public function getDashboardData(Request $request): JsonResponse
+    {
+        try {
+            // Ambil filter tanggal dari request
+            $startDate = $request->query('start_date') ? Carbon::parse($request->query('start_date')) : null;
+            $endDate = $request->query('end_date') ? Carbon::parse($request->query('end_date')) : null;
+
+            // Menggabungkan semua data analytics untuk dashboard dengan filter
+            $skemaTrend = $this->analyticsService->getTrendPendaftaran(null, $startDate, $endDate);
+            $kompetensiSkema = $this->analyticsService->getStatistikKompetensi($startDate, $endDate);
+            $segmentasiDemografi = $this->analyticsService->getSegmentasiDemografi();
+            $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate);
+            $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate);
+            $dashboardSummary = $this->analyticsService->getDashboardSummary();
+
+            $data = [
+                'skema_trend' => $skemaTrend,
+                'kompetensi_skema' => $kompetensiSkema,
+                'segmentasi_demografi' => $segmentasiDemografi,
+                'workload_asesor' => $workloadAsesor,
+                'tren_peminat_skema' => $trenPeminatSkema,
+                'dashboard_summary' => $dashboardSummary,
+                'filters' => [
+                    'start_date' => $startDate ? $startDate->format('Y-m-d') : null,
+                    'end_date' => $endDate ? $endDate->format('Y-m-d') : null
+                ]
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data dashboard berhasil dimuat'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error mengambil data dashboard: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mendapatkan tren peminat skema dari waktu ke waktu
+     */
+    public function trenPeminatSkema(Request $request): JsonResponse
+    {
+        try {
+            $startDate = $request->query('start_date') ? Carbon::parse($request->query('start_date')) : null;
+            $endDate = $request->query('end_date') ? Carbon::parse($request->query('end_date')) : null;
+
+            $results = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate);
+
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error mengambil tren peminat skema: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear cache analytics (legacy method)
+     */
+    public function clearCache(): JsonResponse
+    {
+        try {
+            // Clear cache jika ada
+            Cache::forget('analytics_dashboard_data');
         Cache::forget('analytics_skema_trend');
-        Cache::forget('analytics_statistik_keberhasilan');
+            Cache::forget('analytics_kompetensi_skema');
         Cache::forget('analytics_segmentasi_demografi');
         Cache::forget('analytics_workload_asesor');
+            Cache::forget('analytics_dashboard_summary');
         Cache::forget('analytics_tren_peminat_skema');
 
         return response()->json([
             'success' => true,
-            'message' => 'Cache analytics berhasil di-clear'
-        ]);
+                'message' => 'Cache analytics berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error menghapus cache: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

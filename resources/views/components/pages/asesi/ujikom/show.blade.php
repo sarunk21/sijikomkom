@@ -35,6 +35,7 @@
 
             <form action="{{ route('asesi.ujikom.store.jawaban', $pendaftaran->id) }}" method="post">
                 @csrf
+
                 @foreach ($apl2 as $index => $form)
                     <div class="card mb-4 border-left-primary">
                         <div class="card-body">

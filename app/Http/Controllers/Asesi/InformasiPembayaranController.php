@@ -18,6 +18,7 @@ class InformasiPembayaranController extends Controller
     {
         $lists = $this->getMenuListAsesi('informasi-pembayaran');
         $pembayaran = Pembayaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get();
         return view('components.pages.asesi.informasi-pembayaran.list', data: compact('lists', 'pembayaran'));

@@ -31,12 +31,23 @@
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>{{ $item->status_text }}</td>
                                 <td>
-                                    {{-- Jika jadwal ujian sudah lewat dan status jadwal ujian adalah 3, maka tombol mulai ujian tidak aktif --}}
-                                    @if ($item->jadwal->status == 3 && ($item->pendaftaranUjikom->status ?? 0) == 1 || ($item->pendaftaranUjikom->status ?? 0) == 2)
-                                        <a href="{{ route('asesi.ujikom.show', $item->id) }}" class="btn btn-primary">Mulai
-                                            Ujian</a>
+                                    @if ($item->status == 5)
+                                        {{-- Status Ujian Berlangsung - bisa mulai ujian --}}
+                                        <a href="{{ route('asesi.ujikom.show', $item->id) }}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-play me-1"></i>Mulai Ujian
+                                        </a>
+                                    @elseif ($item->status == 4)
+                                        {{-- Status Menunggu Ujian - belum bisa mulai --}}
+                                        <span class="badge badge-warning">Menunggu Jadwal</span>
+                                    @elseif ($item->status == 6)
+                                        {{-- Status Selesai - sudah selesai --}}
+                                        <span class="badge badge-success">Selesai</span>
+                                    @elseif ($item->status == 7)
+                                        {{-- Status Asesor Tidak Dapat Hadir --}}
+                                        <span class="badge badge-danger">Asesor Tidak Hadir</span>
                                     @else
-                                        -
+                                        {{-- Status lainnya --}}
+                                        <span class="badge badge-secondary">{{ $item->status_text }}</span>
                                     @endif
                                 </td>
                             </tr>

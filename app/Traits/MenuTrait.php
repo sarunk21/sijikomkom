@@ -72,7 +72,7 @@ trait MenuTrait
                 ]
             ],
             [
-                'title' => 'APL 2',
+                'title' => 'Bank Soal',
                 'url' => 'admin.apl-2.index',
                 'key' => 'apl-2'
             ],
@@ -199,6 +199,11 @@ trait MenuTrait
                 'title' => 'Hasil Ujikom',
                 'url' => 'asesor.hasil-ujikom.index',
                 'key' => 'hasil-ujikom'
+            ],
+            [
+                'title' => 'APL2',
+                'url' => 'asesor.apl2.index',
+                'key' => 'apl2'
             ],
             [
                 'title' => 'Profil',

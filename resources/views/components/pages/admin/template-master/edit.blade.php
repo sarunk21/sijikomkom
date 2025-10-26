@@ -184,6 +184,24 @@
                                     </button>
                                 </div>
 
+                                <!-- APL2 Configuration Section -->
+                                <div id="apl2-config-section" class="mb-4" style="display: none;">
+                                    <h5 class="text-primary mb-3">Konfigurasi APL2</h5>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Untuk Template APL2:</strong> Gunakan Custom Variables di atas untuk membuat pertanyaan.
+                                        Setiap custom variable akan menjadi pertanyaan di form asesi.
+                                        <br><br>
+                                        <strong>Tips:</strong>
+                                        <ul class="mb-0 mt-2">
+                                            <li>Untuk pertanyaan BK/K: Gunakan type "radio" dengan options "BK,K"</li>
+                                            <li>Untuk pertanyaan biasa: Gunakan type "text" atau "textarea"</li>
+                                            <li>Untuk pertanyaan dengan bukti: Gunakan type "file" atau tambahkan field bukti terpisah</li>
+                                            <li>Jika pertanyaan lebih dari 2, akan dipisah ke kotak terpisah di hasil generate</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
                                 <!-- Hidden input untuk menyimpan semua variables -->
                                 <input type="hidden" name="variables" id="variables-input" value="{{ old('variables', json_encode($template->variables ?? [])) }}">
                             </div>
@@ -240,10 +258,15 @@
         $(document).ready(function() {
             let selectedVariables = [];
             let customVariables = [];
+            let customVariableIndex = 0;
 
             // Initialize with existing data
             @if($template->variables)
-                @foreach($template->variables as $variable)
+                @php
+                    $variables = is_string($template->variables) ? json_decode($template->variables, true) : $template->variables;
+                    $variables = is_array($variables) ? $variables : [];
+                @endphp
+                @foreach($variables as $variable)
                     @if(strpos($variable, '.') !== false)
                         // Database field
                         selectedVariables.push('{{ $variable }}');
@@ -273,9 +296,39 @@
                 }
             });
 
+            // Handle template type change
+            $('#tipe_template').on('change', function() {
+                const selectedType = $(this).val();
+                if (selectedType === 'APL2') {
+                    $('#apl2-config-section').show();
+                    // Limit custom variable types for APL2
+                    limitCustomVariableTypes('APL2');
+                } else if (selectedType === 'APL1') {
+                    $('#apl2-config-section').hide();
+                    // Limit custom variable types for APL1
+                    limitCustomVariableTypes('APL1');
+                } else {
+                    $('#apl2-config-section').hide();
+                    // Allow all types for other templates
+                    limitCustomVariableTypes('ALL');
+                }
+            });
+
+            // Initialize APL2 section visibility and type limits
+            const currentType = $('#tipe_template').val();
+            if (currentType === 'APL2') {
+                $('#apl2-config-section').show();
+                limitCustomVariableTypes('APL2');
+            } else if (currentType === 'APL1') {
+                limitCustomVariableTypes('APL1');
+            } else {
+                limitCustomVariableTypes('ALL');
+            }
+
             // Handle custom variable addition
             $('#add-custom-variable').on('click', function() {
-                addCustomVariableRow('');
+                addCustomVariableRow(customVariableIndex);
+                customVariableIndex++;
             });
 
             // Handle custom variable removal
@@ -286,34 +339,129 @@
             });
 
             // Handle custom variable input change
-            $(document).on('input', 'input[name="custom_variables[]"]', function() {
+            $(document).on('input change', '.custom-variable-row input, .custom-variable-row select', function() {
                 updateCustomVariables();
                 updateVariablesInput();
             });
 
-            // Handle custom variable blur - remove empty rows
-            $(document).on('blur', 'input[name="custom_variables[]"]', function() {
-                const value = $(this).val().trim();
-                if (!value && $('.custom-variable-row').length > 1) {
-                    $(this).closest('.custom-variable-row').remove();
+            function limitCustomVariableTypes(templateType) {
+                $('.custom-variable-type').each(function() {
+                    const $select = $(this);
+                    const currentValue = $select.val();
+
+                    // Clear existing options
+                    $select.empty();
+
+                    if (templateType === 'APL1') {
+                        // APL1 hanya boleh text dan radio
+                        $select.append('<option value="text">Text</option>');
+                        $select.append('<option value="radio">Radio</option>');
+                    } else if (templateType === 'APL2') {
+                        // APL2 boleh semua tipe
+                        $select.append('<option value="text">Text</option>');
+                        $select.append('<option value="textarea">Textarea</option>');
+                        $select.append('<option value="checkbox">Checkbox</option>');
+                        $select.append('<option value="radio">Radio</option>');
+                        $select.append('<option value="select">Select</option>');
+                        $select.append('<option value="number">Number</option>');
+                        $select.append('<option value="email">Email</option>');
+                        $select.append('<option value="date">Date</option>');
+                        $select.append('<option value="file">File Upload</option>');
+                    } else {
+                        // Template lain boleh semua tipe
+                        $select.append('<option value="text">Text</option>');
+                        $select.append('<option value="textarea">Textarea</option>');
+                        $select.append('<option value="checkbox">Checkbox</option>');
+                        $select.append('<option value="radio">Radio</option>');
+                        $select.append('<option value="select">Select</option>');
+                        $select.append('<option value="number">Number</option>');
+                        $select.append('<option value="email">Email</option>');
+                        $select.append('<option value="date">Date</option>');
+                        $select.append('<option value="file">File Upload</option>');
+                    }
+
+                    // Restore previous value if still valid
+                    if (currentValue && $select.find(`option[value="${currentValue}"]`).length > 0) {
+                        $select.val(currentValue);
+                    } else {
+                        $select.val('text'); // Default to text
+                    }
+                });
+            }
+
+            function addCustomVariableRow(index, existingData = null) {
+                const templateType = $('#tipe_template').val();
+
+                let typeOptions = '';
+                if (templateType === 'APL1') {
+                    typeOptions = `
+                        <option value="text">Text</option>
+                        <option value="radio">Radio</option>
+                    `;
+                } else {
+                    typeOptions = `
+                        <option value="text">Text</option>
+                        <option value="textarea">Textarea</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="radio">Radio</option>
+                        <option value="select">Select</option>
+                        <option value="number">Number</option>
+                        <option value="email">Email</option>
+                        <option value="date">Date</option>
+                        <option value="file">File Upload</option>
+                    `;
                 }
-                updateCustomVariables();
-                updateVariablesInput();
-            });
 
-            function addCustomVariableRow(value = '') {
                 const html = `
-                    <div class="input-group mb-2 custom-variable-row">
-                        <input type="text" name="custom_variables[]" class="form-control"
-                            value="${value}" placeholder="Nama variable custom (contoh: nama_perusahaan)">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-outline-danger remove-custom-variable">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                    <div class="custom-variable-row border rounded p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Nama Variable</label>
+                                <input type="text" name="custom_variables[${index}][name]" class="form-control"
+                                    placeholder="nama_variable" value="${existingData ? existingData.name || '' : ''}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Label</label>
+                                <input type="text" name="custom_variables[${index}][label]" class="form-control"
+                                    placeholder="Label Variable" value="${existingData ? existingData.label || '' : ''}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tipe</label>
+                                <select name="custom_variables[${index}][type]" class="form-control custom-variable-type">
+                                    ${typeOptions}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Aksi</label>
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-custom-variable">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Options (untuk checkbox/radio/select)</label>
+                                <input type="text" name="custom_variables[${index}][options]" class="form-control"
+                                    placeholder="option1,option2,option3" value="${existingData ? existingData.options || '' : ''}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Required</label>
+                                <select name="custom_variables[${index}][required]" class="form-control">
+                                    <option value="0">Tidak</option>
+                                    <option value="1">Ya</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 `;
                 $('#custom-variables-container').append(html);
+
+                // Set values for existing data
+                if (existingData) {
+                    const $row = $('.custom-variable-row').last();
+                    $row.find('select[name*="[type]"]').val(existingData.type || 'text');
+                    $row.find('select[name*="[required]"]').val(existingData.required ? '1' : '0');
+                }
             }
 
             function updateSelectedVariablesDisplay() {
@@ -343,10 +491,26 @@
 
             function updateCustomVariables() {
                 customVariables = [];
-                $('input[name="custom_variables[]"]').each(function() {
-                    const value = $(this).val().trim();
-                    if (value) {
-                        customVariables.push(value);
+                $('.custom-variable-row').each(function() {
+                    const name = $(this).find('input[name*="[name]"]').val().trim();
+                    const label = $(this).find('input[name*="[label]"]').val().trim();
+                    const type = $(this).find('select[name*="[type]"]').val();
+                    const options = $(this).find('input[name*="[options]"]').val().trim();
+                    const required = $(this).find('select[name*="[required]"]').val();
+
+                    if (name && label) {
+                        const variable = {
+                            name: name,
+                            label: label,
+                            type: type,
+                            required: required === '1'
+                        };
+
+                        if (options && ['checkbox', 'radio', 'select'].includes(type)) {
+                            variable.options = options.split(',').map(opt => opt.trim());
+                        }
+
+                        customVariables.push(variable);
                     }
                 });
             }
@@ -354,18 +518,25 @@
             function updateVariablesInput() {
                 // Filter out empty values
                 const filteredSelectedVariables = selectedVariables.filter(v => v && v.trim() !== '');
-                const filteredCustomVariables = customVariables.filter(v => v && v.trim() !== '');
+                const filteredCustomVariables = customVariables.map(v => v.name).filter(v => v && v.trim() !== '');
                 const allVariables = [...filteredSelectedVariables, ...filteredCustomVariables];
                 $('#variables-input').val(JSON.stringify(allVariables));
             }
 
-            // Initialize display
-            updateSelectedVariablesDisplay();
+            // Initialize with existing custom variables
+            @if($template->custom_variables)
+                @php
+                    $customVariables = is_string($template->custom_variables) ? json_decode($template->custom_variables, true) : $template->custom_variables;
+                    $customVariables = is_array($customVariables) ? $customVariables : [];
+                @endphp
+                @foreach($customVariables as $index => $variable)
+                    addCustomVariableRow({{ $index }}, @json($variable));
+                    customVariableIndex = {{ $index + 1 }};
+                @endforeach
+            @endif
 
-            // Add existing custom variables
-            customVariables.forEach(variable => {
-                addCustomVariableRow(variable);
-            });
+            // Initialize displays
+            updateSelectedVariablesDisplay();
             updateCustomVariables();
             updateVariablesInput();
         });

@@ -19,12 +19,24 @@ class TemplateMaster extends Model
         'file_path',
         'variables',
         'ttd_path',
-        'is_active'
+        'is_active',
+        'apl2_config',
+        'apl2_questions',
+        'apl2_checkbox_config',
+        'field_configurations',
+        'field_mappings',
+        'custom_variables'
     ];
 
     protected $casts = [
         'variables' => 'array',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'apl2_config' => 'array',
+        'apl2_questions' => 'array',
+        'apl2_checkbox_config' => 'array',
+        'field_configurations' => 'array',
+        'field_mappings' => 'array',
+        'custom_variables' => 'array'
     ];
 
     /**

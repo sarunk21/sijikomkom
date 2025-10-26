@@ -26,12 +26,14 @@ use App\Http\Controllers\Asesi\ProfilAsesiController;
 use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
 use App\Http\Controllers\Asesi\TemplateController;
+use App\Http\Controllers\Asesi\Apl2Controller as AsesiApl2Controller;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController;
 use App\Http\Controllers\Asesor\PembayaranJasaController;
 use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
+use App\Http\Controllers\Asesor\Apl2Controller as AsesorApl2Controller;
 
 use App\Http\Controllers\Kaprodi\ReportHasilUjiController;
 use App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController;
@@ -83,18 +85,43 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::get('pembayaran-asesor/{id}/download', [PembayaranAsesorController::class, 'download'])->name('admin.pembayaran-asesor.download');
+    Route::resource('verifikasi-pembayaran', App\Http\Controllers\Admin\VerifikasiPembayaranController::class)->names('admin.verifikasi-pembayaran');
+    Route::post('verifikasi-pembayaran/{id}/approve', [App\Http\Controllers\Admin\VerifikasiPembayaranController::class, 'approve'])->name('admin.verifikasi-pembayaran.approve');
+    Route::post('verifikasi-pembayaran/{id}/reject', [App\Http\Controllers\Admin\VerifikasiPembayaranController::class, 'reject'])->name('admin.verifikasi-pembayaran.reject');
     Route::resource('template-master', AdminTemplateController::class)->names('admin.template-master');
     Route::get('template-master/{id}/download', [AdminTemplateController::class, 'download'])->name('admin.template-master.download');
     Route::post('template-master/{id}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('admin.template-master.toggle-status');
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('upload-sertifikat', UploadSertifikatAdminController::class)->names('admin.upload-sertifikat-admin');
+    // APL2 Template routes (harus sebelum resource)
+    Route::get('apl-2/template', [APL2Controller::class, 'templateIndex'])->name('admin.apl-2.template.index');
+    Route::get('apl-2/template/create', [APL2Controller::class, 'templateCreate'])->name('admin.apl-2.template.create');
+    Route::get('apl-2/template/{id}/edit', [APL2Controller::class, 'templateEdit'])->name('admin.apl-2.template.edit');
+    Route::post('apl-2/template', [APL2Controller::class, 'templateStore'])->name('admin.apl-2.template.store');
+    Route::put('apl-2/template/{id}', [APL2Controller::class, 'templateUpdate'])->name('admin.apl-2.template.update');
+
+    // APL2 Resource routes
     Route::get('apl-2/create/question/{skema_id}', [APL2Controller::class, 'create'])->name('admin.apl-2.create.question');
+    Route::get('apl-2/skema/{skema_id}', [APL2Controller::class, 'showBySkema'])->name('admin.apl-2.show-by-skema');
     Route::resource('apl-2', APL2Controller::class)->names('admin.apl-2');
     Route::resource('admin-profile', AdminProfileController::class)->names('admin.profile');
 
     // Analytics routes
     Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('admin.analytics.dashboard-data');
     Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('admin.analytics.clear-cache');
+
+    // Analytics API routes (migrated from Python)
+    Route::prefix('analytics')->group(function () {
+        Route::get('/', [AnalyticsController::class, 'root'])->name('admin.analytics.root');
+        Route::get('/health', [AnalyticsController::class, 'healthCheck'])->name('admin.analytics.health');
+        Route::get('/skema-trend', [AnalyticsController::class, 'skemaTrend'])->name('admin.analytics.skema-trend');
+        Route::get('/kompetensi-skema', [AnalyticsController::class, 'kompetensiSkema'])->name('admin.analytics.kompetensi-skema');
+        Route::get('/segmentasi-demografi', [AnalyticsController::class, 'segmentasiDemografi'])->name('admin.analytics.segmentasi-demografi');
+        Route::get('/workload-asesor', [AnalyticsController::class, 'workloadAsesor'])->name('admin.analytics.workload-asesor');
+        Route::get('/tren-peminat-skema', [AnalyticsController::class, 'trenPeminatSkema'])->name('admin.analytics.tren-peminat-skema');
+        Route::get('/dashboard-summary', [AnalyticsController::class, 'dashboardSummary'])->name('admin.analytics.dashboard-summary');
+        Route::get('/debug-tables', [AnalyticsController::class, 'debugTables'])->name('admin.analytics.debug-tables');
+    });
 
     // Testing routes
     Route::get('testing', [TestingController::class, 'index'])->name('admin.testing');
@@ -113,18 +140,26 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('informasi-pembayaran', InformasiPembayaranController::class)->names('asesi.informasi-pembayaran');
     Route::resource('upload-sertifikat', UploadSertifikatController::class)->names('asesi.upload-sertifikat');
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
-    Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom');
+    Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom')->middleware('check.second.registration');
     Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
 
     // Template routes
     Route::get('template/generate-apl1/{pendaftaranId}', [TemplateController::class, 'generateApl1'])->name('asesi.template.generate-apl1');
     Route::get('template/preview-apl1-data/{pendaftaranId}', [TemplateController::class, 'previewApl1Data'])->name('asesi.template.preview-apl1-data');
 
+    // APL2 routes
+    Route::get('sertifikasi/{id}/apl2', [SertifikasiController::class, 'show'])->name('asesi.sertifikasi.apl2');
+    Route::post('sertifikasi/{id}/apl2', [SertifikasiController::class, 'storeApl2'])->name('asesi.sertifikasi.store-apl2');
+    Route::get('sertifikasi/{id}/apl2/generate', [SertifikasiController::class, 'generateApl2'])->name('asesi.sertifikasi.generate-apl2');
+
     // Custom data routes
     Route::get('custom-data/{pendaftaranId}', [CustomDataController::class, 'showForm'])->name('asesi.custom-data.show');
     Route::post('custom-data/{pendaftaranId}', [CustomDataController::class, 'store'])->name('asesi.custom-data.store');
     Route::post('ujikom/jawaban/{id}', [UjikomController::class, 'store'])->name('asesi.ujikom.store.jawaban');
     Route::resource('ujikom', UjikomController::class)->names('asesi.ujikom');
+
+    // Registration info route
+    Route::get('registration-info', [App\Http\Controllers\Asesi\RegistrationInfoController::class, 'index'])->name('asesi.registration-info');
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
@@ -136,6 +171,15 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::resource('hasil-ujikom', HasilUjikomController::class)->names('asesor.hasil-ujikom');
     Route::get('hasil-ujikom/show-jawaban-asesi/{id}', [HasilUjikomController::class, 'showJawabanAsesi'])->name('asesor.hasil-ujikom.show-jawaban-asesi');
     Route::resource('profil-asesor', ProfilAsesorController::class)->names('asesor.profil-asesor');
+
+    // APL2 routes
+    Route::resource('apl2', AsesorApl2Controller::class)->names('asesor.apl2');
+    Route::post('apl2/add-signature', [AsesorApl2Controller::class, 'addSignature'])->name('asesor.apl2.add-signature');
+    Route::get('apl2/preview-data/{pendaftaranId}', [AsesorApl2Controller::class, 'previewApl2Data'])->name('asesor.apl2.preview-data');
+    Route::get('apl2/export-docx/{pendaftaranId}', [AsesorApl2Controller::class, 'exportDocx'])->name('asesor.apl2.export-docx');
+
+    // APL2 Template routes for asesor
+    Route::get('apl2/template', [AsesorApl2Controller::class, 'templateIndex'])->name('asesor.apl2.template.index');
 });
 
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
@@ -149,6 +193,19 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
     // Analytics routes
     Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('kaprodi.analytics.dashboard-data');
     Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('kaprodi.analytics.clear-cache');
+
+    // Analytics API routes (migrated from Python)
+    Route::prefix('analytics')->group(function () {
+        Route::get('/', [AnalyticsController::class, 'root'])->name('kaprodi.analytics.root');
+        Route::get('/health', [AnalyticsController::class, 'healthCheck'])->name('kaprodi.analytics.health');
+        Route::get('/skema-trend', [AnalyticsController::class, 'skemaTrend'])->name('kaprodi.analytics.skema-trend');
+        Route::get('/kompetensi-skema', [AnalyticsController::class, 'kompetensiSkema'])->name('kaprodi.analytics.kompetensi-skema');
+        Route::get('/segmentasi-demografi', [AnalyticsController::class, 'segmentasiDemografi'])->name('kaprodi.analytics.segmentasi-demografi');
+        Route::get('/workload-asesor', [AnalyticsController::class, 'workloadAsesor'])->name('kaprodi.analytics.workload-asesor');
+        Route::get('/tren-peminat-skema', [AnalyticsController::class, 'trenPeminatSkema'])->name('kaprodi.analytics.tren-peminat-skema');
+        Route::get('/dashboard-summary', [AnalyticsController::class, 'dashboardSummary'])->name('kaprodi.analytics.dashboard-summary');
+        Route::get('/debug-tables', [AnalyticsController::class, 'debugTables'])->name('kaprodi.analytics.debug-tables');
+    });
 });
 
 Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () {
@@ -160,6 +217,19 @@ Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () 
     // Analytics routes
     Route::get('analytics/dashboard-data', [AnalyticsController::class, 'getDashboardData'])->name('pimpinan.analytics.dashboard-data');
     Route::post('analytics/clear-cache', [AnalyticsController::class, 'clearCache'])->name('pimpinan.analytics.clear-cache');
+
+    // Analytics API routes (migrated from Python)
+    Route::prefix('analytics')->group(function () {
+        Route::get('/', [AnalyticsController::class, 'root'])->name('pimpinan.analytics.root');
+        Route::get('/health', [AnalyticsController::class, 'healthCheck'])->name('pimpinan.analytics.health');
+        Route::get('/skema-trend', [AnalyticsController::class, 'skemaTrend'])->name('pimpinan.analytics.skema-trend');
+        Route::get('/kompetensi-skema', [AnalyticsController::class, 'kompetensiSkema'])->name('pimpinan.analytics.kompetensi-skema');
+        Route::get('/segmentasi-demografi', [AnalyticsController::class, 'segmentasiDemografi'])->name('pimpinan.analytics.segmentasi-demografi');
+        Route::get('/workload-asesor', [AnalyticsController::class, 'workloadAsesor'])->name('pimpinan.analytics.workload-asesor');
+        Route::get('/tren-peminat-skema', [AnalyticsController::class, 'trenPeminatSkema'])->name('pimpinan.analytics.tren-peminat-skema');
+        Route::get('/dashboard-summary', [AnalyticsController::class, 'dashboardSummary'])->name('pimpinan.analytics.dashboard-summary');
+        Route::get('/debug-tables', [AnalyticsController::class, 'debugTables'])->name('pimpinan.analytics.debug-tables');
+    });
 });
 
 Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
