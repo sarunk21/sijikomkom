@@ -144,8 +144,10 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom')->middleware('check.second.registration');
     Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
 
-    // Template routes
-    Route::get('template/generate-apl1/{pendaftaranId}', [TemplateController::class, 'generateApl1'])->name('asesi.template.generate-apl1');
+    // APL 1 routes
+    Route::get('template/apl1/{pendaftaranId}', [TemplateController::class, 'showApl1Form'])->name('asesi.template.apl1-form');
+    Route::post('template/apl1/{pendaftaranId}', [TemplateController::class, 'storeApl1CustomData'])->name('asesi.template.apl1-store');
+    Route::get('template/apl1/{pendaftaranId}/download', [TemplateController::class, 'downloadApl1'])->name('asesi.template.apl1-download');
     Route::get('template/preview-apl1-data/{pendaftaranId}', [TemplateController::class, 'previewApl1Data'])->name('asesi.template.preview-apl1-data');
 
     // APL2 routes

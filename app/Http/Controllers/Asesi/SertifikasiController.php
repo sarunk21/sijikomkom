@@ -85,8 +85,12 @@ class SertifikasiController extends Controller
             }
         }
 
-        // Validasi signature data
-        $rules['signature_data'] = 'required|string';
+        // Validasi signature data: required hanya jika belum ada TTD sebelumnya
+        if (empty($pendaftaran->ttd_asesi_path)) {
+            $rules['signature_data'] = 'required|string';
+        } else {
+            $rules['signature_data'] = 'nullable|string';
+        }
 
         $validated = $request->validate($rules);
 
@@ -102,8 +106,8 @@ class SertifikasiController extends Controller
                 $pendaftaran->custom_variables = $customVariables;
             }
 
-            // Simpan signature digital
-            if ($validated['signature_data']) {
+            // Simpan signature digital jika ada
+            if (isset($validated['signature_data']) && !empty($validated['signature_data'])) {
                 // Hapus TTD lama jika ada
                 if ($pendaftaran->ttd_asesi_path && Storage::disk('public')->exists($pendaftaran->ttd_asesi_path)) {
                     Storage::disk('public')->delete($pendaftaran->ttd_asesi_path);
@@ -119,10 +123,11 @@ class SertifikasiController extends Controller
                 Storage::disk('public')->put($ttdAsesiPath, $image);
                 $pendaftaran->ttd_asesi_path = $ttdAsesiPath;
             }
+            // Jika tidak ada signature_data baru, keep TTD yang lama
 
             $pendaftaran->save();
 
-            return redirect()->route('asesi.sertifikasi.index')->with('success', 'Data APL2 berhasil disimpan!');
+            return redirect()->route('asesi.sertifikasi.apl2', $id)->with('success', 'Data APL2 berhasil disimpan!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -136,6 +141,7 @@ class SertifikasiController extends Controller
         $asesi = Auth::user();
         $pendaftaran = Pendaftaran::where('id', $id)
             ->where('user_id', $asesi->id)
+            ->with(['skema', 'user', 'jadwal.tuk'])
             ->first();
 
         if (!$pendaftaran) {
@@ -159,9 +165,30 @@ class SertifikasiController extends Controller
             return redirect()->route('asesi.sertifikasi.index')->with('error', 'Template APL2 untuk skema ini belum tersedia.');
         }
 
+        // Cek apakah semua custom variables sudah terisi
+        $allCustomVariablesFilled = false;
+        $customVariablesNeeded = [];
+        
+        if ($template->custom_variables && count($template->custom_variables) > 0) {
+            foreach ($template->custom_variables as $customVar) {
+                $fieldName = $customVar['name'];
+                
+                // Cek apakah field sudah diisi
+                if (!$pendaftaran->custom_variables || !isset($pendaftaran->custom_variables[$fieldName])) {
+                    $customVariablesNeeded[] = $customVar;
+                }
+            }
+            
+            // Jika tidak ada yang perlu diisi lagi DAN TTD sudah ada, berarti sudah lengkap
+            $allCustomVariablesFilled = empty($customVariablesNeeded) && !empty($pendaftaran->ttd_asesi_path);
+        } else {
+            // Jika tidak ada custom variables, cek TTD saja
+            $allCustomVariablesFilled = !empty($pendaftaran->ttd_asesi_path);
+        }
+
         $lists = $this->getMenuListAsesi('sertifikasi');
 
-        return view('components.pages.asesi.sertifikasi.apl2-form', compact('pendaftaran', 'lists', 'template'));
+        return view('components.pages.asesi.sertifikasi.apl2-form', compact('pendaftaran', 'lists', 'template', 'allCustomVariablesFilled', 'customVariablesNeeded'));
     }
 
     /**

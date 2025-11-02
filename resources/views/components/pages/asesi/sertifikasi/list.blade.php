@@ -68,9 +68,9 @@
                                                     <i class="fas fa-file-alt"></i> APL 2
                                                 </a>
                                             @endif
-                                            <a href="{{ route('asesi.template.generate-apl1', $item->id) }}"
+                                            <a href="{{ route('asesi.template.apl1-form', $item->id) }}"
                                                 class="btn btn-primary btn-sm"
-                                                title="Generate APL 1">
+                                                title="APL 1">
                                                 <i class="fas fa-file-word"></i> APL 1
                                             </a>
                                         </div>

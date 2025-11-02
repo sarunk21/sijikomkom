@@ -119,18 +119,7 @@ class TemplateGeneratorService
             // Siapkan data untuk mengganti variable
             $data = $this->prepareTemplateData($pendaftaran, $customData);
 
-            // Replace variables dalam template
-            foreach ($data as $key => $value) {
-                // Convert key to template format dengan dollar sign (e.g., 'nama_asesi' -> '${nama_asesi}')
-                $templateKey = '${' . $key . '}';
-                $templateProcessor->setValue($templateKey, $value);
-                \Illuminate\Support\Facades\Log::info("Setting template variable: {$templateKey} = {$value}");
-            }
-
-            // Log untuk debug
-            \Illuminate\Support\Facades\Log::info('Template variables being set: ' . json_encode($data));
-
-            // Insert TTD digital - prioritas TTD asesi, fallback ke template TTD
+            // Insert TTD digital DULU sebelum replace text variables
             $ttdPath = null;
             if ($pendaftaran->ttd_asesi_path && file_exists(storage_path('app/public/' . $pendaftaran->ttd_asesi_path))) {
                 $ttdPath = storage_path('app/public/' . $pendaftaran->ttd_asesi_path);
@@ -142,21 +131,55 @@ class TemplateGeneratorService
 
             if ($ttdPath) {
                 try {
-                    $templateProcessor->setImageValue(
-                        '${ttd_digital}',
-                        [
-                            'path' => $ttdPath,
-                            'width' => 150,
-                            'height' => 75,
-                            'ratio' => true
-                        ]
-                    );
-                    \Illuminate\Support\Facades\Log::info('TTD digital inserted successfully');
+                    // Coba berbagai format placeholder
+                    $placeholders = ['ttd_digital', '${ttd_digital}', 'ttd_digital}', '{ttd_digital'];
+                    $success = false;
+                    
+                    foreach ($placeholders as $placeholder) {
+                        try {
+                            $templateProcessor->setImageValue(
+                                $placeholder,
+                                [
+                                    'path' => $ttdPath,
+                                    'width' => 150,
+                                    'height' => 75,
+                                    'ratio' => true
+                                ]
+                            );
+                            \Illuminate\Support\Facades\Log::info("TTD digital inserted successfully with placeholder: {$placeholder}");
+                            $success = true;
+                            break;
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::debug("Failed with placeholder {$placeholder}: " . $e->getMessage());
+                            continue;
+                        }
+                    }
+                    
+                    if (!$success) {
+                        \Illuminate\Support\Facades\Log::warning('Could not insert TTD with any placeholder format');
+                    }
                 } catch (\Exception $e) {
-                    // Jika gagal insert TTD, lanjutkan tanpa TTD
-                    \Illuminate\Support\Facades\Log::warning('Gagal insert TTD digital: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::warning('Error inserting TTD: ' . $e->getMessage());
                 }
+            } else {
+                \Illuminate\Support\Facades\Log::warning('TTD path not found for pendaftaran: ' . $pendaftaran->id);
             }
+
+            // Replace variables dalam template
+            foreach ($data as $key => $value) {
+                // Skip ttd_digital karena sudah di-handle sebagai image
+                if ($key === 'ttd_digital') {
+                    continue;
+                }
+                
+                // Convert key to template format dengan dollar sign (e.g., 'nama_asesi' -> '${nama_asesi}')
+                $templateKey = '${' . $key . '}';
+                $templateProcessor->setValue($templateKey, $value);
+                \Illuminate\Support\Facades\Log::info("Setting template variable: {$templateKey} = {$value}");
+            }
+
+            // Log untuk debug
+            \Illuminate\Support\Facades\Log::info('Template variables being set: ' . json_encode($data));
 
             // Generate nama file output
             $asesiName = $pendaftaran->user ? ($pendaftaran->user->name ?? 'Unknown') : 'Unknown';
@@ -363,15 +386,38 @@ class TemplateGeneratorService
         try {
             // TTD Asesi
             if ($pendaftaran->ttd_asesi_path && file_exists(storage_path('app/public/' . $pendaftaran->ttd_asesi_path))) {
-                $templateProcessor->setImageValue(
-                    '${ttd_asesi}',
-                    [
-                        'path' => storage_path('app/public/' . $pendaftaran->ttd_asesi_path),
-                        'width' => 150,
-                        'height' => 75,
-                        'ratio' => true
-                    ]
-                );
+                $ttdAsesiPath = storage_path('app/public/' . $pendaftaran->ttd_asesi_path);
+                \Illuminate\Support\Facades\Log::info('Inserting TTD Asesi from: ' . $ttdAsesiPath);
+                
+                try {
+                    $templateProcessor->setImageValue(
+                        'ttd_asesi',
+                        [
+                            'path' => $ttdAsesiPath,
+                            'width' => 150,
+                            'height' => 75,
+                            'ratio' => true
+                        ]
+                    );
+                    \Illuminate\Support\Facades\Log::info('TTD Asesi inserted successfully');
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to insert TTD Asesi: ' . $e->getMessage());
+                    // Fallback
+                    try {
+                        $templateProcessor->setImageValue(
+                            '${ttd_asesi}',
+                            [
+                                'path' => $ttdAsesiPath,
+                                'width' => 150,
+                                'height' => 75,
+                                'ratio' => true
+                            ]
+                        );
+                        \Illuminate\Support\Facades\Log::info('TTD Asesi inserted with fallback format');
+                    } catch (\Exception $e2) {
+                        \Illuminate\Support\Facades\Log::warning('Failed fallback insert TTD Asesi: ' . $e2->getMessage());
+                    }
+                }
             }
 
             // TTD Asesor (jika ada)
@@ -391,18 +437,39 @@ class TemplateGeneratorService
 
                         file_put_contents($tempPath, $imageData);
 
-                        $templateProcessor->setImageValue(
-                            '${ttd_asesor}',
-                            [
-                                'path' => $tempPath,
-                                'width' => 150,
-                                'height' => 75,
-                                'ratio' => true
-                            ]
-                        );
+                        try {
+                            $templateProcessor->setImageValue(
+                                'ttd_asesor',
+                                [
+                                    'path' => $tempPath,
+                                    'width' => 150,
+                                    'height' => 75,
+                                    'ratio' => true
+                                ]
+                            );
+                            \Illuminate\Support\Facades\Log::info('TTD Asesor inserted successfully');
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::warning('Failed to insert TTD Asesor: ' . $e->getMessage());
+                            // Fallback
+                            try {
+                                $templateProcessor->setImageValue(
+                                    '${ttd_asesor}',
+                                    [
+                                        'path' => $tempPath,
+                                        'width' => 150,
+                                        'height' => 75,
+                                        'ratio' => true
+                                    ]
+                                );
+                            } catch (\Exception $e2) {
+                                \Illuminate\Support\Facades\Log::warning('Failed fallback insert TTD Asesor: ' . $e2->getMessage());
+                            }
+                        }
 
                         // Clean up temp file
-                        unlink($tempPath);
+                        if (file_exists($tempPath)) {
+                            unlink($tempPath);
+                        }
                     }
                 }
             }
@@ -446,14 +513,12 @@ class TemplateGeneratorService
                 }
             }
 
-            // Tambahkan TTD digital - prioritas TTD asesi, fallback ke template TTD
+            // TTD digital - jika tidak bisa sebagai gambar, tampilkan text info
             if (in_array('ttd_digital', $template->variables)) {
                 if ($pendaftaran->ttd_asesi_path && file_exists(storage_path('app/public/' . $pendaftaran->ttd_asesi_path))) {
-                    $data['ttd_digital'] = '[TTD Asesi]';
-                } elseif ($template->ttd_path && file_exists(storage_path('app/public/' . $template->ttd_path))) {
-                    $data['ttd_digital'] = '[TTD Template]';
+                    $data['ttd_digital'] = '[Tanda Tangan Digital Tersimpan - Lihat file asli di sistem]';
                 } else {
-                    $data['ttd_digital'] = '[TTD Digital]';
+                    $data['ttd_digital'] = '[Belum Ada Tanda Tangan Digital]';
                 }
             }
 

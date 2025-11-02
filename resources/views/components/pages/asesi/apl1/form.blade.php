@@ -1,9 +1,10 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Form APL 2')
-@section('page-title', 'Form APL 2 (Portofolio)')
+@section('title', 'Form APL 1')
+@section('page-title', 'Form APL 1')
 
 @section('content')
+
     <a href="{{ route('asesi.sertifikasi.index') }}" class="d-inline-flex align-items-center text-decoration-none mb-4">
         <i class="fas fa-arrow-left text-orange mr-2"></i>
         <span class="text-orange">Kembali ke Sertifikasi</span>
@@ -27,9 +28,9 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3 bg-warning text-dark">
+                    <div class="card-header py-3 bg-primary text-white">
                         <h6 class="m-0 font-weight-bold">
-                            <i class="fas fa-file-alt mr-2"></i> Form APL 2 (Formulir Asesmen Mandiri)
+                            <i class="fas fa-file-word mr-2"></i> Form APL 1 (Formulir Permohonan Sertifikasi Kompetensi)
                         </h6>
                         <small>
                             Skema: <strong>{{ $pendaftaran->skema->nama }}</strong>
@@ -40,26 +41,30 @@
                             <!-- Semua data sudah lengkap, tampilkan tombol generate -->
                             <div class="alert alert-success">
                                 <i class="fas fa-check-circle mr-2"></i>
-                                <strong>Data Lengkap!</strong> Semua data yang diperlukan sudah terisi. Anda dapat men-generate dokumen APL 2 sekarang.
+                                <strong>Data Lengkap!</strong> Semua data yang diperlukan sudah terisi. Anda dapat men-generate dokumen APL 1 sekarang.
                             </div>
 
-                            <!-- Tampilkan data yang sudah diisi -->
-                            @if($template->custom_variables && count($template->custom_variables) > 0)
+                            <!-- Data yang Sudah Ada -->
+                            @if(count($existingData) > 0)
                             <div class="mb-4">
-                                <h6 class="text-success"><i class="fas fa-database mr-2"></i>Data yang Telah Diisi</h6>
-                                <p class="small text-muted">Data berikut sudah tersimpan dan akan digunakan dalam dokumen APL 2</p>
+                                <h6 class="text-success"><i class="fas fa-database mr-2"></i>Data yang Tersedia</h6>
+                                <p class="small text-muted">Data berikut sudah tersedia dan akan digunakan dalam dokumen APL 1</p>
 
-                                @foreach($template->custom_variables as $variable)
-                                <div class="mb-3">
-                                    <label class="form-label text-muted font-weight-bold">
-                                        {{ $variable['label'] }}
-                                    </label>
-                                    <div class="form-control-plaintext bg-light p-2 rounded">
-                                        <i class="fas fa-check-circle text-success mr-2"></i>
-                                        {{ $pendaftaran->custom_variables[$variable['name']] ?? '-' }}
+                                <div class="row">
+                                    @foreach($existingData as $variable => $value)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label class="form-label text-muted">
+                                                {{ ucwords(str_replace(['_', '.'], ' ', $variable)) }}
+                                            </label>
+                                            <div class="form-control-plaintext bg-light p-2 rounded">
+                                                <i class="fas fa-check-circle text-success mr-2"></i>
+                                                {{ $value ?: '-' }}
+                                            </div>
+                                        </div>
                                     </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
                             </div>
                             @endif
 
@@ -77,119 +82,156 @@
                             </div>
                             @endif
 
-                            <!-- Tombol Generate -->
                             <div class="text-center mt-4">
-                                <a href="{{ route('asesi.sertifikasi.generate-apl2', $pendaftaran->id) }}"
+                                <a href="{{ route('asesi.template.apl1-download', $pendaftaran->id) }}"
                                     class="btn btn-success btn-lg">
-                                    <i class="fas fa-download mr-2"></i> Generate & Download APL 2
-                                </a>
-                                <a href="{{ route('asesi.sertifikasi.apl2', $pendaftaran->id) }}"
-                                    class="btn btn-warning btn-lg ml-2"
-                                    onclick="return confirm('Apakah Anda yakin ingin mengedit data yang sudah diisi?')">
-                                    <i class="fas fa-edit mr-2"></i> Edit Data
+                                    <i class="fas fa-download mr-2"></i> Generate & Download APL 1
                                 </a>
                             </div>
                         @else
                             <!-- Ada data yang perlu diisi -->
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle mr-2"></i>
-                                <strong>Lengkapi Data!</strong> Mohon lengkapi form APL 2 berikut terlebih dahulu sebelum men-generate dokumen.
+                                <strong>Lengkapi Data!</strong> Mohon lengkapi data berikut terlebih dahulu sebelum men-generate dokumen APL 1.
                             </div>
 
-                            <form action="{{ route('asesi.sertifikasi.store-apl2', $pendaftaran->id) }}" method="POST">
+                            <form action="{{ route('asesi.template.apl1-store', $pendaftaran->id) }}" method="POST">
                                 @csrf
 
-                                {{-- Custom Variables dari Template APL2 --}}
-                                @if($template->custom_variables && count($template->custom_variables) > 0)
-                                    <div class="mb-4">
-                                        <h6 class="text-primary"><i class="fas fa-edit mr-2"></i>Pertanyaan APL 2</h6>
-                                        <p class="small text-muted">Jawab semua pertanyaan berikut dengan lengkap dan jelas</p>
+                                <!-- Data yang Sudah Ada -->
+                                @if(count($existingData) > 0)
+                                <div class="mb-4">
+                                    <h6 class="text-success"><i class="fas fa-check-circle mr-2"></i>Data yang Sudah Tersedia</h6>
+                                    <p class="small text-muted">Data berikut sudah tersedia dari database</p>
 
-                                        @foreach($template->custom_variables as $index => $variable)
-                                            <div class="card mb-3 border-left-primary">
-                                                <div class="card-body">
-                                                    <label for="custom_variable_{{ $variable['name'] }}" class="form-label font-weight-bold">
-                                                        <i class="fas fa-question-circle mr-1"></i>
-                                                        Pertanyaan {{ $index + 1 }}: {{ $variable['label'] }}
-                                                        @if($variable['required'] ?? false)
-                                                            <span class="text-danger">*</span>
-                                                        @endif
-                                                    </label>
-
-                                                    @if($variable['type'] === 'textarea')
-                                                        <textarea name="custom_variables[{{ $variable['name'] }}]"
-                                                                  id="custom_variable_{{ $variable['name'] }}"
-                                                                  class="form-control @error('custom_variables.' . $variable['name']) is-invalid @enderror"
-                                                                  rows="5"
-                                                                  placeholder="Tulis jawaban Anda di sini..."
-                                                                  {{ ($variable['required'] ?? false) ? 'required' : '' }}>{{ old('custom_variables.' . $variable['name']) ?? (($pendaftaran->custom_variables ?? [])[$variable['name']] ?? '') }}</textarea>
-                                                    @elseif($variable['type'] === 'select' && !empty($variable['options']))
-                                                        <select name="custom_variables[{{ $variable['name'] }}]"
-                                                                id="custom_variable_{{ $variable['name'] }}"
-                                                                class="form-control @error('custom_variables.' . $variable['name']) is-invalid @enderror"
-                                                                {{ ($variable['required'] ?? false) ? 'required' : '' }}>
-                                                            <option value="">Pilih {{ $variable['label'] }}...</option>
-                                                            @foreach(explode(',', trim($variable['options'])) as $option)
-                                                                @php $option = trim($option); @endphp
-                                                                @if(!empty($option))
-                                                                    <option value="{{ $option }}"
-                                                                            {{ old('custom_variables.' . $variable['name']) == $option || (($pendaftaran->custom_variables ?? [])[$variable['name']] ?? '') == $option ? 'selected' : '' }}>
-                                                                        {{ $option }}
-                                                                    </option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    @elseif($variable['type'] === 'checkbox')
-                                                        <div class="form-check">
-                                                            <input type="checkbox"
-                                                                   name="custom_variables[{{ $variable['name'] }}]"
-                                                                   id="custom_variable_{{ $variable['name'] }}"
-                                                                   class="form-check-input @error('custom_variables.' . $variable['name']) is-invalid @enderror"
-                                                                   value="1"
-                                                                   {{ old('custom_variables.' . $variable['name']) == '1' || (($pendaftaran->custom_variables ?? [])[$variable['name']] ?? '') == '1' ? 'checked' : '' }}>
-                                                            <label class="form-check-label" for="custom_variable_{{ $variable['name'] }}">
-                                                                {{ $variable['label'] }}
-                                                            </label>
-                                                        </div>
-                                                    @elseif($variable['type'] === 'radio' && !empty($variable['options']))
-                                                        <div class="form-group">
-                                                            @foreach(explode(',', trim($variable['options'])) as $option)
-                                                                @php $option = trim($option); @endphp
-                                                                @if(!empty($option))
-                                                                    <div class="form-check">
-                                                                        <input type="radio"
-                                                                               name="custom_variables[{{ $variable['name'] }}]"
-                                                                               id="custom_variable_{{ $variable['name'] }}_{{ $loop->index }}"
-                                                                               class="form-check-input @error('custom_variables.' . $variable['name']) is-invalid @enderror"
-                                                                               value="{{ $option }}"
-                                                                               {{ old('custom_variables.' . $variable['name']) == $option || (($pendaftaran->custom_variables ?? [])[$variable['name']] ?? '') == $option ? 'checked' : '' }}>
-                                                                        <label class="form-check-label" for="custom_variable_{{ $variable['name'] }}_{{ $loop->index }}">
-                                                                            {{ $option }}
-                                                                        </label>
-                                                                    </div>
-                                                                @endif
-                                                            @endforeach
-                                                        </div>
-                                                    @else
-                                                        <input type="{{ $variable['type'] ?? 'text' }}"
-                                                               name="custom_variables[{{ $variable['name'] }}]"
-                                                               id="custom_variable_{{ $variable['name'] }}"
-                                                               class="form-control @error('custom_variables.' . $variable['name']) is-invalid @enderror"
-                                                               placeholder="Masukkan {{ $variable['label'] }}..."
-                                                               value="{{ old('custom_variables.' . $variable['name']) ?? (($pendaftaran->custom_variables ?? [])[$variable['name']] ?? '') }}"
-                                                               {{ ($variable['required'] ?? false) ? 'required' : '' }}>
-                                                    @endif
-
-                                                    @error('custom_variables.' . $variable['name'])
-                                                        <div class="invalid-feedback">
-                                                            <i class="fas fa-exclamation-triangle me-1"></i>
-                                                            {{ $message }}
-                                                        </div>
-                                                    @enderror
+                                    <div class="row">
+                                        @foreach($existingData as $variable => $value)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label text-muted">
+                                                    {{ ucwords(str_replace(['_', '.'], ' ', $variable)) }}
+                                                </label>
+                                                <div class="form-control-plaintext bg-light p-2 rounded">
+                                                    <i class="fas fa-check-circle text-success mr-2"></i>
+                                                    {{ $value ?: '-' }}
                                                 </div>
                                             </div>
+                                        </div>
                                         @endforeach
                                     </div>
+                                </div>
+                                @endif
+
+                                <!-- Dynamic Fields -->
+                                @if(count($dynamicFields) > 0)
+                                <div class="mb-4">
+                                    <h6 class="text-primary"><i class="fas fa-edit mr-2"></i>Data yang Perlu Diisi</h6>
+                                    <p class="small text-muted">Lengkapi field berikut untuk melengkapi dokumen APL 1</p>
+
+                                    @foreach($dynamicFields as $field)
+                                    <div class="mb-3">
+                                        <label for="dynamic_{{ $field['name'] }}" class="form-label">
+                                            {{ $field['label'] }}
+                                            @if($field['required'])
+                                                <span class="text-danger">*</span>
+                                            @endif
+                                        </label>
+
+                                        @if($field['type'] === 'textarea')
+                                            <textarea class="form-control @error('dynamic_fields.' . $field['name']) is-invalid @enderror"
+                                                id="dynamic_{{ $field['name'] }}"
+                                                name="dynamic_fields[{{ $field['name'] }}]"
+                                                rows="3"
+                                                placeholder="Masukkan {{ strtolower($field['label']) }}">{{ old('dynamic_fields.' . $field['name'], $pendaftaran->custom_variables[$field['name']] ?? '') }}</textarea>
+                                        @elseif($field['type'] === 'checkbox')
+                                            <div class="form-check-group">
+                                                @if(isset($field['options']))
+                                                    @foreach($field['options'] as $option)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="dynamic_fields[{{ $field['name'] }}][]"
+                                                            value="{{ $option }}"
+                                                            id="dynamic_{{ $field['name'] }}_{{ $loop->index }}">
+                                                        <label class="form-check-label" for="dynamic_{{ $field['name'] }}_{{ $loop->index }}">
+                                                            {{ $option }}
+                                                        </label>
+                                                    </div>
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                        @elseif($field['type'] === 'radio')
+                                            <div class="form-check-group">
+                                                @if(isset($field['options']))
+                                                    @foreach($field['options'] as $option)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="dynamic_fields[{{ $field['name'] }}]"
+                                                            value="{{ $option }}"
+                                                            id="dynamic_{{ $field['name'] }}_{{ $loop->index }}">
+                                                        <label class="form-check-label" for="dynamic_{{ $field['name'] }}_{{ $loop->index }}">
+                                                            {{ $option }}
+                                                        </label>
+                                                    </div>
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                        @elseif($field['type'] === 'select')
+                                            <select class="form-control @error('dynamic_fields.' . $field['name']) is-invalid @enderror"
+                                                id="dynamic_{{ $field['name'] }}"
+                                                name="dynamic_fields[{{ $field['name'] }}]">
+                                                <option value="">Pilih {{ strtolower($field['label']) }}</option>
+                                                @if(isset($field['options']))
+                                                    @foreach($field['options'] as $option)
+                                                    <option value="{{ $option }}">{{ $option }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        @elseif($field['type'] === 'date')
+                                            <input type="date"
+                                                class="form-control @error('dynamic_fields.' . $field['name']) is-invalid @enderror"
+                                                id="dynamic_{{ $field['name'] }}"
+                                                name="dynamic_fields[{{ $field['name'] }}]"
+                                                value="{{ old('dynamic_fields.' . $field['name'], $pendaftaran->custom_variables[$field['name']] ?? '') }}">
+                                        @else
+                                            <input type="text"
+                                                class="form-control @error('dynamic_fields.' . $field['name']) is-invalid @enderror"
+                                                id="dynamic_{{ $field['name'] }}"
+                                                name="dynamic_fields[{{ $field['name'] }}]"
+                                                value="{{ old('dynamic_fields.' . $field['name'], $pendaftaran->custom_variables[$field['name']] ?? '') }}"
+                                                placeholder="Masukkan {{ strtolower($field['label']) }}">
+                                        @endif
+
+                                        @error('dynamic_fields.' . $field['name'])
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @endif
+
+                                <!-- Custom Variables (Legacy) -->
+                                @if(count($customVariables) > 0)
+                                <div class="mb-4">
+                                    <h6 class="text-primary"><i class="fas fa-edit mr-2"></i>Data Tambahan</h6>
+                                    <p class="small text-muted">Lengkapi data berikut untuk melengkapi dokumen APL 1</p>
+
+                                    @foreach($customVariables as $variable)
+                                    <div class="mb-3">
+                                        <label for="custom_{{ $variable }}" class="form-label">
+                                            {{ ucwords(str_replace(['_', '.'], ' ', $variable)) }}
+                                        </label>
+                                        <input type="text"
+                                            class="form-control @error('custom_variables.' . $variable) is-invalid @enderror"
+                                            id="custom_{{ $variable }}"
+                                            name="custom_variables[{{ $variable }}]"
+                                            value="{{ old('custom_variables.' . $variable, $pendaftaran->custom_variables[$variable] ?? '') }}"
+                                            placeholder="Masukkan {{ strtolower(str_replace(['_', '.'], ' ', $variable)) }}">
+                                        @error('custom_variables.' . $variable)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    @endforeach
+                                </div>
                                 @endif
 
                                 {{-- Digital Signature Section --}}
@@ -274,7 +316,7 @@
                                         <i class="fas fa-times mr-2"></i> Batal
                                     </a>
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save mr-2"></i> Simpan Data APL 2
+                                        <i class="fas fa-save mr-2"></i> Simpan Data
                                     </button>
                                 </div>
                             </form>
@@ -333,13 +375,13 @@
                     </div>
                     <div class="card-body">
                         <p class="small mb-2">
-                            <strong>APL 2 (Formulir Asesmen Mandiri)</strong> adalah dokumen yang berisi asesmen mandiri terhadap kompetensi yang akan diujikan.
+                            <strong>APL 1 (Formulir Permohonan Sertifikasi Kompetensi)</strong> adalah dokumen permohonan sertifikasi yang berisi data diri dan kompetensi yang akan diujikan.
                         </p>
                         <p class="small mb-2">
-                            Jawab semua pertanyaan dengan jujur dan sesuai dengan kemampuan Anda.
+                            Lengkapi semua data yang diperlukan untuk dapat men-generate dokumen APL 1.
                         </p>
                         <p class="small mb-0">
-                            Setelah data lengkap, klik tombol <strong>Generate & Download APL 2</strong> untuk mengunduh dokumen.
+                            Setelah data lengkap, klik tombol <strong>Generate & Download APL 1</strong> untuk mengunduh dokumen.
                         </p>
                     </div>
                 </div>
@@ -421,3 +463,4 @@
     </script>
     @endpush
 @endsection
+
