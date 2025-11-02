@@ -5,7 +5,8 @@ class AnalyticsDashboardLaravel {
         this.currentUserType = this.getCurrentUserType();
         this.currentFilters = {
             startDate: null,
-            endDate: null
+            endDate: null,
+            skemaId: null
         };
         console.log('AnalyticsDashboardLaravel initialized for user type:', this.currentUserType);
         this.init();
@@ -32,6 +33,9 @@ class AnalyticsDashboardLaravel {
         if (this.currentFilters.endDate) {
             params.append('end_date', this.currentFilters.endDate);
         }
+        if (this.currentFilters.skemaId) {
+            params.append('skema_id', this.currentFilters.skemaId);
+        }
 
         if (params.toString()) {
             url += '?' + params.toString();
@@ -47,6 +51,7 @@ class AnalyticsDashboardLaravel {
 
     init() {
         console.log('Initializing Laravel analytics dashboard...');
+        this.loadSkemaList(); // Load skema dropdown
         this.setupEventListeners();
         this.loadAllAnalyticsData();
 
@@ -105,10 +110,12 @@ class AnalyticsDashboardLaravel {
     applyDateFilter() {
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
+        const skemaFilterInput = document.getElementById('skemaFilter');
 
         if (startDateInput && endDateInput) {
             this.currentFilters.startDate = startDateInput.value || null;
             this.currentFilters.endDate = endDateInput.value || null;
+            this.currentFilters.skemaId = skemaFilterInput ? (skemaFilterInput.value || null) : null;
 
             // Validasi tanggal
             if (this.currentFilters.startDate && this.currentFilters.endDate) {
@@ -118,7 +125,7 @@ class AnalyticsDashboardLaravel {
                 }
             }
 
-            console.log('Applying date filter:', this.currentFilters);
+            console.log('Applying filters:', this.currentFilters);
             this.loadAllAnalyticsData();
         }
     }
@@ -127,17 +134,56 @@ class AnalyticsDashboardLaravel {
     clearDateFilter() {
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
+        const skemaFilterInput = document.getElementById('skemaFilter');
 
         if (startDateInput && endDateInput) {
             startDateInput.value = '';
             endDateInput.value = '';
         }
+        if (skemaFilterInput) {
+            skemaFilterInput.value = '';
+        }
 
         this.currentFilters.startDate = null;
         this.currentFilters.endDate = null;
+        this.currentFilters.skemaId = null;
 
-        console.log('Clearing date filter');
+        console.log('Clearing all filters');
         this.loadAllAnalyticsData();
+    }
+
+    // Load skema list untuk populate dropdown
+    async loadSkemaList() {
+        try {
+            const baseUrl = window.location.origin;
+            const url = `${baseUrl}/api/skema`; // Endpoint API untuk get skema list
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.warn('Failed to load skema list');
+                return;
+            }
+
+            const skemas = await response.json();
+            const skemaFilterSelect = document.getElementById('skemaFilter');
+
+            if (skemaFilterSelect && Array.isArray(skemas)) {
+                // Clear existing options except the first "Semua Skema"
+                skemaFilterSelect.innerHTML = '<option value="">Semua Skema</option>';
+
+                // Populate dengan skema dari API
+                skemas.forEach(skema => {
+                    const option = document.createElement('option');
+                    option.value = skema.id;
+                    option.textContent = `${skema.kode} - ${skema.nama}`;
+                    skemaFilterSelect.appendChild(option);
+                });
+
+                console.log('Skema list loaded successfully:', skemas.length, 'items');
+            }
+        } catch (error) {
+            console.error('Error loading skema list:', error);
+        }
     }
 
     // Load semua data analytics sekaligus
@@ -377,6 +423,12 @@ class AnalyticsDashboardLaravel {
         console.log('Segmentasi demografi labels:', genderLabels);
         console.log('Segmentasi demografi values:', genderValues);
 
+        // Jika tidak ada data, tampilkan pesan
+        if (genderLabels.length === 0 || genderValues.reduce((a, b) => a + b, 0) === 0) {
+            genderLabels.push('Tidak ada data');
+            genderValues.push(1);
+        }
+
         if (this.charts.segmentasiDemografi) {
             this.charts.segmentasiDemografi.destroy();
         }
@@ -384,13 +436,13 @@ class AnalyticsDashboardLaravel {
         this.charts.segmentasiDemografi = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: genderLabels.map(label => label === 'male' ? 'Laki-laki' : label === 'female' ? 'Perempuan' : 'Lainnya'),
+                labels: genderLabels, // Label sudah di-mapping dari backend
                 datasets: [{
                     data: genderValues,
                     backgroundColor: [
-                        'rgba(78, 115, 223, 0.8)',
-                        'rgba(231, 74, 59, 0.8)',
-                        'rgba(133, 135, 150, 0.8)'
+                        'rgba(78, 115, 223, 0.8)',  // Biru untuk Laki-laki
+                        'rgba(231, 74, 59, 0.8)',   // Merah untuk Perempuan
+                        'rgba(133, 135, 150, 0.8)'  // Abu-abu untuk Lainnya
                     ],
                     borderWidth: 2
                 }]
@@ -401,6 +453,17 @@ class AnalyticsDashboardLaravel {
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }

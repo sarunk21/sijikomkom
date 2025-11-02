@@ -223,20 +223,34 @@ class APL2Controller extends Controller
 
         // Field database yang tersedia untuk variable
         $availableFields = [
-            // User fields
+            // User fields - Data Identitas
             'user.name' => 'Nama Lengkap',
             'user.email' => 'Email',
             'user.telephone' => 'Nomor Telepon',
-            'user.alamat' => 'Alamat',
             'user.nik' => 'NIK',
             'user.nim' => 'NIM',
+
+            // User fields - Data Kelahiran
             'user.tempat_lahir' => 'Tempat Lahir',
             'user.tanggal_lahir' => 'Tanggal Lahir',
             'user.jenis_kelamin' => 'Jenis Kelamin',
+
+            // User fields - Alamat & Kewarganegaraan
+            'user.alamat' => 'Alamat Lengkap',
             'user.kebangsaan' => 'Kebangsaan',
+
+            // User fields - Pekerjaan & Pendidikan
             'user.pekerjaan' => 'Pekerjaan',
-            'user.pendidikan' => 'Pendidikan',
+            'user.pendidikan' => 'Pendidikan Terakhir',
             'user.jurusan' => 'Jurusan',
+
+            // User fields - Foto & Dokumen (Path)
+            'user.photo_diri' => 'Foto Diri (Path)',
+            'user.photo_ktp' => 'Foto KTP (Path)',
+            'user.photo_sertifikat' => 'Foto Sertifikat (Path)',
+            'user.photo_ktmkhs' => 'Foto KTM/KHS (Path)',
+            'user.photo_administatif' => 'Foto Administratif (Path)',
+            'user.tanda_tangan' => 'Tanda Tangan Digital (Path)',
 
             // Skema fields
             'skema.nama' => 'Nama Skema',
@@ -246,14 +260,21 @@ class APL2Controller extends Controller
 
             // Jadwal fields
             'jadwal.tanggal_ujian' => 'Tanggal Ujian',
+            'jadwal.tanggal_selesai' => 'Tanggal Selesai Ujian',
+            'jadwal.tanggal_maksimal_pendaftaran' => 'Batas Akhir Pendaftaran',
             'jadwal.waktu_mulai' => 'Waktu Mulai',
             'jadwal.waktu_selesai' => 'Waktu Selesai',
+            'jadwal.kuota' => 'Kuota Peserta',
             'jadwal.tuk.nama' => 'Lokasi Ujian (TUK)',
+            'jadwal.tuk.kode' => 'Kode TUK',
+            'jadwal.tuk.alamat' => 'Alamat TUK',
 
             // System fields
-            'system.tanggal_generate' => 'Tanggal Generate',
-            'system.waktu_generate' => 'Waktu Generate',
+            'system.tanggal_generate' => 'Tanggal Generate Dokumen',
+            'system.waktu_generate' => 'Waktu Generate Dokumen',
             'system.nomor_pendaftaran' => 'Nomor Pendaftaran',
+            'system.tahun' => 'Tahun',
+            'system.bulan' => 'Bulan',
         ];
 
         return view('components.pages.admin.apl2.template.create', compact('lists', 'skemas', 'availableFields'));

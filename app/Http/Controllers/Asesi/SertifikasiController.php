@@ -173,6 +173,11 @@ class SertifikasiController extends Controller
             foreach ($template->custom_variables as $customVar) {
                 $fieldName = $customVar['name'];
                 
+                // Skip signature_pad karena sudah ditangani di section terpisah
+                if (isset($customVar['type']) && $customVar['type'] === 'signature_pad') {
+                    continue;
+                }
+                
                 // Cek apakah field sudah diisi
                 if (!$pendaftaran->custom_variables || !isset($pendaftaran->custom_variables[$fieldName])) {
                     $customVariablesNeeded[] = $customVar;

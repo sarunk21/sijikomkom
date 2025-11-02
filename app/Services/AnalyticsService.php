@@ -83,34 +83,51 @@ class AnalyticsService
 
     /**
      * Mendapatkan segmentasi demografi berdasarkan jenis kelamin, pendidikan, dan pekerjaan
+     * Hanya menghitung user yang pernah mendaftar ujikom (asesi)
      */
     public function getSegmentasiDemografi()
     {
-        // Segmentasi berdasarkan jenis kelamin
-        $genderCounts = User::select('jenis_kelamin', DB::raw('COUNT(id) as jumlah'))
-                           ->groupBy('jenis_kelamin')
-                           ->get()
-                           ->pluck('jumlah', 'jenis_kelamin')
-                           ->toArray();
+        // Ambil user_id yang pernah mendaftar
+        $userIdsYangMendaftar = Pendaftaran::distinct()->pluck('user_id');
 
-        // Segmentasi berdasarkan pendidikan
+        // Segmentasi berdasarkan jenis kelamin (hanya asesi yang pernah mendaftar)
+        $genderData = User::select('jenis_kelamin', DB::raw('COUNT(id) as jumlah'))
+                           ->whereIn('id', $userIdsYangMendaftar)
+                           ->whereNotNull('jenis_kelamin') // Filter data kosong
+                           ->where('jenis_kelamin', '!=', '') // Filter string kosong
+                           ->groupBy('jenis_kelamin')
+                           ->get();
+
+        // Mapping jenis kelamin ke label yang benar
+        $genderCounts = [];
+        foreach ($genderData as $item) {
+            $label = match($item->jenis_kelamin) {
+                'L' => 'Laki-laki',
+                'P' => 'Perempuan',
+                default => 'Lainnya'
+            };
+            $genderCounts[$label] = $item->jumlah;
+        }
+
+        // Segmentasi berdasarkan pendidikan (hanya asesi yang pernah mendaftar)
         $pendidikanCounts = User::select('pendidikan', DB::raw('COUNT(id) as jumlah'))
+                               ->whereIn('id', $userIdsYangMendaftar)
+                               ->whereNotNull('pendidikan')
+                               ->where('pendidikan', '!=', '')
                                ->groupBy('pendidikan')
                                ->get()
                                ->pluck('jumlah', 'pendidikan')
                                ->toArray();
 
-        // Segmentasi berdasarkan pekerjaan
+        // Segmentasi berdasarkan pekerjaan (hanya asesi yang pernah mendaftar)
         $pekerjaanCounts = User::select('pekerjaan', DB::raw('COUNT(id) as jumlah'))
+                              ->whereIn('id', $userIdsYangMendaftar)
+                              ->whereNotNull('pekerjaan')
+                              ->where('pekerjaan', '!=', '')
                               ->groupBy('pekerjaan')
                               ->get()
                               ->pluck('jumlah', 'pekerjaan')
                               ->toArray();
-
-        // Handle null values
-        $genderCounts = $this->handleNullValues($genderCounts);
-        $pendidikanCounts = $this->handleNullValues($pendidikanCounts);
-        $pekerjaanCounts = $this->handleNullValues($pekerjaanCounts);
 
         return [
             'jenis_kelamin' => $genderCounts,
@@ -125,13 +142,15 @@ class AnalyticsService
     public function getWorkloadAsesor($startDate = null, $endDate = null)
     {
         try {
-            // Query untuk laporan per asesor
+            // Query untuk laporan per asesor (join via pendaftaran -> pendaftaran_ujikom)
             $laporanQuery = Report::select(
-                'tuk_id as asesor_id',
-                'tuk.name as asesor_name',
+                'pendaftaran_ujikom.asesor_id',
+                'users.name as asesor_name',
                 DB::raw('COUNT(report.id) as jumlah_laporan')
             )
-            ->join('tuk', 'report.tuk_id', '=', 'tuk.id');
+            ->join('pendaftaran', 'report.pendaftaran_id', '=', 'pendaftaran.id')
+            ->join('pendaftaran_ujikom', 'pendaftaran.id', '=', 'pendaftaran_ujikom.pendaftaran_id')
+            ->join('users', 'pendaftaran_ujikom.asesor_id', '=', 'users.id');
 
             if ($startDate) {
                 $laporanQuery->where('report.created_at', '>=', $startDate);
@@ -140,7 +159,7 @@ class AnalyticsService
                 $laporanQuery->where('report.created_at', '<=', $endDate);
             }
 
-            $laporanCounts = $laporanQuery->groupBy('report.tuk_id')
+            $laporanCounts = $laporanQuery->groupBy('pendaftaran_ujikom.asesor_id', 'users.name')
                                          ->get()
                                          ->keyBy('asesor_id');
 
@@ -179,20 +198,10 @@ class AnalyticsService
             return $response;
 
         } catch (\Exception $e) {
-            // Jika ada error, kembalikan data dummy untuk testing
-            \Log::warning("Error in getWorkloadAsesor: " . $e->getMessage());
-            return [
-                [
-                    'asesor_name' => 'Asesor Test 1',
-                    'jumlah_laporan' => 5,
-                    'jumlah_pembayaran' => 3
-                ],
-                [
-                    'asesor_name' => 'Asesor Test 2',
-                    'jumlah_laporan' => 3,
-                    'jumlah_pembayaran' => 2
-                ]
-            ];
+            // Log error dan return array kosong
+            \Log::error("Error in getWorkloadAsesor: " . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return [];
         }
     }
 
@@ -204,7 +213,7 @@ class AnalyticsService
         try {
             $totalPendaftaran = Pendaftaran::count();
             $totalSkema = Skema::count();
-            $totalAsesor = Tuk::count();
+            $totalAsesor = User::where('user_type', 'asesor')->count(); // Fix: gunakan User, bukan Tuk
             $pendaftaranBulanIni = Pendaftaran::whereMonth('created_at', Carbon::now()->month)
                                              ->whereYear('created_at', Carbon::now()->year)
                                              ->count();

@@ -57,17 +57,43 @@ class CustomDataController extends Controller
         $customVariables = [];
         $existingData = [];
         $dynamicFields = [];
+        
+        // Collect all signature_pad field names dari field_configurations dan custom_variables
+        $signaturePadFields = [];
+        if ($template->field_configurations) {
+            foreach ($template->field_configurations as $fieldConfig) {
+                if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
+                    $signaturePadFields[] = $fieldConfig['name'];
+                }
+            }
+        }
+        
+        if ($template->custom_variables) {
+            foreach ($template->custom_variables as $customVar) {
+                if (isset($customVar['type']) && $customVar['type'] === 'signature_pad') {
+                    $signaturePadFields[] = $customVar['name'];
+                }
+            }
+        }
 
         if ($template->variables) {
             foreach ($template->variables as $variable) {
-                if (!in_array($variable, $databaseFields)) {
-                    // Cek apakah data sudah ada di profil user
-                    $userData = $this->getUserDataForVariable($variable, $pendaftaran);
-                    if ($userData) {
-                        $existingData[$variable] = $userData;
-                    } else {
-                        $customVariables[] = $variable;
-                    }
+                // Skip database fields
+                if (in_array($variable, $databaseFields)) {
+                    continue;
+                }
+                
+                // Skip signature_pad fields yang ada di field_configurations
+                if (in_array($variable, $signaturePadFields)) {
+                    continue;
+                }
+                
+                // Cek apakah data sudah ada di profil user
+                $userData = $this->getUserDataForVariable($variable, $pendaftaran);
+                if ($userData) {
+                    $existingData[$variable] = $userData;
+                } else {
+                    $customVariables[] = $variable;
                 }
             }
         }
@@ -76,6 +102,12 @@ class CustomDataController extends Controller
         if ($template->field_configurations) {
             foreach ($template->field_configurations as $fieldConfig) {
                 $fieldName = $fieldConfig['name'];
+                
+                // Skip signature_pad fields karena sudah ditangani di section terpisah
+                if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
+                    continue;
+                }
+                
                 $fieldMapping = $template->field_mappings[$fieldName] ?? '';
 
                 // Cek apakah field sudah ada di database
@@ -97,6 +129,12 @@ class CustomDataController extends Controller
         if ($template->custom_variables) {
             foreach ($template->custom_variables as $customVar) {
                 $fieldName = $customVar['name'];
+                
+                // Skip signature_pad fields karena sudah ditangani di section terpisah
+                if (isset($customVar['type']) && $customVar['type'] === 'signature_pad') {
+                    continue;
+                }
+                
                 $fieldMapping = $customVar['database_mapping'] ?? '';
 
                 // Cek apakah field sudah ada di database

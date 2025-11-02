@@ -240,3 +240,8 @@ Route::group(['prefix' => 'tuk', 'middleware' => 'user.type'], function () {
     Route::resource('konfirmasi-jadwal', KonfirmasiJadwalController::class)->names('tuk.konfirmasi-jadwal');
     Route::resource('profil-tuk', ProfileTUKController::class)->names('tuk.profil-tuk');
 });
+
+// API Routes (untuk AJAX requests)
+Route::prefix('api')->group(function () {
+    Route::get('/skema', [SkemaController::class, 'apiList'])->name('api.skema.list');
+});

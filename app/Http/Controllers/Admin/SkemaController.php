@@ -166,4 +166,23 @@ class SkemaController extends Controller
             return redirect()->route('admin.skema.index')->with('error', 'Skema gagal dihapus');
         }
     }
+
+    /**
+     * API endpoint untuk mendapatkan list skema (untuk dropdown/AJAX)
+     */
+    public function apiList()
+    {
+        try {
+            $skemas = Skema::select('id', 'kode', 'nama', 'kategori', 'bidang')
+                ->orderBy('nama', 'asc')
+                ->get();
+
+            return response()->json($skemas);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to load skema list',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

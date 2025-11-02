@@ -5,13 +5,13 @@
 
 @section('content')
 
-    <!-- Date Range Filter -->
+    <!-- Date Range & Skema Filter -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-calendar-alt"></i> Filter Tanggal
+                        <i class="fas fa-filter"></i> Filter Data Dashboard
                     </h6>
                 </div>
                 <div class="card-body">
@@ -25,21 +25,20 @@
                             <input type="date" class="form-control" id="endDate" name="end_date">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">&nbsp;</label>
-                            <div>
-                                <button type="button" class="btn btn-primary" id="applyFilter">
-                                    <i class="fas fa-filter"></i> Terapkan Filter
-                                </button>
-                                <button type="button" class="btn btn-secondary ml-2" id="clearFilter">
-                                    <i class="fas fa-times"></i> Reset
-                                </button>
-                            </div>
+                            <label for="skemaFilter" class="form-label">Filter Skema:</label>
+                            <select class="form-control" id="skemaFilter" name="skema_id">
+                                <option value="">Semua Skema</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">&nbsp;</label>
                             <div>
-                                <button type="button" class="btn btn-success" id="refreshData">
-                                    <i class="fas fa-sync-alt"></i> Refresh Data
+                                <button type="button" class="btn btn-primary btn-block mb-2" id="applyFilter">
+                                    <i class="fas fa-filter"></i> Terapkan Filter
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-block" id="clearFilter">
+                                    <i class="fas fa-times"></i> Reset Filter
                                 </button>
                             </div>
                         </div>

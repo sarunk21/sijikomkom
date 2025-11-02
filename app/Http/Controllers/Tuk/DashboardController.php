@@ -20,6 +20,11 @@ class DashboardController extends Controller
 
         $lists = $this->getMenuListKepalaTuk('dashboard');
 
+        // CATATAN: Saat ini tidak ada relasi User -> TUK (user.tuk_id)
+        // Dashboard menampilkan data SEMUA TUK
+        // Untuk filter berdasarkan TUK tertentu, perlu tambahkan kolom tuk_id di tabel users
+        // Contoh: $tukId = $user->tuk_id; lalu filter semua query dengan ->where('tuk_id', $tukId)
+
         if (!$user) {
             // Jika tidak ada TUK, return data kosong
             $totalAsesi = 0;
@@ -55,11 +60,11 @@ class DashboardController extends Controller
             ->count();
 
         // Pendapatan bulanan (hitung berdasarkan jumlah pembayaran yang dikonfirmasi)
-        $pendapatanBulanan = Pembayaran::whereIn('status', [4, 5, 6])
+        // Status Pembayaran: 1=Belum Bayar, 2=Menunggu Verifikasi, 3=Ditolak, 4=Dikonfirmasi
+        $pendapatanBulanan = Pembayaran::where('status', 4) // Dikonfirmasi
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
-            ->where('status', 4) // Dikonfirmasi
-            ->count() * 1000000; // Asumsi 1 juta per pendaftaran
+            ->count() * config('payment.tuk_per_pendaftaran', 1000000); // Ambil dari config
 
         // Tren kunjungan (6 bulan terakhir)
         $trenKunjungan = [];
@@ -114,16 +119,15 @@ class DashboardController extends Controller
             ->whereYear('created_at', now()->year)
             ->count();
 
-        $lulusBulan = Report::whereIn('status', [4, 5, 6])
+        // Status Report: 1=Kompeten/Lulus, 2=Tidak Kompeten/Tidak Lulus
+        $lulusBulan = Report::where('status', 1) // Kompeten
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
-            ->where('status', 1)
             ->count();
 
-        $tidakLulusBulan = Report::whereIn('status', [4, 5, 6])
+        $tidakLulusBulan = Report::where('status', 2) // Tidak Kompeten
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
-            ->where('status', 2)
             ->count();
 
         $persentaseLulus = $totalUjikomBulan > 0 ? round(($lulusBulan / $totalUjikomBulan) * 100) : 0;

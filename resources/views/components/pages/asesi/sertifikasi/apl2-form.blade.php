@@ -106,6 +106,11 @@
                                         <p class="small text-muted">Jawab semua pertanyaan berikut dengan lengkap dan jelas</p>
 
                                         @foreach($template->custom_variables as $index => $variable)
+                                            {{-- Skip signature_pad karena sudah ditangani di section terpisah --}}
+                                            @if(isset($variable['type']) && $variable['type'] === 'signature_pad')
+                                                @continue
+                                            @endif
+                                            
                                             <div class="card mb-3 border-left-primary">
                                                 <div class="card-body">
                                                     <label for="custom_variable_{{ $variable['name'] }}" class="form-label font-weight-bold">

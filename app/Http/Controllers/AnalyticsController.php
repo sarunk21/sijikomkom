@@ -166,17 +166,18 @@ class AnalyticsController extends Controller
     public function getDashboardData(Request $request): JsonResponse
     {
         try {
-            // Ambil filter tanggal dari request
+            // Ambil filter dari request
             $startDate = $request->query('start_date') ? Carbon::parse($request->query('start_date')) : null;
             $endDate = $request->query('end_date') ? Carbon::parse($request->query('end_date')) : null;
+            $skemaId = $request->query('skema_id') ?: null;
 
             // Menggabungkan semua data analytics untuk dashboard dengan filter
-            $skemaTrend = $this->analyticsService->getTrendPendaftaran(null, $startDate, $endDate);
-            $kompetensiSkema = $this->analyticsService->getStatistikKompetensi($startDate, $endDate);
-            $segmentasiDemografi = $this->analyticsService->getSegmentasiDemografi();
-            $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate);
-            $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate);
-            $dashboardSummary = $this->analyticsService->getDashboardSummary();
+            $skemaTrend = $this->analyticsService->getTrendPendaftaran($skemaId, $startDate, $endDate);
+            $kompetensiSkema = $this->analyticsService->getStatistikKompetensi($startDate, $endDate, $skemaId);
+            $segmentasiDemografi = $this->analyticsService->getSegmentasiDemografi($skemaId);
+            $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate, $skemaId);
+            $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate, $skemaId);
+            $dashboardSummary = $this->analyticsService->getDashboardSummary($skemaId);
 
             $data = [
                 'skema_trend' => $skemaTrend,
@@ -187,7 +188,8 @@ class AnalyticsController extends Controller
                 'dashboard_summary' => $dashboardSummary,
                 'filters' => [
                     'start_date' => $startDate ? $startDate->format('Y-m-d') : null,
-                    'end_date' => $endDate ? $endDate->format('Y-m-d') : null
+                    'end_date' => $endDate ? $endDate->format('Y-m-d') : null,
+                    'skema_id' => $skemaId
                 ]
             ];
 

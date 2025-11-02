@@ -129,6 +129,11 @@
                                     <p class="small text-muted">Lengkapi field berikut untuk melengkapi dokumen APL 1</p>
 
                                     @foreach($dynamicFields as $field)
+                                    {{-- Skip signature_pad karena sudah ditangani di section terpisah --}}
+                                    @if(isset($field['type']) && $field['type'] === 'signature_pad')
+                                        @continue
+                                    @endif
+                                    
                                     <div class="mb-3">
                                         <label for="dynamic_{{ $field['name'] }}" class="form-label">
                                             {{ $field['label'] }}

@@ -131,32 +131,52 @@ class TemplateGeneratorService
 
             if ($ttdPath) {
                 try {
-                    // Coba berbagai format placeholder
-                    $placeholders = ['ttd_digital', '${ttd_digital}', 'ttd_digital}', '{ttd_digital'];
-                    $success = false;
+                    // Collect all signature_pad field names dari template
+                    $signaturePadFields = ['ttd_digital']; // Default
                     
-                    foreach ($placeholders as $placeholder) {
-                        try {
-                            $templateProcessor->setImageValue(
-                                $placeholder,
-                                [
-                                    'path' => $ttdPath,
-                                    'width' => 150,
-                                    'height' => 75,
-                                    'ratio' => true
-                                ]
-                            );
-                            \Illuminate\Support\Facades\Log::info("TTD digital inserted successfully with placeholder: {$placeholder}");
-                            $success = true;
-                            break;
-                        } catch (\Exception $e) {
-                            \Illuminate\Support\Facades\Log::debug("Failed with placeholder {$placeholder}: " . $e->getMessage());
-                            continue;
+                    if ($template->field_configurations) {
+                        foreach ($template->field_configurations as $fieldConfig) {
+                            if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
+                                $signaturePadFields[] = $fieldConfig['name'];
+                            }
                         }
                     }
                     
-                    if (!$success) {
-                        \Illuminate\Support\Facades\Log::warning('Could not insert TTD with any placeholder format');
+                    // Juga check custom_variables
+                    if (isset($template->custom_variables) && is_array($template->custom_variables)) {
+                        foreach ($template->custom_variables as $customVar) {
+                            if (isset($customVar['type']) && $customVar['type'] === 'signature_pad' && isset($customVar['name'])) {
+                                $signaturePadFields[] = $customVar['name'];
+                            }
+                        }
+                    }
+                    
+                    // Remove duplicates
+                    $signaturePadFields = array_unique($signaturePadFields);
+                    
+                    // Try to insert TTD for each signature pad field
+                    foreach ($signaturePadFields as $fieldName) {
+                        // Coba berbagai format placeholder untuk setiap field
+                        $placeholders = [$fieldName, '${' . $fieldName . '}', $fieldName . '}', '{' . $fieldName];
+                        
+                        foreach ($placeholders as $placeholder) {
+                            try {
+                                $templateProcessor->setImageValue(
+                                    $placeholder,
+                                    [
+                                        'path' => $ttdPath,
+                                        'width' => 150,
+                                        'height' => 75,
+                                        'ratio' => true
+                                    ]
+                                );
+                                \Illuminate\Support\Facades\Log::info("TTD digital inserted successfully with placeholder: {$placeholder}");
+                                break; // Success, move to next field
+                            } catch (\Exception $e) {
+                                \Illuminate\Support\Facades\Log::debug("Failed with placeholder {$placeholder}: " . $e->getMessage());
+                                continue;
+                            }
+                        }
                     }
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::warning('Error inserting TTD: ' . $e->getMessage());
@@ -165,10 +185,17 @@ class TemplateGeneratorService
                 \Illuminate\Support\Facades\Log::warning('TTD path not found for pendaftaran: ' . $pendaftaran->id);
             }
 
+            // Collect signature_pad field names untuk skip saat replace text
+            $skipFields = ['ttd_digital'];
+            if (isset($signaturePadFields)) {
+                $skipFields = array_merge($skipFields, $signaturePadFields);
+            }
+            $skipFields = array_unique($skipFields);
+            
             // Replace variables dalam template
             foreach ($data as $key => $value) {
-                // Skip ttd_digital karena sudah di-handle sebagai image
-                if ($key === 'ttd_digital') {
+                // Skip signature_pad fields karena sudah di-handle sebagai image
+                if (in_array($key, $skipFields)) {
                     continue;
                 }
                 
@@ -501,9 +528,31 @@ class TemplateGeneratorService
                 throw new \Exception('Template atau variables tidak ditemukan');
             }
 
+            // Collect signature_pad field names untuk special handling
+            $signaturePadFields = [];
+            if ($template->field_configurations) {
+                foreach ($template->field_configurations as $fieldConfig) {
+                    if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
+                        $signaturePadFields[] = $fieldConfig['name'];
+                    }
+                }
+            }
+            if (isset($template->custom_variables) && is_array($template->custom_variables)) {
+                foreach ($template->custom_variables as $customVar) {
+                    if (isset($customVar['type']) && $customVar['type'] === 'signature_pad' && isset($customVar['name'])) {
+                        $signaturePadFields[] = $customVar['name'];
+                    }
+                }
+            }
+            
             // Prepare data berdasarkan variables yang dipilih di template
             $data = [];
             foreach ($template->variables as $variable) {
+                // Skip signature_pad fields - akan di-handle sebagai image, bukan text
+                if (in_array($variable, $signaturePadFields)) {
+                    continue;
+                }
+                
                 // Cek apakah ini custom variable dari asesi
                 if ($pendaftaran->custom_variables && isset($pendaftaran->custom_variables[$variable])) {
                     $data[$variable] = $pendaftaran->custom_variables[$variable];

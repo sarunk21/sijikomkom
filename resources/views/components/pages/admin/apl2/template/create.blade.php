@@ -45,7 +45,7 @@
                 </a>
                 <small class="text-muted d-block mt-1">
                     <i class="fas fa-info-circle me-1"></i>
-                    Sample ini berisi contoh penggunaan variable seperti {nama_lengkap}, {pertanyaan_bk_k_1}, dll.
+                    Sample ini berisi contoh penggunaan variable seperti ${nama_lengkap}, ${pertanyaan_bk_k_1}, dll.
                 </small>
 
                 <h6 class="mt-3"><i class="fas fa-code me-2"></i>Variable yang Tersedia:</h6>

@@ -156,18 +156,36 @@
                                         </div>
 
                                         <div class="row">
+                                            @php
+                                                $userFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'user.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
+
+                                                $skemaFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'skema.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
+
+                                                $jadwalFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'jadwal.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
+
+                                                $systemFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'system.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
+                                            @endphp
+
                                             <div class="col-md-6">
                                                 <div class="card mb-3" style="border-left: 3px solid #007bff;">
                                                     <div class="card-body">
                                                         <h6 class="text-primary mb-3">
                                                             <i class="fas fa-user me-2"></i>Data User/Asesi
                                                         </h6>
-                                            @foreach(['user.name', 'user.email', 'user.telephone', 'user.alamat', 'user.nik', 'user.nim'] as $field)
+                                            @foreach($userFields as $field => $label)
                                                         <div class="form-check mb-2">
                                                             <input class="form-check-input database-field" type="checkbox"
                                                                 value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
                                                             <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <strong>{{ $label }}</strong>
                                                                 <small class="text-muted d-block"><code>${{ $field }}</code></small>
                                                             </label>
                                                         </div>
@@ -179,14 +197,50 @@
                                                 <div class="card mb-3" style="border-left: 3px solid #28a745;">
                                                     <div class="card-body">
                                                         <h6 class="text-success mb-3">
-                                                            <i class="fas fa-certificate me-2"></i>Data Skema & Jadwal
+                                                            <i class="fas fa-certificate me-2"></i>Data Skema
                                                         </h6>
-                                            @foreach(['skema.nama', 'skema.kode', 'skema.bidang', 'jadwal.tanggal_ujian', 'jadwal.waktu_mulai', 'jadwal.tuk.nama'] as $field)
+                                            @foreach($skemaFields as $field => $label)
                                                         <div class="form-check mb-2">
                                                             <input class="form-check-input database-field" type="checkbox"
                                                                 value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
                                                             <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <strong>{{ $label }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-3" style="border-left: 3px solid #ffc107;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-warning mb-3">
+                                                            <i class="fas fa-calendar me-2"></i>Data Jadwal
+                                                        </h6>
+                                            @foreach($jadwalFields as $field => $label)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $label }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-3" style="border-left: 3px solid #6c757d;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-secondary mb-3">
+                                                            <i class="fas fa-cog me-2"></i>Data System
+                                                        </h6>
+                                            @foreach($systemFields as $field => $label)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $label }}</strong>
                                                                 <small class="text-muted d-block"><code>${{ $field }}</code></small>
                                                             </label>
                                                         </div>

@@ -74,7 +74,7 @@ class DashboardController extends Controller
                     'tanggal' => $pendaftaran->created_at->format('Y-m-d'),
                     'aktivitas' => 'Pendaftaran Ujikom',
                     'status' => $this->getStatusText($pendaftaran->status),
-                    'keterangan' => 'Skema: ' . $pendaftaran->skema->nama ?? 'Tidak diketahui'
+                    'keterangan' => 'Skema: ' . ($pendaftaran->skema->nama ?? 'Tidak diketahui')
                 ];
             });
 
