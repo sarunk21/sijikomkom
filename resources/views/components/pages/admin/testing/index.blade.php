@@ -239,6 +239,31 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Fix Section -->
+            <hr class="my-4">
+            <h6 class="font-weight-bold text-danger mb-3">
+                <i class="fas fa-tools"></i> Fix & Utilities
+            </h6>
+            <div class="row">
+                <!-- Fix Stuck Payments -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-danger h-100">
+                        <div class="card-body">
+                            <h6 class="text-danger"><i class="fas fa-wrench"></i> Fix Stuck Payments</h6>
+                            <p class="small text-muted mb-2">
+                                Auto-fix pembayaran "Pendaftaran Pertama" yang stuck di status "Menunggu Verifikasi" → langsung approve & create pendaftaran
+                            </p>
+                            <form action="{{ route('admin.testing.fix-stuck-payments') }}" method="POST" onsubmit="return confirm('Fix stuck payments? Ini akan auto-approve semua Pendaftaran Pertama yang stuck.')">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-sm btn-block">
+                                    <i class="fas fa-band-aid"></i> Fix Stuck Payments
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

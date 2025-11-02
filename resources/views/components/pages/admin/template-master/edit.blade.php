@@ -11,6 +11,37 @@
     </a>
 
     <div class="container-fluid">
+
+        <!-- Info Alert -->
+        <div class="alert alert-info d-flex align-items-start mb-4" style="background-color: #e7f3ff; border-color: #b3d9ff;">
+            <i class="fas fa-info-circle me-2 mt-1" style="color: #0066cc; font-size: 1.2rem;"></i>
+            <div class="flex-grow-1">
+                <strong>Petunjuk:</strong> Gunakan format <code style="background-color: #fff; padding: 2px 6px; border-radius: 3px; color: #d63384;">${variable}</code> di file DOCX untuk variable yang dipilih.
+                <div class="mt-3">
+                    <p class="mb-2 small"><strong>Contoh penggunaan variable:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><code>${user.name}</code> → Nama user/asesi</li>
+                        <li><code>${skema.nama}</code> → Nama skema sertifikasi</li>
+                        <li><code>${jadwal.tanggal_ujian}</code> → Tanggal ujian</li>
+                    </ul>
+                    @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')) || file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                        <div class="mt-2">
+                            @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-sm btn-success me-2" download>
+                                    <i class="fas fa-download me-1"></i> Download Sample APL1
+                                </a>
+                            @endif
+                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-sm btn-success" download>
+                                    <i class="fas fa-download me-1"></i> Download Sample APL2
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <!-- Form -->
         <div class="row">
             <div class="col-lg-8">
@@ -100,110 +131,138 @@
                                 @enderror
                             </div>
 
-                            <!-- File TTD Digital Saat Ini -->
-                            @if($template->ttd_path)
-                            <div class="mb-3">
-                                <label class="form-label">File TTD Digital Saat Ini</label>
-                                <div class="alert alert-info">
-                                    <i class="fas fa-image"></i>
-                                    <a href="{{ $template->ttd_url }}" target="_blank">
-                                        {{ basename($template->ttd_path) }}
-                                    </a>
-                                    <small class="text-muted">(Klik untuk lihat)</small>
-                                </div>
-                            </div>
-                            @endif
-
-                            <!-- File TTD Digital Baru -->
-                            <div class="mb-3">
-                                <label for="ttd_digital" class="form-label">File TTD Digital Baru <small class="text-muted">(Opsional)</small></label>
-                                <input type="file" class="form-control @error('ttd_digital') is-invalid @enderror"
-                                    id="ttd_digital" name="ttd_digital" accept="image/*">
-                                <small class="form-text text-muted">Upload file gambar TTD digital baru (.png, .jpg, .jpeg). Gunakan variable ${ttd_digital} di template.</small>
-                                @error('ttd_digital')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Variables Section -->
+                            <!-- Variables Section with Tabs -->
                             <div class="mb-4">
-                                <label class="form-label">Variables Template <span class="text-danger">*</span></label>
-                                <p class="small text-muted">Pilih field dari database atau buat variable custom. Gunakan format ${variable} dalam file .docx</p>
+                                <label class="form-label fw-semibold">Variables Template <span class="text-danger">*</span></label>
+                                <p class="small text-muted mb-3">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Pilih field dari database atau buat variable custom. Gunakan format <code>${variable}</code> dalam file .docx
+                                </p>
 
-                                <!-- Available Database Fields -->
-                                <div class="mb-3">
-                                    <h6>Field Database yang Tersedia:</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="text-primary">Data User/Asesi</h6>
+                                <!-- Nav Tabs (Bootstrap 4 compatible) -->
+                                <ul class="nav nav-tabs mb-3" id="variablesTabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="database-fields-tab" data-toggle="tab" href="#database-fields" role="tab">
+                                            <i class="fas fa-database me-2"></i>Database Fields
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-fields-tab" data-toggle="tab" href="#custom-fields" role="tab">
+                                            <i class="fas fa-plus-circle me-2"></i>Custom Fields (untuk APL2)
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <!-- Tab Content -->
+                                <div class="tab-content" id="variablesTabContent">
+
+                                    <!-- Database Fields Tab -->
+                                    <div class="tab-pane fade show active" id="database-fields" role="tabpanel">
+                                        <div class="alert alert-light border mb-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-lightbulb me-1"></i>
+                                                <strong>Tips:</strong> Field ini otomatis diambil dari database. Centang field yang ingin digunakan di template.
+                                                <br>
+                                                <strong>Format di template:</strong> Gunakan <code>${variable}</code> di file DOCX.
+                                                Contoh: <code>${user.name}</code>, <code>${skema.nama}</code>
+                                            </small>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="card mb-3" style="border-left: 3px solid #007bff;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-primary mb-3">
+                                                            <i class="fas fa-user me-2"></i>Data User/Asesi
+                                                        </h6>
                                             @foreach(['user.name', 'user.email', 'user.telephone', 'user.alamat', 'user.nik', 'user.nim'] as $field)
-                                                <div class="form-check">
-                                                    <input class="form-check-input database-field" type="checkbox"
-                                                        value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
-                                                        {{ is_array(old('variables', $template->variables ?? [])) && in_array($field, old('variables', $template->variables ?? [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                        {{ $availableFields[$field] }}
-                                                        <small class="text-muted d-block">Format: <code>${ {{ $field }} }</code></small>
-                                                    </label>
-                                                </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
+                                                                {{ is_array(old('variables', $template->variables ?? [])) && in_array($field, old('variables', $template->variables ?? [])) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
                                             @endforeach
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="text-success">Data Skema & Jadwal</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card mb-3" style="border-left: 3px solid #28a745;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-success mb-3">
+                                                            <i class="fas fa-certificate me-2"></i>Data Skema & Jadwal
+                                                        </h6>
                                             @foreach(['skema.nama', 'skema.kode', 'skema.bidang', 'jadwal.tanggal_ujian', 'jadwal.waktu_mulai', 'jadwal.tuk.nama'] as $field)
-                                                <div class="form-check">
-                                                    <input class="form-check-input database-field" type="checkbox"
-                                                        value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
-                                                        {{ is_array(old('variables', $template->variables ?? [])) && in_array($field, old('variables', $template->variables ?? [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                        {{ $availableFields[$field] }}
-                                                        <small class="text-muted d-block">Format: <code>${ {{ $field }} }</code></small>
-                                                    </label>
-                                                </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
+                                                                {{ is_array(old('variables', $template->variables ?? [])) && in_array($field, old('variables', $template->variables ?? [])) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
                                             @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Selected Variables Display -->
+                                        <div class="mt-3">
+                                            <h6 class="mb-2">Variables yang Dipilih:</h6>
+                                            <div id="selected-variables-container" class="p-3 bg-light rounded border">
+                                                <span class="text-muted"><em>Belum ada variable yang dipilih</em></span>
+                                            </div>
+                                        </div>
+
+                                        @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                                            <div class="mt-3 text-end">
+                                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-success" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample Template APL1
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Custom Fields Tab -->
+                                    <div class="tab-pane fade" id="custom-fields" role="tabpanel">
+                                        <div class="alert alert-warning border mb-3">
+                                            <small>
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                <strong>Untuk APL2:</strong> Custom fields akan menjadi pertanyaan di form asesi dan variable di template DOCX.
+                                                Field ini akan otomatis membuat form input untuk asesi dan bisa di-mapping ke database.
+                                                <br>
+                                                <strong>Format di template:</strong> Gunakan <code>${variable}</code> di file DOCX.
+                                                Contoh: <code>${pertanyaan_1}</code>, <code>${nama_perusahaan}</code>
+                                            </small>
+                                        </div>
+
+                                        <div id="custom-variables-container">
+                                            <!-- Will be populated by JavaScript -->
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <button type="button" class="btn btn-primary" id="add-custom-variable">
+                                                <i class="fas fa-plus me-1"></i> Tambah Custom Field
+                                            </button>
+
+                                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-success" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample Template APL2
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Selected Variables -->
-                                <div class="mb-3">
-                                    <h6>Variable yang Dipilih:</h6>
-                                    <div id="selected-variables-container">
-                                        <!-- Variables akan ditambahkan di sini via JavaScript -->
-                                    </div>
-                                </div>
-
-                                <!-- Custom Variables -->
-                                <div class="mb-3">
-                                    <h6>Variable Custom:</h6>
-                                    <div id="custom-variables-container">
-                                        <!-- Custom variables akan ditambahkan di sini via JavaScript -->
-                                    </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-custom-variable">
-                                        <i class="fas fa-plus"></i> Tambah Variable Custom
-                                    </button>
-                                </div>
-
-                                <!-- APL2 Configuration Section -->
-                                <div id="apl2-config-section" class="mb-4" style="display: none;">
-                                    <h5 class="text-primary mb-3">Konfigurasi APL2</h5>
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        <strong>Untuk Template APL2:</strong> Gunakan Custom Variables di atas untuk membuat pertanyaan.
-                                        Setiap custom variable akan menjadi pertanyaan di form asesi.
-                                        <br><br>
-                                        <strong>Tips:</strong>
-                                        <ul class="mb-0 mt-2">
-                                            <li>Untuk pertanyaan BK/K: Gunakan type "radio" dengan options "BK,K"</li>
-                                            <li>Untuk pertanyaan biasa: Gunakan type "text" atau "textarea"</li>
-                                            <li>Untuk pertanyaan dengan bukti: Gunakan type "file" atau tambahkan field bukti terpisah</li>
-                                            <li>Jika pertanyaan lebih dari 2, akan dipisah ke kotak terpisah di hasil generate</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <!-- Hidden input untuk menyimpan semua variables -->
+                                <!-- Hidden inputs -->
                                 <input type="hidden" name="variables" id="variables-input" value="{{ old('variables', json_encode($template->variables ?? [])) }}">
+                                <input type="hidden" name="field_configurations" id="field_configurations">
+                                <input type="hidden" name="field_mappings" id="field_mappings">
                             </div>
 
                             <!-- Status Aktif -->
@@ -296,34 +355,6 @@
                 }
             });
 
-            // Handle template type change
-            $('#tipe_template').on('change', function() {
-                const selectedType = $(this).val();
-                if (selectedType === 'APL2') {
-                    $('#apl2-config-section').show();
-                    // Limit custom variable types for APL2
-                    limitCustomVariableTypes('APL2');
-                } else if (selectedType === 'APL1') {
-                    $('#apl2-config-section').hide();
-                    // Limit custom variable types for APL1
-                    limitCustomVariableTypes('APL1');
-                } else {
-                    $('#apl2-config-section').hide();
-                    // Allow all types for other templates
-                    limitCustomVariableTypes('ALL');
-                }
-            });
-
-            // Initialize APL2 section visibility and type limits
-            const currentType = $('#tipe_template').val();
-            if (currentType === 'APL2') {
-                $('#apl2-config-section').show();
-                limitCustomVariableTypes('APL2');
-            } else if (currentType === 'APL1') {
-                limitCustomVariableTypes('APL1');
-            } else {
-                limitCustomVariableTypes('ALL');
-            }
 
             // Handle custom variable addition
             $('#add-custom-variable').on('click', function() {
@@ -344,124 +375,67 @@
                 updateVariablesInput();
             });
 
-            function limitCustomVariableTypes(templateType) {
-                $('.custom-variable-type').each(function() {
-                    const $select = $(this);
-                    const currentValue = $select.val();
-
-                    // Clear existing options
-                    $select.empty();
-
-                    if (templateType === 'APL1') {
-                        // APL1 hanya boleh text dan radio
-                        $select.append('<option value="text">Text</option>');
-                        $select.append('<option value="radio">Radio</option>');
-                    } else if (templateType === 'APL2') {
-                        // APL2 boleh semua tipe
-                        $select.append('<option value="text">Text</option>');
-                        $select.append('<option value="textarea">Textarea</option>');
-                        $select.append('<option value="checkbox">Checkbox</option>');
-                        $select.append('<option value="radio">Radio</option>');
-                        $select.append('<option value="select">Select</option>');
-                        $select.append('<option value="number">Number</option>');
-                        $select.append('<option value="email">Email</option>');
-                        $select.append('<option value="date">Date</option>');
-                        $select.append('<option value="file">File Upload</option>');
-                    } else {
-                        // Template lain boleh semua tipe
-                        $select.append('<option value="text">Text</option>');
-                        $select.append('<option value="textarea">Textarea</option>');
-                        $select.append('<option value="checkbox">Checkbox</option>');
-                        $select.append('<option value="radio">Radio</option>');
-                        $select.append('<option value="select">Select</option>');
-                        $select.append('<option value="number">Number</option>');
-                        $select.append('<option value="email">Email</option>');
-                        $select.append('<option value="date">Date</option>');
-                        $select.append('<option value="file">File Upload</option>');
-                    }
-
-                    // Restore previous value if still valid
-                    if (currentValue && $select.find(`option[value="${currentValue}"]`).length > 0) {
-                        $select.val(currentValue);
-                    } else {
-                        $select.val('text'); // Default to text
-                    }
-                });
-            }
-
             function addCustomVariableRow(index, existingData = null) {
-                const templateType = $('#tipe_template').val();
-
-                let typeOptions = '';
-                if (templateType === 'APL1') {
-                    typeOptions = `
-                        <option value="text">Text</option>
-                        <option value="radio">Radio</option>
-                    `;
-                } else {
-                    typeOptions = `
-                        <option value="text">Text</option>
-                        <option value="textarea">Textarea</option>
-                        <option value="checkbox">Checkbox</option>
-                        <option value="radio">Radio</option>
-                        <option value="select">Select</option>
-                        <option value="number">Number</option>
-                        <option value="email">Email</option>
-                        <option value="date">Date</option>
-                        <option value="file">File Upload</option>
-                    `;
-                }
-
                 const html = `
                     <div class="custom-variable-row border rounded p-3 mb-3">
                         <div class="row">
-                            <div class="col-md-4">
-                                <label class="form-label">Nama Variable</label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Nama Variable <span class="text-danger">*</span></label>
                                 <input type="text" name="custom_variables[${index}][name]" class="form-control"
                                     placeholder="nama_variable" value="${existingData ? existingData.name || '' : ''}">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Gunakan format: <code>\${nama_variable}</code> di template
+                                </small>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Label</label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Label Pertanyaan <span class="text-danger">*</span></label>
                                 <input type="text" name="custom_variables[${index}][label]" class="form-control"
-                                    placeholder="Label Variable" value="${existingData ? existingData.label || '' : ''}">
+                                    placeholder="Pertanyaan untuk asesi" value="${existingData ? existingData.label || '' : ''}">
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Tipe</label>
-                                <select name="custom_variables[${index}][type]" class="form-control custom-variable-type">
-                                    ${typeOptions}
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label small fw-semibold">Tipe Input</label>
+                                <select name="custom_variables[${index}][type]" class="form-control">
+                                    <option value="text" ${existingData && existingData.type === 'text' ? 'selected' : ''}>Text</option>
+                                    <option value="textarea" ${existingData && existingData.type === 'textarea' ? 'selected' : ''}>Textarea</option>
+                                    <option value="checkbox" ${existingData && existingData.type === 'checkbox' ? 'selected' : ''}>Checkbox</option>
+                                    <option value="radio" ${existingData && existingData.type === 'radio' ? 'selected' : ''}>Radio</option>
+                                    <option value="select" ${existingData && existingData.type === 'select' ? 'selected' : ''}>Select</option>
+                                    <option value="number" ${existingData && existingData.type === 'number' ? 'selected' : ''}>Number</option>
+                                    <option value="email" ${existingData && existingData.type === 'email' ? 'selected' : ''}>Email</option>
+                                    <option value="date" ${existingData && existingData.type === 'date' ? 'selected' : ''}>Date</option>
+                                    <option value="file" ${existingData && existingData.type === 'file' ? 'selected' : ''}>File Upload</option>
+                                    <option value="signature_pad" ${existingData && existingData.type === 'signature_pad' ? 'selected' : ''}>Signature Pad</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Aksi</label>
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-custom-variable">
+                            <div class="col-md-1 mb-3">
+                                <label class="form-label small fw-semibold">Aksi</label>
+                                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-custom-variable" title="Hapus">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Options (untuk checkbox/radio/select)</label>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Options (untuk checkbox/radio/select)</label>
                                 <input type="text" name="custom_variables[${index}][options]" class="form-control"
                                     placeholder="option1,option2,option3" value="${existingData ? existingData.options || '' : ''}">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Pisahkan dengan koma
+                                </small>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Required</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Required</label>
                                 <select name="custom_variables[${index}][required]" class="form-control">
-                                    <option value="0">Tidak</option>
-                                    <option value="1">Ya</option>
+                                    <option value="0" ${existingData && existingData.required ? '' : 'selected'}>Tidak</option>
+                                    <option value="1" ${existingData && existingData.required ? 'selected' : ''}>Ya</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 `;
                 $('#custom-variables-container').append(html);
-
-                // Set values for existing data
-                if (existingData) {
-                    const $row = $('.custom-variable-row').last();
-                    $row.find('select[name*="[type]"]').val(existingData.type || 'text');
-                    $row.find('select[name*="[required]"]').val(existingData.required ? '1' : '0');
-                }
             }
 
             function updateSelectedVariablesDisplay() {
@@ -502,7 +476,7 @@
                         const variable = {
                             name: name,
                             label: label,
-                            type: type,
+                            type: type || 'text',
                             required: required === '1'
                         };
 

@@ -7,12 +7,15 @@ use App\Models\Pendaftaran;
 use App\Models\User;
 use App\Models\PendaftaranUjikom;
 use App\Models\PembayaranAsesor;
+use App\Models\Pembayaran;
 use App\Models\Jadwal;
 use App\Models\Sertif;
 use App\Services\EmailService;
+use App\Services\SecondRegistrationService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class TestingController extends Controller
 {
@@ -414,6 +417,76 @@ class TestingController extends Controller
         } catch (\Exception $e) {
             Log::error('Error saat upload sertifikat: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Fix stuck payments - Auto approve "Pendaftaran Pertama" yang stuck di status 2
+     */
+    public function fixStuckPayments()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find pembayaran "Pendaftaran Pertama" yang stuck di status 2 (Menunggu Verifikasi)
+            $stuckPayments = Pembayaran::where('status', 2)
+                ->where('keterangan', 'Pendaftaran Pertama')
+                ->whereNull('bukti_pembayaran')
+                ->with(['jadwal', 'user'])
+                ->get();
+
+            if ($stuckPayments->isEmpty()) {
+                DB::rollBack();
+                return redirect()->back()->with('info', 'Tidak ada pembayaran yang stuck.');
+            }
+
+            $fixed = 0;
+            $failed = [];
+
+            foreach ($stuckPayments as $payment) {
+                try {
+                    // Update status pembayaran ke 4 (Dikonfirmasi)
+                    $payment->update([
+                        'status' => 4,
+                        'keterangan' => 'Pendaftaran Pertama - Auto Fixed'
+                    ]);
+
+                    // Create pendaftaran jika belum ada
+                    $existingPendaftaran = Pendaftaran::where('user_id', $payment->user_id)
+                        ->where('jadwal_id', $payment->jadwal_id)
+                        ->first();
+
+                    if (!$existingPendaftaran) {
+                        Pendaftaran::create([
+                            'user_id' => $payment->user_id,
+                            'jadwal_id' => $payment->jadwal_id,
+                            'skema_id' => $payment->jadwal->skema_id,
+                            'tuk_id' => $payment->jadwal->tuk_id,
+                            'status' => 1 // Menunggu Verifikasi Kaprodi
+                        ]);
+                    }
+
+                    $fixed++;
+                } catch (\Exception $e) {
+                    $failed[] = "Payment ID {$payment->id}: " . $e->getMessage();
+                    Log::error("Failed to fix payment {$payment->id}: " . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            $message = "Berhasil fix {$fixed} pembayaran stuck.";
+            if (!empty($failed)) {
+                $message .= " Gagal: " . count($failed) . " pembayaran. Cek log untuk detail.";
+                return redirect()->back()->with('warning', $message);
+            }
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error fixing stuck payments: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 

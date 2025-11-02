@@ -75,26 +75,35 @@ class SecondRegistrationService
             $lastPaymentStatus = $this->getLastPaymentStatus($userId);
 
             $status = 1; // Default: Belum Bayar
+            $keterangan = 'Pendaftaran Pertama';
 
             if ($hasPreviousRegistration) {
+                $keterangan = 'Pendaftaran Kedua';
                 if ($lastPaymentStatus == 4) {
-                    // Jika pembayaran sebelumnya sudah dikonfirmasi, langsung status 2 (Menunggu Verifikasi)
-                    $status = 2;
+                    // Jika pembayaran sebelumnya sudah dikonfirmasi, langsung status 1 (Belum Bayar - perlu upload bukti)
+                    $status = 1;
                 } else {
                     // Jika belum pernah bayar atau ditolak, status 1 (Belum Bayar)
                     $status = 1;
                 }
             } else {
-                // Pendaftaran pertama, status 2 (Menunggu Verifikasi)
-                $status = 2;
+                // Pendaftaran pertama, langsung status 4 (Dikonfirmasi) - gratis/otomatis approve
+                $status = 4;
             }
 
-            return Pembayaran::create([
+            $payment = Pembayaran::create([
                 'user_id' => $userId,
                 'jadwal_id' => $jadwalId,
                 'status' => $status,
-                'keterangan' => $hasPreviousRegistration ? 'Pendaftaran Kedua' : 'Pendaftaran Pertama'
+                'keterangan' => $keterangan
             ]);
+
+            // Jika pendaftaran pertama (status 4), langsung buat pendaftaran
+            if ($status == 4) {
+                $this->createRegistrationFromPayment($payment);
+            }
+
+            return $payment;
         });
     }
 

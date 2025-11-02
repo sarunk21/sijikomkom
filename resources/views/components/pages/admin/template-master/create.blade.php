@@ -12,6 +12,36 @@
 
     <div class="container-fluid">
 
+        <!-- Info Alert -->
+        <div class="alert alert-info d-flex align-items-start mb-4" style="background-color: #e7f3ff; border-color: #b3d9ff;">
+            <i class="fas fa-info-circle me-2 mt-1" style="color: #0066cc; font-size: 1.2rem;"></i>
+            <div class="flex-grow-1">
+                <strong>Petunjuk:</strong> Gunakan format <code style="background-color: #fff; padding: 2px 6px; border-radius: 3px; color: #d63384;">${variable}</code> di file DOCX untuk variable yang dipilih.
+                <div class="mt-3">
+                    <p class="mb-2 small"><strong>Contoh penggunaan variable:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><code>${user.name}</code> → Nama user/asesi</li>
+                        <li><code>${skema.nama}</code> → Nama skema sertifikasi</li>
+                        <li><code>${jadwal.tanggal_ujian}</code> → Tanggal ujian</li>
+                    </ul>
+                    @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')) || file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                        <div class="mt-2">
+                            @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-sm btn-success me-2" download>
+                                    <i class="fas fa-download me-1"></i> Download Sample APL1
+                                </a>
+                            @endif
+                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-sm btn-success" download>
+                                    <i class="fas fa-download me-1"></i> Download Sample APL2
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <!-- Form -->
         <div class="row">
             <div class="col-lg-8">
@@ -88,221 +118,139 @@
                                 @enderror
                             </div>
 
-                            <!-- File TTD Digital -->
-                            <div class="mb-3">
-                                <label for="ttd_digital" class="form-label">File TTD Digital (Opsional)</label>
-                                <input type="file" class="form-control @error('ttd_digital') is-invalid @enderror"
-                                    id="ttd_digital" name="ttd_digital" accept="image/*">
-                                <small class="form-text text-muted">Upload file gambar TTD digital (.png, .jpg, .jpeg). Gunakan variable ${ttd_digital} di template.</small>
-                                @error('ttd_digital')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Variables Section -->
+                            <!-- Variables Section with Tabs -->
                             <div class="mb-4">
-                                <label class="form-label">Variables Template <span class="text-danger">*</span></label>
-                                <p class="small text-muted">Pilih field dari database atau buat variable custom. Gunakan format ${variable} dalam file .docx</p>
+                                <label class="form-label fw-semibold">Variables Template <span class="text-danger">*</span></label>
+                                <p class="small text-muted mb-3">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Pilih field dari database atau buat variable custom. Gunakan format <code>${variable}</code> dalam file .docx
+                                </p>
 
-                                <!-- Available Database Fields -->
-                                <div class="mb-3">
-                                    <h6>Field Database yang Tersedia:</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="text-primary">Data User/Asesi</h6>
-                                            @foreach(['user.name', 'user.email', 'user.telephone', 'user.alamat', 'user.nik', 'user.nim'] as $field)
-                                                <div class="form-check">
-                                                    <input class="form-check-input database-field" type="checkbox"
-                                                        value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
-                                                    <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                        {{ $availableFields[$field] }}
-                                                        <small class="text-muted d-block">Format: <code>${ {{ $field }} }</code></small>
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="text-success">Data Skema & Jadwal</h6>
-                                            @foreach(['skema.nama', 'skema.kode', 'skema.bidang', 'jadwal.tanggal_ujian', 'jadwal.waktu_mulai', 'jadwal.tuk.nama'] as $field)
-                                                <div class="form-check">
-                                                    <input class="form-check-input database-field" type="checkbox"
-                                                        value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
-                                                    <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
-                                                        {{ $availableFields[$field] }}
-                                                        <small class="text-muted d-block">Format: <code>${ {{ $field }} }</code></small>
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Selected Variables -->
-                                <div class="mb-3">
-                                    <h6>Variable yang Dipilih:</h6>
-                                    <div id="selected-variables-container">
-                                        <!-- Variables akan ditambahkan di sini via JavaScript -->
-                                    </div>
-                                </div>
-
-                                <!-- Custom Variables -->
-                                <div class="mb-3">
-                                    <h6>Variable Custom:</h6>
-                                    <div id="custom-variables-container">
-                                        <div class="custom-variable-row border rounded p-3 mb-3">
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Nama Variable</label>
-                                                    <input type="text" name="custom_variables[0][name]" class="form-control"
-                                                        placeholder="nama_variable">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Label</label>
-                                                    <input type="text" name="custom_variables[0][label]" class="form-control"
-                                                        placeholder="Label Variable">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Tipe</label>
-                                                    <select name="custom_variables[0][type]" class="form-control">
-                                                        <option value="text">Text</option>
-                                                        <option value="textarea">Textarea</option>
-                                                        <option value="checkbox">Checkbox</option>
-                                                        <option value="radio">Radio</option>
-                                                        <option value="select">Select</option>
-                                                        <option value="number">Number</option>
-                                                        <option value="email">Email</option>
-                                                        <option value="date">Date</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <label class="form-label">Aksi</label>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-custom-variable">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="row mt-2">
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Options (untuk checkbox/radio/select)</label>
-                                                    <input type="text" name="custom_variables[0][options]" class="form-control"
-                                                        placeholder="option1,option2,option3">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Required</label>
-                                                    <select name="custom_variables[0][required]" class="form-control">
-                                                        <option value="0">Tidak</option>
-                                                        <option value="1">Ya</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-custom-variable">
-                                        <i class="fas fa-plus"></i> Tambah Variable Custom
-                                    </button>
-                                </div>
-
-                            <!-- Hidden input untuk menyimpan semua variables -->
-                            <input type="hidden" name="variables" id="variables-input">
-                        </div>
-
-                        <!-- Dynamic Field Configuration -->
-                        <div class="mb-4">
-                            <label class="form-label">Konfigurasi Field Dinamis</label>
-                            <small class="form-text text-muted mb-2">
-                                Konfigurasi field yang akan ditampilkan di form asesi (text, checkbox, radio, select, textarea)
-                            </small>
-                            <div id="field-configurations-container">
-                                <div class="field-config-item border rounded p-3 mb-3">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <label class="form-label">Nama Field</label>
-                                            <input type="text" class="form-control field-name" placeholder="nama_field" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Label</label>
-                                            <input type="text" class="form-control field-label" placeholder="Nama Field" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Tipe</label>
-                                            <select class="form-control field-type">
-                                                <option value="text">Text</option>
-                                                <option value="textarea">Textarea</option>
-                                                <option value="checkbox">Checkbox</option>
-                                                <option value="radio">Radio</option>
-                                                <option value="select">Select</option>
-                                                <option value="number">Number</option>
-                                                <option value="email">Email</option>
-                                                <option value="date">Date</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Options (untuk checkbox/radio/select)</label>
-                                            <input type="text" class="form-control field-options" placeholder="option1,option2,option3" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Required</label>
-                                            <select class="form-control field-required">
-                                                <option value="0">Tidak</option>
-                                                <option value="1">Ya</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Database Mapping</label>
-                                            <select class="form-control field-mapping">
-                                                <option value="">Custom Field</option>
-                                                <option value="user.name">Nama User</option>
-                                                <option value="user.email">Email User</option>
-                                                <option value="user.telephone">Telepon User</option>
-                                                <option value="user.alamat">Alamat User</option>
-                                                <option value="user.nik">NIK User</option>
-                                                <option value="user.nim">NIM User</option>
-                                                <option value="user.tempat_lahir">Tempat Lahir</option>
-                                                <option value="user.tanggal_lahir">Tanggal Lahir</option>
-                                                <option value="user.jenis_kelamin">Jenis Kelamin</option>
-                                                <option value="user.pekerjaan">Pekerjaan</option>
-                                                <option value="user.pendidikan">Pendidikan</option>
-                                                <option value="user.jurusan">Jurusan</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Aksi</label>
-                                            <div>
-                                                <button type="button" class="btn btn-danger btn-sm remove-field-config">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-success btn-sm" id="add-field-config">
-                                <i class="fas fa-plus"></i> Tambah Field
-                            </button>
-                            <input type="hidden" id="field_configurations" name="field_configurations">
-                            <input type="hidden" id="field_mappings" name="field_mappings">
-                        </div>
-
-                        <!-- APL2 Configuration Section -->
-                        <div id="apl2-config-section" class="mb-4" style="display: none;">
-                            <h5 class="text-primary mb-3">Konfigurasi APL2</h5>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Untuk Template APL2:</strong> Gunakan Custom Variables di atas untuk membuat pertanyaan.
-                                Setiap custom variable akan menjadi pertanyaan di form asesi.
-                                <br><br>
-                                <strong>Tips:</strong>
-                                <ul class="mb-0 mt-2">
-                                    <li>Untuk pertanyaan BK/K: Gunakan type "radio" dengan options "BK,K"</li>
-                                    <li>Untuk pertanyaan biasa: Gunakan type "text" atau "textarea"</li>
-                                    <li>Untuk pertanyaan dengan bukti: Gunakan type "file" atau tambahkan field bukti terpisah</li>
+                                <!-- Nav Tabs (Bootstrap 4 compatible) -->
+                                <ul class="nav nav-tabs mb-3" id="variablesTabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="database-fields-tab" data-toggle="tab" href="#database-fields" role="tab">
+                                            <i class="fas fa-database me-2"></i>Database Fields
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-fields-tab" data-toggle="tab" href="#custom-fields" role="tab">
+                                            <i class="fas fa-plus-circle me-2"></i>Custom Fields (untuk APL2)
+                                        </a>
+                                    </li>
                                 </ul>
-                            </div>
-                        </div>
 
-                        <!-- Submit Button -->
+                                <!-- Tab Content -->
+                                <div class="tab-content" id="variablesTabContent">
+
+                                    <!-- Database Fields Tab -->
+                                    <div class="tab-pane fade show active" id="database-fields" role="tabpanel">
+                                        <div class="alert alert-light border mb-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-lightbulb me-1"></i>
+                                                <strong>Tips:</strong> Field ini otomatis diambil dari database. Centang field yang ingin digunakan di template.
+                                                <br>
+                                                <strong>Format di template:</strong> Gunakan <code>${variable}</code> di file DOCX.
+                                                Contoh: <code>${user.name}</code>, <code>${skema.nama}</code>
+                                            </small>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="card mb-3" style="border-left: 3px solid #007bff;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-primary mb-3">
+                                                            <i class="fas fa-user me-2"></i>Data User/Asesi
+                                                        </h6>
+                                            @foreach(['user.name', 'user.email', 'user.telephone', 'user.alamat', 'user.nik', 'user.nim'] as $field)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card mb-3" style="border-left: 3px solid #28a745;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-success mb-3">
+                                                            <i class="fas fa-certificate me-2"></i>Data Skema & Jadwal
+                                                        </h6>
+                                            @foreach(['skema.nama', 'skema.kode', 'skema.bidang', 'jadwal.tanggal_ujian', 'jadwal.waktu_mulai', 'jadwal.tuk.nama'] as $field)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}">
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $availableFields[$field] }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Selected Variables Display -->
+                                        <div class="mt-3">
+                                            <h6 class="mb-2">Variables yang Dipilih:</h6>
+                                            <div id="selected-variables-container" class="p-3 bg-light rounded border">
+                                                <span class="text-muted"><em>Belum ada variable yang dipilih</em></span>
+                                            </div>
+                                        </div>
+
+                                        @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                                            <div class="mt-3 text-end">
+                                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-success" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample Template APL1
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Custom Fields Tab -->
+                                    <div class="tab-pane fade" id="custom-fields" role="tabpanel">
+                                        <div class="alert alert-warning border mb-3">
+                                            <small>
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                <strong>Untuk APL2:</strong> Custom fields akan menjadi pertanyaan di form asesi dan variable di template DOCX.
+                                                Field ini akan otomatis membuat form input untuk asesi dan bisa di-mapping ke database.
+                                                <br>
+                                                <strong>Format di template:</strong> Gunakan <code>${variable}</code> di file DOCX.
+                                                Contoh: <code>${pertanyaan_1}</code>, <code>${nama_perusahaan}</code>
+                                            </small>
+                                        </div>
+
+                                        <div id="custom-variables-container">
+                                            <!-- Will be populated by JavaScript -->
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <button type="button" class="btn btn-primary" id="add-custom-variable">
+                                                <i class="fas fa-plus me-1"></i> Tambah Custom Field
+                                            </button>
+
+                                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-success" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample Template APL2
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden inputs -->
+                                <input type="hidden" name="variables" id="variables-input">
+                                <input type="hidden" name="field_configurations" id="field_configurations">
+                                <input type="hidden" name="field_mappings" id="field_mappings">
+                            </div>
+
+                            <!-- Submit Button -->
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Simpan Template
@@ -439,20 +387,44 @@
 
             function addCustomVariableRow(index) {
                 const html = `
-                    <div class="custom-variable-row border rounded p-3 mb-3">
+                    <div class="custom-variable-row bg-white border rounded p-3 mb-3" style="border-left: 4px solid #ffc107 !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0" style="color: #f59e0b;">
+                                <i class="fas fa-edit me-2"></i>Custom Field #${index + 1}
+                            </h6>
+                            <button type="button" class="btn btn-sm btn-danger remove-custom-variable">
+                                <i class="fas fa-trash me-1"></i>Hapus
+                            </button>
+                        </div>
+
                         <div class="row">
-                            <div class="col-md-4">
-                                <label class="form-label">Nama Variable</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Nama Variable <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][name]" class="form-control"
-                                    placeholder="nama_variable">
+                                    placeholder="contoh: pertanyaan_1">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Akan menjadi <code>$\${nama_variable}</code> di template DOCX
+                                </small>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Label</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Label/Pertanyaan <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][label]" class="form-control"
-                                    placeholder="Label Variable">
+                                    placeholder="Apakah Anda mampu...">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Label yang ditampilkan di form asesi
+                                </small>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Tipe</label>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label small fw-semibold">Tipe Input</label>
                                 <select name="custom_variables[${index}][type]" class="form-control">
                                     <option value="text">Text</option>
                                     <option value="textarea">Textarea</option>
@@ -463,27 +435,55 @@
                                     <option value="email">Email</option>
                                     <option value="date">Date</option>
                                     <option value="file">File Upload</option>
+                                    <option value="signature_pad">Signature Pad</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Aksi</label>
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-custom-variable">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Options (untuk checkbox/radio/select)</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Options <span class="text-muted small">(untuk checkbox/radio/select)</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][options]" class="form-control"
-                                    placeholder="option1,option2,option3">
+                                    placeholder="Contoh: BK,K atau Belum Kompeten,Kompeten">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Pisahkan dengan koma
+                                </small>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Required</label>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label small fw-semibold">Required?</label>
                                 <select name="custom_variables[${index}][required]" class="form-control">
                                     <option value="0">Tidak</option>
                                     <option value="1">Ya</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label small fw-semibold">
+                                    Database Mapping <span class="text-muted small">(Opsional)</span>
+                                </label>
+                                <select name="custom_variables[${index}][mapping]" class="form-control">
+                                    <option value="">-- Custom Field --</option>
+                                    <optgroup label="Data User">
+                                        <option value="user.name">Nama User</option>
+                                        <option value="user.email">Email</option>
+                                        <option value="user.telephone">Telepon</option>
+                                        <option value="user.alamat">Alamat</option>
+                                        <option value="user.nik">NIK</option>
+                                        <option value="user.nim">NIM</option>
+                                        <option value="user.tempat_lahir">Tempat Lahir</option>
+                                        <option value="user.tanggal_lahir">Tanggal Lahir</option>
+                                        <option value="user.jenis_kelamin">Jenis Kelamin</option>
+                                        <option value="user.pekerjaan">Pekerjaan</option>
+                                        <option value="user.pendidikan">Pendidikan</option>
+                                        <option value="user.jurusan">Jurusan</option>
+                                    </optgroup>
+                                </select>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Jika dipilih, field ini akan terisi otomatis dari database
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -518,12 +518,16 @@
 
             function updateCustomVariables() {
                 customVariables = [];
+                const configurations = [];
+                const mappings = {};
+
                 $('.custom-variable-row').each(function() {
                     const name = $(this).find('input[name*="[name]"]').val().trim();
                     const label = $(this).find('input[name*="[label]"]').val().trim();
                     const type = $(this).find('select[name*="[type]"]').val();
                     const options = $(this).find('input[name*="[options]"]').val().trim();
                     const required = $(this).find('select[name*="[required]"]').val();
+                    const mapping = $(this).find('select[name*="[mapping]"]').val();
 
                     if (name && label) {
                         const variable = {
@@ -538,8 +542,18 @@
                         }
 
                         customVariables.push(variable);
+                        configurations.push(variable);
+
+                        // Save mapping if exists
+                        if (mapping) {
+                            mappings[name] = mapping;
+                        }
                     }
                 });
+
+                // Update hidden inputs for field configurations
+                $('#field_configurations').val(JSON.stringify(configurations));
+                $('#field_mappings').val(JSON.stringify(mappings));
             }
 
             function updateVariablesInput() {
@@ -653,54 +667,10 @@
         $(document).on('click', '.remove-field-config', function() {
             if ($('.field-config-item').length > 1) {
                 $(this).closest('.field-config-item').remove();
-                updateFieldConfigurations();
             }
         });
 
         // Update field configurations
-        function updateFieldConfigurations() {
-            const configurations = [];
-            const mappings = {};
-
-            $('.field-config-item').each(function() {
-                const name = $(this).find('.field-name').val();
-                const label = $(this).find('.field-label').val();
-                const type = $(this).find('.field-type').val();
-                const options = $(this).find('.field-options').val();
-                const required = $(this).find('.field-required').val() === '1';
-                const mapping = $(this).find('.field-mapping').val();
-
-                if (name && label) {
-                    const config = {
-                        name: name,
-                        label: label,
-                        type: type,
-                        required: required
-                    };
-
-                    if (options && ['checkbox', 'radio', 'select'].includes(type)) {
-                        config.options = options.split(',').map(opt => opt.trim());
-                    }
-
-                    configurations.push(config);
-
-                    if (mapping) {
-                        mappings[name] = mapping;
-                    }
-                }
-            });
-
-            $('#field_configurations').val(JSON.stringify(configurations));
-            $('#field_mappings').val(JSON.stringify(mappings));
-        }
-
-        // Update field configurations on change
-        $(document).on('change input', '.field-config-item input, .field-config-item select', function() {
-            updateFieldConfigurations();
-        });
-
-        // Initialize field configurations
-        updateFieldConfigurations();
     </script>
     @endpush
 @endsection

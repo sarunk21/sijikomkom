@@ -20,6 +20,40 @@
                         <h6 class="m-0 font-weight-bold text-primary">Form Template Master</h6>
                     </div>
                     <div class="card-body">
+                        <!-- Info Alert with Download Buttons -->
+                        <div class="alert alert-info border-left-info mb-4" role="alert">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="alert-heading mb-2">Panduan Penggunaan Variable dalam Template</h6>
+                                    <p class="mb-2 small">Gunakan format <code>${variable}</code> dalam file .docx untuk menandai tempat variable akan diganti. Contoh:</p>
+                                    <ul class="mb-2 small">
+                                        <li><code>${user.name}</code> - untuk nama user/asesi</li>
+                                        <li><code>${skema.nama}</code> - untuk nama skema</li>
+                                        <li><code>${nama_perusahaan}</code> - untuk variable custom</li>
+                                        <li><code>${ttd_digital}</code> - untuk gambar TTD digital</li>
+                                    </ul>
+                                    <div class="mt-3">
+                                        <strong class="small">Download Template Sample:</strong>
+                                        <div class="mt-2">
+                                            @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-sm btn-success me-2" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample APL1
+                                                </a>
+                                            @endif
+                                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-sm btn-success" download>
+                                                    <i class="fas fa-download me-1"></i> Download Sample APL2
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form action="{{ route('admin.template-master.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 

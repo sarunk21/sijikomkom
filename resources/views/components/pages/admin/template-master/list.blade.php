@@ -5,33 +5,27 @@
 
 @section('content')
     @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
+        <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" style="border-left: 4px solid #dc3545; background-color: #f8d7da; border-color: #f5c6cb;">
+            <i class="fas fa-exclamation-circle me-3" style="font-size: 1.5rem; color: #dc3545;"></i>
+            <div style="color: #721c24;">{{ session('error') }}</div>
         </div>
     @endif
 
     @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+        <div class="alert alert-success d-flex align-items-center shadow-sm mb-4" style="border-left: 4px solid #28a745; background-color: #d4edda; border-color: #c3e6cb;">
+            <i class="fas fa-check-circle me-3" style="font-size: 1.5rem; color: #28a745;"></i>
+            <div style="color: #155724;">{{ session('success') }}</div>
         </div>
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-0">Master Template</h4>
-            <p class="text-muted mb-0">Kelola template dokumen untuk setiap skema dan tipe asesmen</p>
-            <div class="alert alert-info mt-2 mb-0" style="font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i>
-                <strong>Petunjuk:</strong> Download sample template untuk melihat format variable yang bisa digunakan.
-                Gunakan format <code>${variable}</code> di file DOCX untuk variable yang dipilih.
-            </div>
+            <h4 class="mb-1">Master Template</h4>
+            <p class="text-muted mb-0" style="font-size: 0.95rem;">Kelola template dokumen untuk setiap skema dan tipe asesmen</p>
         </div>
         <div>
-            <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-success me-2" download>
-                <i class="fas fa-download"></i> Download Sample Template
-            </a>
             <a href="{{ route('admin.template-master.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Template
+                <i class="fas fa-plus me-1"></i> Tambah Template
             </a>
         </div>
     </div>

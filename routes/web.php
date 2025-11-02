@@ -133,6 +133,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::post('testing/selesaikan-jadwal', [TestingController::class, 'selesaikanJadwal'])->name('admin.testing.selesaikan-jadwal');
     Route::post('testing/trigger-pembayaran-asesor', [TestingController::class, 'triggerPembayaranAsesor'])->name('admin.testing.trigger-pembayaran-asesor');
     Route::post('testing/upload-sertifikat', [TestingController::class, 'uploadSertifikat'])->name('admin.testing.upload-sertifikat');
+    Route::post('testing/fix-stuck-payments', [TestingController::class, 'fixStuckPayments'])->name('admin.testing.fix-stuck-payments');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
