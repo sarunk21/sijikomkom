@@ -186,9 +186,9 @@ trait MenuTrait
                 'key' => 'dashboard'
             ],
             [
-                'title' => 'Verifikasi Peserta',
-                'url' => 'asesor.verifikasi-peserta.index',
-                'key' => 'verifikasi-peserta'
+                'title' => 'Review & Verifikasi',
+                'url' => 'asesor.review.index',
+                'key' => 'review'
             ],
             [
                 'title' => 'Pembayaran Jasa',
@@ -199,11 +199,6 @@ trait MenuTrait
                 'title' => 'Hasil Ujikom',
                 'url' => 'asesor.hasil-ujikom.index',
                 'key' => 'hasil-ujikom'
-            ],
-            [
-                'title' => 'APL2',
-                'url' => 'asesor.apl2.index',
-                'key' => 'apl2'
             ],
             [
                 'title' => 'Profil',

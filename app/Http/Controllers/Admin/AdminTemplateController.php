@@ -119,9 +119,10 @@ class AdminTemplateController extends Controller
             'custom_variables' => 'nullable|array',
             'custom_variables.*.name' => 'nullable|string|max:255',
             'custom_variables.*.label' => 'nullable|string|max:255',
-            'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file',
+            'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
             'custom_variables.*.options' => 'nullable|string',
             'custom_variables.*.required' => 'nullable|boolean',
+            'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
             // Dynamic field configurations
             'field_configurations' => 'nullable|string',
             'field_mappings' => 'nullable|string',

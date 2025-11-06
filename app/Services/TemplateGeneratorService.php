@@ -306,6 +306,21 @@ class TemplateGeneratorService
 
         if ($template->custom_variables && count($template->custom_variables) > 0) {
             foreach ($template->custom_variables as $index => $variable) {
+                // Filter berdasarkan role
+                $variableRole = $variable['role'] ?? 'asesi';
+
+                // Jika asesorView = true, hanya tampilkan field untuk asesor atau both
+                // Jika asesorView = false, hanya tampilkan field untuk asesi atau both
+                if ($asesorView) {
+                    if ($variableRole !== 'asesor' && $variableRole !== 'both') {
+                        continue; // Skip field yang hanya untuk asesi
+                    }
+                } else {
+                    if ($variableRole !== 'asesi' && $variableRole !== 'both') {
+                        continue; // Skip field yang hanya untuk asesor
+                    }
+                }
+
                 if ($variable['type'] === 'radio' && isset($variable['options'])) {
                     $radioQuestions[] = $variable;
                 } else {
@@ -327,17 +342,23 @@ class TemplateGeneratorService
                 // Format sesuai struktur tabel yang diinginkan
                 $questionsContent .= "{$questionNumber}. {$variableLabel}\n";
 
-                // Generate checkbox untuk template Word dengan format tabel
+                // Generate checkbox individual per pertanyaan untuk flexible placement
+                // Format: ${nama_variable_k} dan ${nama_variable_bk}
                 if ($answer === 'K') {
-                    $kCheckboxContent .= "√\n"; // Centang di kolom K
-                    $bkCheckboxContent .= "\n"; // Kosong di kolom BK
-                    $radioKCheckboxContent .= "√\n"; // Centang khusus untuk radio K
-                    $radioBkCheckboxContent .= "\n"; // Kosong khusus untuk radio BK
+                    $data[$variableName . '_k'] = '√'; // Centang K untuk pertanyaan ini
+                    $data[$variableName . '_bk'] = ''; // Kosong BK untuk pertanyaan ini
+                    $kCheckboxContent .= "√\n"; // Legacy support - kolom K
+                    $bkCheckboxContent .= "\n"; // Legacy support - kolom BK
+                } elseif ($answer === 'BK') {
+                    $data[$variableName . '_k'] = ''; // Kosong K untuk pertanyaan ini
+                    $data[$variableName . '_bk'] = '√'; // Centang BK untuk pertanyaan ini
+                    $kCheckboxContent .= "\n"; // Legacy support - kolom K
+                    $bkCheckboxContent .= "√\n"; // Legacy support - kolom BK
                 } else {
-                    $kCheckboxContent .= "\n"; // Kosong di kolom K
-                    $bkCheckboxContent .= "√\n"; // Centang di kolom BK
-                    $radioKCheckboxContent .= "\n"; // Kosong khusus untuk radio K
-                    $radioBkCheckboxContent .= "√\n"; // Centang khusus untuk radio BK
+                    $data[$variableName . '_k'] = ''; // Belum dijawab
+                    $data[$variableName . '_bk'] = ''; // Belum dijawab
+                    $kCheckboxContent .= "\n";
+                    $bkCheckboxContent .= "\n";
                 }
 
                 // Konten jawaban asesi

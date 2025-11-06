@@ -92,6 +92,13 @@
                     <!-- Review Custom Variables APL2 -->
                     @if($template->custom_variables && count($template->custom_variables) > 0)
                         @foreach($template->custom_variables as $index => $variable)
+                            @php
+                                // Filter by role - hanya tampilkan untuk asesor atau both
+                                $variableRole = $variable['role'] ?? 'asesi';
+                                if ($variableRole !== 'asesor' && $variableRole !== 'both') {
+                                    continue;
+                                }
+                            @endphp
                             <div class="question-section border p-4 mb-4 rounded">
                                 <div class="row">
                                     <div class="col-md-12">

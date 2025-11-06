@@ -50,6 +50,18 @@
                                 <p class="small text-muted">Data berikut sudah tersimpan dan akan digunakan dalam dokumen APL 2</p>
 
                                 @foreach($template->custom_variables as $variable)
+                                    @php
+                                        // Filter by role - hanya tampilkan untuk asesi atau both
+                                        $variableRole = $variable['role'] ?? 'asesi';
+                                        if ($variableRole !== 'asesi' && $variableRole !== 'both') {
+                                            continue;
+                                        }
+
+                                        // Skip signature_pad dari display
+                                        if (isset($variable['type']) && $variable['type'] === 'signature_pad') {
+                                            continue;
+                                        }
+                                    @endphp
                                 <div class="mb-3">
                                     <label class="form-label text-muted font-weight-bold">
                                         {{ $variable['label'] }}
@@ -83,11 +95,27 @@
                                     class="btn btn-success btn-lg">
                                     <i class="fas fa-download mr-2"></i> Generate & Download APL 2
                                 </a>
-                                <a href="{{ route('asesi.sertifikasi.apl2', $pendaftaran->id) }}"
-                                    class="btn btn-warning btn-lg ml-2"
-                                    onclick="return confirm('Apakah Anda yakin ingin mengedit data yang sudah diisi?')">
-                                    <i class="fas fa-edit mr-2"></i> Edit Data
-                                </a>
+
+                                @php
+                                    // Cek apakah ujian sudah dimulai
+                                    $ujianSudahDimulai = false;
+                                    if ($pendaftaran->jadwal && $pendaftaran->jadwal->tanggal_ujian && $pendaftaran->jadwal->waktu_mulai) {
+                                        $waktuMulaiUjian = \Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian . ' ' . $pendaftaran->jadwal->waktu_mulai);
+                                        $ujianSudahDimulai = now()->greaterThanOrEqualTo($waktuMulaiUjian);
+                                    }
+                                @endphp
+
+                                @if(!$ujianSudahDimulai)
+                                    <a href="{{ route('asesi.sertifikasi.apl2', $pendaftaran->id) }}"
+                                        class="btn btn-warning btn-lg ml-2"
+                                        onclick="return confirm('Apakah Anda yakin ingin mengedit data yang sudah diisi?')">
+                                        <i class="fas fa-edit mr-2"></i> Edit Data
+                                    </a>
+                                @else
+                                    <button class="btn btn-secondary btn-lg ml-2" disabled title="Ujian sudah dimulai, tidak dapat edit lagi">
+                                        <i class="fas fa-lock mr-2"></i> Edit Data (Terkunci)
+                                    </button>
+                                @endif
                             </div>
                         @else
                             <!-- Ada data yang perlu diisi -->
@@ -106,11 +134,19 @@
                                         <p class="small text-muted">Jawab semua pertanyaan berikut dengan lengkap dan jelas</p>
 
                                         @foreach($template->custom_variables as $index => $variable)
+                                            {{-- Filter by role - hanya tampilkan untuk asesi atau both --}}
+                                            @php
+                                                $variableRole = $variable['role'] ?? 'asesi';
+                                                if ($variableRole !== 'asesi' && $variableRole !== 'both') {
+                                                    continue;
+                                                }
+                                            @endphp
+
                                             {{-- Skip signature_pad karena sudah ditangani di section terpisah --}}
                                             @if(isset($variable['type']) && $variable['type'] === 'signature_pad')
                                                 @continue
                                             @endif
-                                            
+
                                             <div class="card mb-3 border-left-primary">
                                                 <div class="card-body">
                                                     <label for="custom_variable_{{ $variable['name'] }}" class="form-label font-weight-bold">

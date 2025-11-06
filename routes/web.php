@@ -34,6 +34,7 @@ use App\Http\Controllers\Asesor\PembayaranJasaController;
 use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
 use App\Http\Controllers\Asesor\Apl2Controller as AsesorApl2Controller;
+use App\Http\Controllers\Asesor\ReviewController;
 
 use App\Http\Controllers\Kaprodi\ReportHasilUjiController;
 use App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController;
@@ -167,6 +168,18 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('/', [AsesorDashboardController::class, 'index'])->name('dashboard.asesor');
+
+    // Review & Verifikasi routes (NEW - unified menu)
+    Route::get('review', [ReviewController::class, 'index'])->name('asesor.review.index');
+    Route::get('review/jadwal/{jadwalId}/asesi', [ReviewController::class, 'showAsesi'])->name('asesor.review.show-asesi');
+    Route::get('review/apl1/{pendaftaranId}', [ReviewController::class, 'reviewApl1'])->name('asesor.review.apl1');
+    Route::post('review/apl1/{pendaftaranId}', [ReviewController::class, 'storeReviewApl1'])->name('asesor.review.store-apl1');
+    Route::get('review/apl1/{pendaftaranId}/generate', [ReviewController::class, 'generateApl1'])->name('asesor.review.generate-apl1');
+    Route::get('review/apl2/{pendaftaranId}', [ReviewController::class, 'reviewApl2'])->name('asesor.review.apl2');
+    Route::post('review/apl2/{pendaftaranId}', [ReviewController::class, 'storeReviewApl2'])->name('asesor.review.store-apl2');
+    Route::get('review/apl2/{pendaftaranId}/generate', [ReviewController::class, 'generateApl2'])->name('asesor.review.generate-apl2');
+
+    // OLD routes (can be deprecated later)
     Route::resource('verifikasi-peserta', VerifikasiPesertaController::class)->names('asesor.verifikasi-peserta');
     Route::get('verifikasi-peserta/show-asesi/{jadwalId}', [VerifikasiPesertaController::class, 'showAsesi'])->name('asesor.verifikasi-peserta.show-asesi');
     Route::match(['PUT', 'DELETE'], 'verifikasi-peserta/update-status/{jadwalId}', [VerifikasiPesertaController::class, 'updateStatus'])->name('asesor.verifikasi-peserta.update-status');
@@ -175,7 +188,7 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('hasil-ujikom/show-jawaban-asesi/{id}', [HasilUjikomController::class, 'showJawabanAsesi'])->name('asesor.hasil-ujikom.show-jawaban-asesi');
     Route::resource('profil-asesor', ProfilAsesorController::class)->names('asesor.profil-asesor');
 
-    // APL2 routes
+    // APL2 routes (OLD - can be deprecated later)
     Route::resource('apl2', AsesorApl2Controller::class)->names('asesor.apl2');
     Route::post('apl2/add-signature', [AsesorApl2Controller::class, 'addSignature'])->name('asesor.apl2.add-signature');
     Route::get('apl2/preview-data/{pendaftaranId}', [AsesorApl2Controller::class, 'previewApl2Data'])->name('asesor.apl2.preview-data');

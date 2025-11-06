@@ -24,6 +24,19 @@
                         <li><code>${skema.nama}</code> → Nama skema sertifikasi</li>
                         <li><code>${jadwal.tanggal_ujian}</code> → Tanggal ujian</li>
                     </ul>
+                    <p class="mb-2 small"><strong>Untuk APL2 dengan Checkbox K/BK:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><strong>Per Pertanyaan (Flexible):</strong> <code>${nama_variable_k}</code> dan <code>${nama_variable_bk}</code></li>
+                        <li>Contoh: Jika nama variable = "pertanyaan_1", gunakan <code>${pertanyaan_1_k}</code> dan <code>${pertanyaan_1_bk}</code></li>
+                        <li><strong>Legacy (Kolom):</strong> <code>${k_checkbox}</code> dan <code>${bk_checkbox}</code> untuk semua pertanyaan dalam 1 kolom</li>
+                        <li>Gunakan di tabel DOCX sesuai layout yang diinginkan</li>
+                    </ul>
+                    <p class="mb-2 small"><strong>Role-based Custom Fields:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><strong>Asesi</strong> → Field hanya ditampilkan dan diisi oleh asesi/peserta</li>
+                        <li><strong>Asesor</strong> → Field hanya ditampilkan dan diisi oleh asesor/penguji</li>
+                        <li><strong>Keduanya</strong> → Field ditampilkan untuk asesi dan asesor</li>
+                    </ul>
                     @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')) || file_exists(public_path('storage/templates/sample_apl2_template.docx')))
                         <div class="mt-2">
                             @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
@@ -413,13 +426,15 @@
 
 
             // Handle custom variable addition
-            $('#add-custom-variable').on('click', function() {
+            $('#add-custom-variable').on('click', function(e) {
+                e.preventDefault(); // Prevent form submission
                 addCustomVariableRow(customVariableIndex);
                 customVariableIndex++;
             });
 
             // Handle custom variable removal
-            $(document).on('click', '.remove-custom-variable', function() {
+            $(document).on('click', '.remove-custom-variable', function(e) {
+                e.preventDefault(); // Prevent form submission
                 $(this).closest('.custom-variable-row').remove();
                 updateCustomVariables();
                 updateVariablesInput();
@@ -435,7 +450,7 @@
                 const html = `
                     <div class="custom-variable-row border rounded p-3 mb-3">
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label class="form-label small fw-semibold">Nama Variable <span class="text-danger">*</span></label>
                                 <input type="text" name="custom_variables[${index}][name]" class="form-control"
                                     placeholder="nama_variable" value="${existingData ? existingData.name || '' : ''}">
@@ -444,10 +459,18 @@
                                     Gunakan format: <code>\${nama_variable}</code> di template
                                 </small>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label class="form-label small fw-semibold">Label Pertanyaan <span class="text-danger">*</span></label>
                                 <input type="text" name="custom_variables[${index}][label]" class="form-control"
                                     placeholder="Pertanyaan untuk asesi" value="${existingData ? existingData.label || '' : ''}">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label small fw-semibold">Untuk Siapa? <span class="text-danger">*</span></label>
+                                <select name="custom_variables[${index}][role]" class="form-control">
+                                    <option value="asesi" ${existingData && existingData.role === 'asesi' ? 'selected' : (!existingData ? 'selected' : '')}>Asesi</option>
+                                    <option value="asesor" ${existingData && existingData.role === 'asesor' ? 'selected' : ''}>Asesor</option>
+                                    <option value="both" ${existingData && existingData.role === 'both' ? 'selected' : ''}>Keduanya</option>
+                                </select>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label small fw-semibold">Tipe Input</label>
@@ -527,13 +550,15 @@
                     const type = $(this).find('select[name*="[type]"]').val();
                     const options = $(this).find('input[name*="[options]"]').val().trim();
                     const required = $(this).find('select[name*="[required]"]').val();
+                    const role = $(this).find('select[name*="[role]"]').val();
 
                     if (name && label) {
                         const variable = {
                             name: name,
                             label: label,
                             type: type || 'text',
-                            required: required === '1'
+                            required: required === '1',
+                            role: role || 'asesi'
                         };
 
                         if (options && ['checkbox', 'radio', 'select'].includes(type)) {

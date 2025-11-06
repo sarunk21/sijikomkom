@@ -24,6 +24,19 @@
                         <li><code>${skema.nama}</code> → Nama skema sertifikasi</li>
                         <li><code>${jadwal.tanggal_ujian}</code> → Tanggal ujian</li>
                     </ul>
+                    <p class="mb-2 small"><strong>Untuk APL2 dengan Checkbox K/BK:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><strong>Per Pertanyaan (Flexible):</strong> <code>${nama_variable_k}</code> dan <code>${nama_variable_bk}</code></li>
+                        <li>Contoh: Jika nama variable = "pertanyaan_1", gunakan <code>${pertanyaan_1_k}</code> dan <code>${pertanyaan_1_bk}</code></li>
+                        <li><strong>Legacy (Kolom):</strong> <code>${k_checkbox}</code> dan <code>${bk_checkbox}</code> untuk semua pertanyaan dalam 1 kolom</li>
+                        <li>Gunakan di tabel DOCX sesuai layout yang diinginkan</li>
+                    </ul>
+                    <p class="mb-2 small"><strong>Role-based Custom Fields:</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><strong>Asesi</strong> → Field hanya ditampilkan dan diisi oleh asesi/peserta</li>
+                        <li><strong>Asesor</strong> → Field hanya ditampilkan dan diisi oleh asesor/penguji</li>
+                        <li><strong>Keduanya</strong> → Field ditampilkan untuk asesi dan asesor</li>
+                    </ul>
                     @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')) || file_exists(public_path('storage/templates/sample_apl2_template.docx')))
                         <div class="mt-2">
                             @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
@@ -389,18 +402,18 @@
             });
 
             // Handle custom variable addition
-            $('#add-custom-variable').on('click', function() {
+            $('#add-custom-variable').on('click', function(e) {
+                e.preventDefault(); // Prevent form submission
                 addCustomVariableRow(customVariableIndex);
                 customVariableIndex++;
             });
 
             // Handle custom variable removal
-            $(document).on('click', '.remove-custom-variable', function() {
-                if ($('.custom-variable-row').length > 1) {
-                    $(this).closest('.custom-variable-row').remove();
-                    updateCustomVariables();
-                    updateVariablesInput();
-                }
+            $(document).on('click', '.remove-custom-variable', function(e) {
+                e.preventDefault(); // Prevent form submission
+                $(this).closest('.custom-variable-row').remove();
+                updateCustomVariables();
+                updateVariablesInput();
             });
 
             // Handle custom variable input change
@@ -452,7 +465,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label small fw-semibold">
                                     Nama Variable <span class="text-danger">*</span>
                                 </label>
@@ -463,7 +476,7 @@
                                     Akan menjadi <code>$\${nama_variable}</code> di template DOCX
                                 </small>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label small fw-semibold">
                                     Label/Pertanyaan <span class="text-danger">*</span>
                                 </label>
@@ -471,7 +484,21 @@
                                     placeholder="Apakah Anda mampu...">
                                 <small class="text-muted d-block mt-1">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Label yang ditampilkan di form asesi
+                                    Label yang ditampilkan di form
+                                </small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Untuk Siapa? <span class="text-danger">*</span>
+                                </label>
+                                <select name="custom_variables[${index}][role]" class="form-control">
+                                    <option value="asesi">Asesi (Peserta)</option>
+                                    <option value="asesor">Asesor (Penguji)</option>
+                                    <option value="both">Keduanya</option>
+                                </select>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Field ini akan ditampilkan untuk siapa?
                                 </small>
                             </div>
                         </div>
@@ -581,6 +608,7 @@
                     const type = $(this).find('select[name*="[type]"]').val();
                     const options = $(this).find('input[name*="[options]"]').val().trim();
                     const required = $(this).find('select[name*="[required]"]').val();
+                    const role = $(this).find('select[name*="[role]"]').val();
                     const mapping = $(this).find('select[name*="[mapping]"]').val();
 
                     if (name && label) {
@@ -588,7 +616,8 @@
                             name: name,
                             label: label,
                             type: type,
-                            required: required === '1'
+                            required: required === '1',
+                            role: role || 'asesi'
                         };
 
                         if (options && ['checkbox', 'radio', 'select'].includes(type)) {

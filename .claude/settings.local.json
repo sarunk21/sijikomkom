@@ -4,7 +4,9 @@
       "Bash(cat:*)",
       "Bash(php artisan make:command:*)",
       "Bash(dir /s /b \"C:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\resources\\views\\components\\pages\\admin\")",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(php artisan:*)",
+      "Bash(dir /s /b \"c:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\resources\\views\\components\\pages\\asesor\")"
     ],
     "deny": [],
     "ask": []

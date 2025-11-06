@@ -149,7 +149,8 @@ class TemplateController extends Controller
      */
     public function storeApl1CustomData(Request $request, $pendaftaranId)
     {
-        $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
+        $pendaftaran = Pendaftaran::with('jadwal')
+            ->where('id', $pendaftaranId)
             ->where('user_id', Auth::id())
             ->first();
 
@@ -160,6 +161,25 @@ class TemplateController extends Controller
         if (!in_array($pendaftaran->status, [3, 4, 5])) {
             return redirect()->back()->with('error', 'Pendaftaran belum dalam status yang tepat.');
         }
+
+        // TEMPORARY DISABLED - Cek apakah ujian sudah dimulai
+        // Validasi ini dinonaktifkan sementara untuk debugging
+        // if ($pendaftaran->jadwal) {
+        //     $tanggalUjian = $pendaftaran->jadwal->tanggal_ujian;
+        //     $waktuMulai = $pendaftaran->jadwal->waktu_mulai;
+
+        //     if ($tanggalUjian && $waktuMulai) {
+        //         try {
+        //             $waktuMulaiUjian = \Carbon\Carbon::parse($tanggalUjian . ' ' . $waktuMulai);
+
+        //             if (now()->greaterThanOrEqualTo($waktuMulaiUjian)) {
+        //                 return redirect()->back()->with('error', 'APL1 tidak dapat diedit karena ujian sudah dimulai.');
+        //             }
+        //         } catch (\Exception $e) {
+        //             \Log::warning('Failed to parse exam time: ' . $e->getMessage());
+        //         }
+        //     }
+        // }
 
         // Validasi: signature required hanya jika belum ada TTD sebelumnya
         $rules = [

@@ -61,13 +61,33 @@ class SertifikasiController extends Controller
     public function storeApl2(Request $request, string $id)
     {
         $asesi = Auth::user();
-        $pendaftaran = Pendaftaran::where('id', $id)
+        $pendaftaran = Pendaftaran::with('jadwal')
+            ->where('id', $id)
             ->where('user_id', $asesi->id)
             ->first();
 
         if (!$pendaftaran) {
             return redirect()->route('asesi.sertifikasi.index')->with('error', 'Pendaftaran tidak ditemukan.');
         }
+
+        // TEMPORARY DISABLED - Cek apakah ujian sudah dimulai
+        // Validasi ini dinonaktifkan sementara untuk debugging
+        // if ($pendaftaran->jadwal) {
+        //     $tanggalUjian = $pendaftaran->jadwal->tanggal_ujian;
+        //     $waktuMulai = $pendaftaran->jadwal->waktu_mulai;
+
+        //     if ($tanggalUjian && $waktuMulai) {
+        //         try {
+        //             $waktuMulaiUjian = \Carbon\Carbon::parse($tanggalUjian . ' ' . $waktuMulai);
+
+        //             if (now()->greaterThanOrEqualTo($waktuMulaiUjian)) {
+        //                 return redirect()->route('asesi.sertifikasi.index')->with('error', 'APL2 tidak dapat diedit karena ujian sudah dimulai.');
+        //             }
+        //         } catch (\Exception $e) {
+        //             \Log::warning('Failed to parse exam time: ' . $e->getMessage());
+        //         }
+        //     }
+        // }
 
         // Cek apakah APL2 sudah direview asesor
         $isReviewedByAsesor = !empty($pendaftaran->asesor_assessment);
