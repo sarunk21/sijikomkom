@@ -19,12 +19,38 @@ class JadwalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $jadwal = Jadwal::with('skema', 'tuk')->orderBy('tanggal_ujian', 'asc')->get();
+        // Build query
+        $query = Jadwal::with('skema', 'tuk');
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->where('tanggal_ujian', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->where('tanggal_ujian', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $jadwal = $query->orderBy('tanggal_ujian', 'desc')->get();
+
+        // Get all skema for filter dropdown
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
         $lists = $this->getMenuListAdmin('jadwal');
         $activeMenu = 'jadwal';
-        return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu', 'jadwal'));
+        return view('components.pages.admin.jadwal.list', compact('lists', 'activeMenu', 'jadwal', 'skemas'));
     }
 
     /**

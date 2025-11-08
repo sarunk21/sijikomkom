@@ -49,7 +49,7 @@
                                 </div>
                                 <textarea name="answers[{{ $form->id }}]" id="answer_{{ $form->id }}"
                                     class="form-control @error('answers.' . $form->id) is-invalid @enderror" rows="5"
-                                    placeholder="Tulis jawaban Anda di sini..." required>{{ old('answers.' . $form->id) ?? $form->responses->where('pendaftaran_id', $pendaftaran->id)->first()->answer_text ?? '' }}</textarea>
+                                    placeholder="Tulis jawaban Anda di sini..." required>{{ old('answers.' . $form->id) ?? ($form->responses->where('pendaftaran_id', $pendaftaran->id)->first()?->answer_text ?? '') }}</textarea>
 
                                 @error('answers.' . $form->id)
                                     <div class="invalid-feedback">

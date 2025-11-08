@@ -237,8 +237,8 @@
                         @endif
 
                         <div id="signaturePadContainer" class="{{ $pendaftaran->ttd_asesor_path ? 'd-none' : '' }}">
-                            <div class="border rounded p-3 bg-white mb-2">
-                                <canvas id="signaturePad" class="signature-pad" width="600" height="200"></canvas>
+                            <div class="border rounded p-3 bg-white mb-2" style="max-width: 750px;">
+                                <canvas id="signaturePad"></canvas>
                             </div>
                             <button type="button" class="btn btn-sm btn-secondary" id="clearSignatureBtn">
                                 <i class="fas fa-eraser mr-1"></i> Hapus Tanda Tangan

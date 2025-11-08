@@ -72,7 +72,7 @@ class ReviewController extends Controller
         $skemas = DB::table('skema')
             ->whereIn('id', function($query) {
                 $query->select('skema_id')
-                    ->from('jadwal_ujikom')
+                    ->from('jadwal')
                     ->whereIn('id', function($q) {
                         $q->select('jadwal_id')
                             ->from('pendaftaran_ujikom')

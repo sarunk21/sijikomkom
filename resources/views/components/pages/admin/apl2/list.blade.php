@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'APL 2')
-@section('page-title', 'APL 2')
+@section('title', 'Bank Soal')
+@section('page-title', 'Bank Soal')
 
 @section('content')
     <div class="card shadow-sm">
@@ -61,7 +61,7 @@
                 $('#skemaTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari APL 2...",
+                        searchPlaceholder: "Cari Bank Soal...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

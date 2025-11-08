@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use App\Models\Sertif;
+use App\Models\Skema;
 use Illuminate\Http\Request;
 
 class UploadSertifikatAdminController extends Controller
@@ -13,14 +14,35 @@ class UploadSertifikatAdminController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('upload-sertifikat-admin');
-        $uploadSertifikat = Sertif::with(['user', 'skema', 'pendaftaran'])
-            ->orderBy('created_at', 'desc')
-            ->get();
 
-        return view('components.pages.admin.upload-sertifikat-admin.list', compact('lists', 'uploadSertifikat'));
+        $query = Sertif::with(['user', 'skema', 'pendaftaran']);
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $uploadSertifikat = $query->orderBy('created_at', 'desc')->get();
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.admin.upload-sertifikat-admin.list', compact('lists', 'uploadSertifikat', 'skemas'));
     }
 
     /**

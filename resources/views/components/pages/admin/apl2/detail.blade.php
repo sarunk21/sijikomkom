@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Detail APL2')
-@section('page-title', 'Detail APL2')
+@section('title', 'Detail Bank Soal')
+@section('page-title', 'Detail Bank Soal')
 
 @section('content')
 

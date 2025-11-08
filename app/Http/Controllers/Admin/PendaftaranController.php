@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
+use App\Models\Skema;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -14,13 +15,35 @@ class PendaftaranController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('pendaftaran');
-        $pendaftaran = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user')
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran'));
+
+        $query = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user');
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $pendaftaran = $query->orderBy('created_at', 'desc')->get();
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran', 'skemas'));
     }
 
     /**

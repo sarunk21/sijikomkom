@@ -7,6 +7,7 @@ use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Pendaftaran;
+use App\Models\Skema;
 
 class PembayaranController extends Controller
 {
@@ -14,16 +15,41 @@ class PembayaranController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesi');
         $activeMenu = 'pembayaran';
-        $pembayaranAsesi = Pembayaran::where('status', 1)
-            ->orWhere('status', 2)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu', 'pembayaranAsesi'));
+
+        $query = Pembayaran::where(function($q) {
+                $q->where('status', 1)->orWhere('status', 2);
+            })
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user']);
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->whereHas('jadwal', function($q) use ($request) {
+                $q->where('skema_id', $request->skema_id);
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $pembayaranAsesi = $query->orderBy('created_at', 'desc')->get();
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.admin.pembayaran.list', compact('lists', 'activeMenu', 'pembayaranAsesi', 'skemas'));
     }
 
     /**

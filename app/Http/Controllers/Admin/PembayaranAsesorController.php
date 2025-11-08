@@ -8,6 +8,7 @@ use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use App\Models\PembayaranAsesor;
 use App\Models\User;
+use App\Models\Skema;
 
 class PembayaranAsesorController extends Controller
 {
@@ -15,14 +16,42 @@ class PembayaranAsesorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('pembayaran-asesor', 'pembayaran-asesor');
-        $pembayaranAsesor = PembayaranAsesor::where('status', 1)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'asesor'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'pembayaranAsesor'));
+
+        $query = PembayaranAsesor::where('status', 1)
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'asesor']);
+
+        // Filter by date range (using jadwal's tanggal_ujian)
+        if ($request->filled('tanggal_dari')) {
+            $query->whereHas('jadwal', function($q) use ($request) {
+                $q->where('tanggal_ujian', '>=', $request->tanggal_dari);
+            });
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereHas('jadwal', function($q) use ($request) {
+                $q->where('tanggal_ujian', '<=', $request->tanggal_sampai);
+            });
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->whereHas('jadwal', function($q) use ($request) {
+                $q->where('skema_id', $request->skema_id);
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $pembayaranAsesor = $query->orderBy('created_at', 'desc')->get();
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.admin.pembayaranasesor.list', compact('lists', 'pembayaranAsesor', 'skemas'));
     }
 
     /**

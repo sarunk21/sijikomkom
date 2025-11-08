@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Jadwal;
+use App\Models\Skema;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 
@@ -13,14 +14,31 @@ class ReportController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('report-ujikom');
-        $reports = Jadwal::where('status', 4)
-            ->with(['skema', 'tuk'])
-            ->orderBy('tanggal_ujian', 'asc')
-            ->get();
-        return view('components.pages.admin.report.list', compact('lists', 'reports'));
+
+        $query = Jadwal::where('status', 4)
+            ->with(['skema', 'tuk']);
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->where('tanggal_ujian', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->where('tanggal_ujian', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        $reports = $query->orderBy('tanggal_ujian', 'asc')->get();
+        $skemas = Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.admin.report.list', compact('lists', 'reports', 'skemas'));
     }
 
     /**

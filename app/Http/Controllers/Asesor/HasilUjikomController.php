@@ -18,15 +18,38 @@ class HasilUjikomController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
-        $hasilUjikom = Jadwal::where('status', 3)
-            ->with(['skema', 'tuk'])
-            ->orderBy('tanggal_ujian', 'asc')
-            ->get();
 
-        return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom'));
+        // Build query
+        $query = Jadwal::where('status', 3)
+            ->with(['skema', 'tuk']);
+
+        // Filter by date range
+        if ($request->filled('tanggal_dari')) {
+            $query->where('tanggal_ujian', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->where('tanggal_ujian', '<=', $request->tanggal_sampai);
+        }
+
+        // Filter by skema
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        $hasilUjikom = $query->orderBy('tanggal_ujian', 'desc')->get();
+
+        // Get all skema for filter dropdown
+        $skemas = \App\Models\Skema::whereIn('id', function($query) {
+            $query->select('skema_id')
+                ->from('jadwal')
+                ->where('status', 3);
+        })->get();
+
+        return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom', 'skemas'));
     }
 
     /**
