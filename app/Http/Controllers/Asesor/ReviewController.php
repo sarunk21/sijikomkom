@@ -216,12 +216,13 @@ class ReviewController extends Controller
         }
 
         try {
-            $result = $this->templateGenerator->generateApl1($pendaftaran, true); // true = asesor view
+            $result = $this->templateGenerator->generateApl1($pendaftaran, []); // empty array for default behavior
 
             if ($result['success']) {
-                return response()->download($result['file_path'], $result['filename']);
+                $filePath = storage_path('app/public/' . $result['file_path']);
+                return response()->download($filePath, $result['file_name']);
             } else {
-                return redirect()->back()->with('error', $result['message']);
+                return redirect()->back()->with('error', $result['error'] ?? 'Terjadi kesalahan saat generate');
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat generate: ' . $e->getMessage());

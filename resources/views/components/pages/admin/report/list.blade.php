@@ -12,7 +12,7 @@
             </h6>
         </div>
         <div class="card-body">
-            <form action="{{ route('admin.report-ujikom.index') }}" method="GET" id="filterForm">
+            <form action="{{ route('admin.report.index') }}" method="GET" id="filterForm">
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label small fw-semibold">Tanggal Dari</label>
@@ -47,7 +47,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search mr-2"></i> Filter
                         </button>
-                        <a href="{{ route('admin.report-ujikom.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.report.index') }}" class="btn btn-secondary">
                             <i class="fas fa-redo mr-2"></i> Reset
                         </a>
                     </div>

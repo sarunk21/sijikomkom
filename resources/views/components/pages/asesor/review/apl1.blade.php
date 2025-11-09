@@ -215,37 +215,53 @@
                         </div>
                     @endif
 
-                    {{-- Asesor Signature --}}
-                    <div class="mb-4">
-                        <h5 class="text-success border-bottom pb-2 mb-4">
-                            <i class="fas fa-signature mr-2"></i> Tanda Tangan Asesor
-                        </h5>
+                    {{-- Asesor Signature - Only show if template has signature_pad for asesor --}}
+                    @php
+                        $hasAsesorSignature = false;
+                        if ($template->custom_variables && count($template->custom_variables) > 0) {
+                            foreach ($template->custom_variables as $variable) {
+                                $variableRole = $variable['role'] ?? 'asesi';
+                                if (isset($variable['type']) && $variable['type'] === 'signature_pad' &&
+                                    ($variableRole === 'asesor' || $variableRole === 'both')) {
+                                    $hasAsesorSignature = true;
+                                    break;
+                                }
+                            }
+                        }
+                    @endphp
 
-                        @if($pendaftaran->ttd_asesor_path)
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle mr-2"></i> Tanda tangan sudah tersimpan
-                            </div>
-                            <div class="border p-3 bg-light rounded mb-3">
-                                <img src="{{ asset('storage/' . $pendaftaran->ttd_asesor_path) }}"
-                                     alt="Tanda Tangan Asesor"
-                                     class="img-fluid"
-                                     style="max-height: 150px; background: white; padding: 10px; border: 1px solid #dee2e6;">
-                            </div>
-                            <button type="button" class="btn btn-warning btn-sm" id="changeSignatureBtn">
-                                <i class="fas fa-edit mr-1"></i> Ubah Tanda Tangan
-                            </button>
-                        @endif
+                    @if($hasAsesorSignature)
+                        <div class="mb-4">
+                            <h5 class="text-success border-bottom pb-2 mb-4">
+                                <i class="fas fa-signature mr-2"></i> Tanda Tangan Asesor
+                            </h5>
 
-                        <div id="signaturePadContainer" class="{{ $pendaftaran->ttd_asesor_path ? 'd-none' : '' }}">
-                            <div class="border rounded p-3 bg-white mb-2" style="max-width: 750px;">
-                                <canvas id="signaturePad"></canvas>
+                            @if($pendaftaran->ttd_asesor_path)
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle mr-2"></i> Tanda tangan sudah tersimpan
+                                </div>
+                                <div class="border p-3 bg-light rounded mb-3">
+                                    <img src="{{ asset('storage/' . $pendaftaran->ttd_asesor_path) }}"
+                                         alt="Tanda Tangan Asesor"
+                                         class="img-fluid"
+                                         style="max-height: 150px; background: white; padding: 10px; border: 1px solid #dee2e6;">
+                                </div>
+                                <button type="button" class="btn btn-warning btn-sm" id="changeSignatureBtn">
+                                    <i class="fas fa-edit mr-1"></i> Ubah Tanda Tangan
+                                </button>
+                            @endif
+
+                            <div id="signaturePadContainer" class="{{ $pendaftaran->ttd_asesor_path ? 'd-none' : '' }}">
+                                <div class="border rounded p-3 bg-white mb-2" style="max-width: 700px;">
+                                    <canvas id="signaturePad" width="700" height="200"></canvas>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-secondary" id="clearSignatureBtn">
+                                    <i class="fas fa-eraser mr-1"></i> Hapus Tanda Tangan
+                                </button>
+                                <input type="hidden" name="signature_data" id="signatureData">
                             </div>
-                            <button type="button" class="btn btn-sm btn-secondary" id="clearSignatureBtn">
-                                <i class="fas fa-eraser mr-1"></i> Hapus Tanda Tangan
-                            </button>
-                            <input type="hidden" name="signature_data" id="signatureData">
                         </div>
-                    </div>
+                    @endif
                 @endif
 
                 {{-- Action Buttons --}}
@@ -279,10 +295,12 @@
             border-left: 4px solid #1cc88a !important;
         }
 
-        .signature-pad {
+        #signaturePad {
             border: 2px dashed #ddd;
             border-radius: 4px;
             cursor: crosshair;
+            display: block;
+            touch-action: none;
         }
 
         .table-borderless td {
@@ -294,10 +312,13 @@
         <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
         <script>
             $(document).ready(function() {
-                // Initialize Signature Pad
+                // Initialize Signature Pad only if it exists
                 const canvas = document.getElementById('signaturePad');
+                if (!canvas) return; // Exit if signature pad not needed
+
                 const signaturePad = new SignaturePad(canvas, {
-                    backgroundColor: 'rgb(255, 255, 255)'
+                    backgroundColor: 'rgb(255, 255, 255)',
+                    penColor: 'rgb(0, 0, 0)'
                 });
 
                 // Clear signature
@@ -334,20 +355,6 @@
                         return false;
                     }
                 });
-
-                // Resize canvas on window resize
-                function resizeCanvas() {
-                    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                    const canvas = document.getElementById('signaturePad');
-                    if (canvas) {
-                        canvas.width = canvas.offsetWidth * ratio;
-                        canvas.height = canvas.offsetHeight * ratio;
-                        canvas.getContext("2d").scale(ratio, ratio);
-                    }
-                }
-
-                window.addEventListener("resize", resizeCanvas);
-                resizeCanvas();
             });
         </script>
     @endpush
