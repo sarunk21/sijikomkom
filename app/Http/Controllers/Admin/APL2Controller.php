@@ -153,19 +153,19 @@ class APL2Controller extends Controller
         $request->validate([
             'skema_id' => 'required',
             'question_text' => 'required',
-            'question_type' => 'required|in:text,checkbox,radio,file',
+            'question_type' => 'required|in:text,textarea,checkbox,radio,select,file',
             'question_options' => 'nullable|string',
-            'bukti_isian_tes' => 'nullable|string',
-            'is_bk_k_question' => 'boolean',
-            'urutan' => 'integer|min:0',
         ]);
 
         try {
             $apl2 = APL2::findOrFail($id);
 
+            // Process question options
             $questionOptions = null;
             if ($request->question_options) {
-                $questionOptions = json_decode($request->question_options, true);
+                // Split by comma and trim whitespace
+                $options = array_map('trim', explode(',', $request->question_options));
+                $questionOptions = $options;
             }
 
             $apl2->update([
@@ -173,9 +173,6 @@ class APL2Controller extends Controller
                 'question_text' => $request->question_text,
                 'question_type' => $request->question_type,
                 'question_options' => $questionOptions,
-                'bukti_isian_tes' => $request->bukti_isian_tes,
-                'is_bk_k_question' => $request->boolean('is_bk_k_question'),
-                'urutan' => $request->urutan ?? 0,
             ]);
 
             return redirect()->route('admin.apl-2.show-by-skema', $request->skema_id)->with('success', 'APL02 berhasil diperbarui');

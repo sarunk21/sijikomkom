@@ -43,10 +43,44 @@ class UjikomController extends Controller
      */
     public function store(Request $request, string $id)
     {
+        // Handle file uploads and convert checkbox arrays
+        $answers = $request->input('answers', []);
+        $files = $request->file('files', []);
+
+        foreach ($answers as $apl2_id => $answer) {
+            if (is_array($answer)) {
+                // Convert array to comma-separated string and trim each value
+                $trimmedAnswers = array_map('trim', $answer);
+                $answers[$apl2_id] = implode(', ', $trimmedAnswers);
+            } else {
+                // Trim string answers as well (text, textarea, etc)
+                $answers[$apl2_id] = trim($answer);
+            }
+        }
+
+        // Handle file uploads
+        foreach ($files as $apl2_id => $file) {
+            if ($file && $file->isValid()) {
+                // Validate file size (max 2MB)
+                if ($file->getSize() > 2048000) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['answers.' . $apl2_id => 'File terlalu besar. Maksimal 2MB.']);
+                }
+
+                $fileName = time() . '_' . $apl2_id . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('ujikom_files', $fileName, 'public');
+                $answers[$apl2_id] = $filePath;
+            }
+        }
+
+        // Replace the answers in the request
+        $request->merge(['answers' => $answers]);
+
         $rules = [];
 
         // Validasi jawaban soal APL2
-        foreach ($request->input('answers', []) as $apl2_id => $answer) {
+        foreach ($answers as $apl2_id => $answer) {
             $rules['answers.' . $apl2_id] = 'required|string';
         }
 
