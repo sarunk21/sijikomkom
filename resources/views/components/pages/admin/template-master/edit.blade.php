@@ -37,20 +37,34 @@
                         <li><strong>Asesor</strong> → Field hanya ditampilkan dan diisi oleh asesor/penguji</li>
                         <li><strong>Keduanya</strong> → Field ditampilkan untuk asesi dan asesor</li>
                     </ul>
-                    @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')) || file_exists(public_path('storage/templates/sample_apl2_template.docx')))
-                        <div class="mt-2">
-                            @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
-                                <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-sm btn-success me-2" download>
-                                    <i class="fas fa-download me-1"></i> Download Sample APL1
-                                </a>
-                            @endif
-                            @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
-                                <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-sm btn-success" download>
-                                    <i class="fas fa-download me-1"></i> Download Sample APL2
-                                </a>
-                            @endif
-                        </div>
-                    @endif
+                    <p class="mb-2 small"><strong>Khusus untuk FR AK 05 (Tabel Dinamis Asesi):</strong></p>
+                    <ul class="small mb-2" style="line-height: 1.8;">
+                        <li><strong>Header Otomatis:</strong> <code>${skema.judul}</code>, <code>${skema.nomor}</code>, <code>${tuk}</code>, <code>${nama_asesor}</code>, <code>${tanggal}</code></li>
+                        <li><strong>Tabel Asesi (Auto-Clone):</strong> Buat 1 row dengan <code>${no}</code>, <code>${nama_asesi}</code>, <code>${checkbox_k}</code>, <code>${checkbox_bk}</code>, <code>${keterangan}</code></li>
+                        <li>Row tersebut akan <strong>otomatis di-clone</strong> sebanyak jumlah asesi yang dinilai</li>
+                        <li>Checkbox K/BK otomatis tercentang sesuai hasil penilaian (☑ = ya, ☐ = tidak)</li>
+                        <li><strong>Statistik:</strong> <code>${total_asesi}</code>, <code>${asesi_kompeten}</code>, <code>${asesi_tidak_kompeten}</code></li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="{{ asset('PETUNJUK_FR_AK_05.md') }}" target="_blank" class="btn btn-sm btn-primary me-2">
+                            <i class="fas fa-book me-1"></i> Petunjuk Lengkap FR AK 05
+                        </a>
+                        @if(file_exists(public_path('storage/templates/sample_apl1_template.docx')))
+                            <a href="{{ asset('storage/templates/sample_apl1_template.docx') }}" class="btn btn-sm btn-success me-2" download>
+                                <i class="fas fa-download me-1"></i> Sample APL1
+                            </a>
+                        @endif
+                        @if(file_exists(public_path('storage/templates/sample_apl2_template.docx')))
+                            <a href="{{ asset('storage/templates/sample_apl2_template.docx') }}" class="btn btn-sm btn-success me-2" download>
+                                <i class="fas fa-download me-1"></i> Sample APL2
+                            </a>
+                        @endif
+                        @if(file_exists(public_path('storage/templates/sample_fr_ak_05_template.docx')))
+                            <a href="{{ asset('storage/templates/sample_fr_ak_05_template.docx') }}" class="btn btn-sm btn-success" download>
+                                <i class="fas fa-download me-1"></i> Sample FR AK 05
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

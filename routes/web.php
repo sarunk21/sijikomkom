@@ -186,6 +186,11 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::resource('pembayaran-jasa', PembayaranJasaController::class)->names('asesor.pembayaran-jasa');
     Route::resource('hasil-ujikom', HasilUjikomController::class)->names('asesor.hasil-ujikom');
     Route::get('hasil-ujikom/show-jawaban-asesi/{id}', [HasilUjikomController::class, 'showJawabanAsesi'])->name('asesor.hasil-ujikom.show-jawaban-asesi');
+
+    // FR AK 05 routes
+    Route::get('fr-ak-05/form/{jadwalId}', [App\Http\Controllers\Asesor\FrAk05Controller::class, 'showForm'])->name('asesor.fr-ak-05.form');
+    Route::post('fr-ak-05/generate/{jadwalId}', [App\Http\Controllers\Asesor\FrAk05Controller::class, 'generate'])->name('asesor.fr-ak-05.generate');
+
     Route::resource('profil-asesor', ProfilAsesorController::class)->names('asesor.profil-asesor');
 
     // APL2 routes (OLD - can be deprecated later)

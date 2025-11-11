@@ -42,6 +42,7 @@ class AdminTemplateController extends Controller
         $tipeTemplateOptions = [
             'APL1' => 'APL 1 (Asesmen Mandiri)',
             'APL2' => 'APL 2 (Portofolio)',
+            'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
         ];
 
         // Field database yang tersedia untuk variable
@@ -110,7 +111,7 @@ class AdminTemplateController extends Controller
     {
         $request->validate([
             'nama_template' => 'required|string|max:255',
-            'tipe_template' => 'required|string|in:APL1,APL2',
+            'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
             'file_template' => 'required|file|mimes:docx|max:10240', // Max 10MB
@@ -230,6 +231,7 @@ class AdminTemplateController extends Controller
         $tipeTemplateOptions = [
             'APL1' => 'APL 1 (Asesmen Mandiri)',
             'APL2' => 'APL 2 (Portofolio)',
+            'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
         ];
 
         // Field database yang tersedia untuk variable
@@ -300,7 +302,7 @@ class AdminTemplateController extends Controller
 
         $request->validate([
             'nama_template' => 'required|string|max:255',
-            'tipe_template' => 'required|string|in:APL1,APL2',
+            'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
             'file_template' => 'nullable|file|mimes:docx|max:10240',
@@ -417,6 +419,10 @@ class AdminTemplateController extends Controller
 
             if ($template->ttd_path && Storage::disk('public')->exists($template->ttd_path)) {
                 Storage::disk('public')->delete($template->ttd_path);
+            }
+
+            if ($template->fr_ak_05_file_path && Storage::disk('public')->exists($template->fr_ak_05_file_path)) {
+                Storage::disk('public')->delete($template->fr_ak_05_file_path);
             }
 
             // Hapus record dari database

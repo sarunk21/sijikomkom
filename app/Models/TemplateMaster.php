@@ -25,7 +25,9 @@ class TemplateMaster extends Model
         'apl2_checkbox_config',
         'field_configurations',
         'field_mappings',
-        'custom_variables'
+        'custom_variables',
+        'fr_ak_05_file_path',
+        'fr_ak_05_variables'
     ];
 
     protected $casts = [
@@ -36,7 +38,8 @@ class TemplateMaster extends Model
         'apl2_checkbox_config' => 'array',
         'field_configurations' => 'array',
         'field_mappings' => 'array',
-        'custom_variables' => 'array'
+        'custom_variables' => 'array',
+        'fr_ak_05_variables' => 'array'
     ];
 
     /**
@@ -72,6 +75,7 @@ class TemplateMaster extends Model
             'APL1' => 'APL 1 (Asesmen Mandiri)',
             'APL2' => 'APL 2 (Portofolio)',
             'APL3' => 'APL 3 (Simulasi)',
+            'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
         ];
 
         return $labels[$this->tipe_template] ?? $this->tipe_template;
@@ -91,5 +95,13 @@ class TemplateMaster extends Model
     public function getTtdUrlAttribute()
     {
         return $this->ttd_path ? asset('storage/' . $this->ttd_path) : null;
+    }
+
+    /**
+     * Accessor untuk mendapatkan URL file FR AK 05 template
+     */
+    public function getFrAk05TemplateUrlAttribute()
+    {
+        return $this->fr_ak_05_file_path ? asset('storage/' . $this->fr_ak_05_file_path) : null;
     }
 }

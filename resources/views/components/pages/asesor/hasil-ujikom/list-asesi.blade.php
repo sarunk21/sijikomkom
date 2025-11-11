@@ -13,13 +13,71 @@
                 </div>
             @endif
 
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title">
-                    <b>{{ $jadwal->skema->nama }}</b> - <b>{{ $jadwal->tuk->nama }}</b>
-                </h5>
-                <p class="card-text">
-                    {{ $jadwal->tanggal_ujian }}
-                </p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <b>{{ $jadwal->skema->nama }}</b> - <b>{{ $jadwal->tuk->nama }}</b>
+                    </h5>
+                    <p class="card-text text-muted mb-0">
+                        {{ $jadwal->tanggal_ujian }}
+                    </p>
+                </div>
+
+                @php
+                    // Check if all asesi have been assessed
+                    $totalAsesi = $asesi->count();
+                    $assessedAsesi = $asesi->whereIn('status', [4, 5])->count();
+                    $allAssessed = $totalAsesi > 0 && $totalAsesi == $assessedAsesi;
+
+                    // Check if FR AK 05 template exists for this skema
+                    $frAk05Template = \App\Models\TemplateMaster::where('skema_id', $jadwal->skema_id)
+                        ->where('tipe_template', 'FR_AK_05')
+                        ->where('is_active', true)
+                        ->first();
+                @endphp
+
+                @if($allAssessed && $frAk05Template)
+                    {{-- All asesi assessed AND template exists --}}
+                    <div>
+                        <a href="{{ route('asesor.fr-ak-05.form', $jadwal->id) }}"
+                           class="btn btn-success shadow-sm">
+                            <i class="fas fa-file-alt me-2"></i>Generate FR AK 05
+                        </a>
+                        <small class="d-block text-muted mt-1">
+                            <i class="fas fa-check-circle text-success"></i> Semua asesi telah dinilai
+                        </small>
+                    </div>
+                @elseif($allAssessed && !$frAk05Template)
+                    {{-- All asesi assessed BUT template NOT exists --}}
+                    <div>
+                        <button class="btn btn-secondary shadow-sm" disabled title="Template FR AK 05 belum diupload">
+                            <i class="fas fa-file-alt me-2"></i>Generate FR AK 05
+                        </button>
+                        <small class="d-block text-warning mt-1">
+                            <i class="fas fa-exclamation-triangle"></i> Template FR AK 05 belum diupload
+                        </small>
+                    </div>
+                @elseif(!$allAssessed && $frAk05Template)
+                    {{-- Template exists BUT not all asesi assessed --}}
+                    <div>
+                        <button class="btn btn-secondary shadow-sm" disabled title="Belum semua asesi dinilai">
+                            <i class="fas fa-file-alt me-2"></i>Generate FR AK 05
+                        </button>
+                        <small class="d-block text-muted mt-1">
+                            <i class="fas fa-info-circle"></i> {{ $assessedAsesi }}/{{ $totalAsesi }} asesi telah dinilai
+                        </small>
+                    </div>
+                @elseif(!$allAssessed && !$frAk05Template)
+                    {{-- Template NOT exists AND not all asesi assessed --}}
+                    <div>
+                        <button class="btn btn-secondary shadow-sm" disabled title="Template belum diupload dan belum semua asesi dinilai">
+                            <i class="fas fa-file-alt me-2"></i>Generate FR AK 05
+                        </button>
+                        <small class="d-block text-muted mt-1">
+                            <i class="fas fa-info-circle"></i> {{ $assessedAsesi }}/{{ $totalAsesi }} asesi dinilai | Template belum diupload
+                        </small>
+                    </div>
+                @endif
             </div>
 
             <div class="table-responsive">
