@@ -39,10 +39,12 @@ use App\Http\Controllers\Asesor\ReviewController;
 use App\Http\Controllers\Kaprodi\ReportHasilUjiController;
 use App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController;
 use App\Http\Controllers\Kaprodi\ProfilKaprodiController;
+use App\Http\Controllers\Kaprodi\DashboardController as KaprodiDashboardController;
 
 use App\Http\Controllers\Pimpinan\ReportPimpinanController;
 use App\Http\Controllers\Pimpinan\LaporanIKUController;
 use App\Http\Controllers\Pimpinan\ProfilPimpinanController;
+use App\Http\Controllers\Pimpinan\DashboardController as PimpinanDashboardController;
 
 use App\Http\Controllers\Tuk\KonfirmasiJadwalController;
 use App\Http\Controllers\Tuk\DashboardController as TukDashboardController;
@@ -204,7 +206,7 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
 });
 
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.kaprodi');
+    Route::get('/', [KaprodiDashboardController::class, 'index'])->name('dashboard.kaprodi');
     Route::resource('report-hasil-uji', ReportHasilUjiController::class)->names('kaprodi.report-hasil-uji');
     Route::get('report-hasil-uji/list-nama-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaKompeten'])->name('kaprodi.report-hasil-uji.list-nama-kompeten');
     Route::get('report-hasil-uji/list-nama-tidak-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaTidakKompeten'])->name('kaprodi.report-hasil-uji.list-nama-tidak-kompeten');
@@ -230,7 +232,7 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
 });
 
 Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.pimpinan');
+    Route::get('/', [PimpinanDashboardController::class, 'index'])->name('dashboard.pimpinan');
     Route::get('report-pimpinan/list-nama-kompeten/{id}', [ReportPimpinanController::class, 'listNamaKompeten'])->name('pimpinan.report-pimpinan.list-nama-kompeten');
     Route::get('report-pimpinan/list-nama-tidak-kompeten/{id}', [ReportPimpinanController::class, 'listNamaTidakKompeten'])->name('pimpinan.report-pimpinan.list-nama-tidak-kompeten');
     Route::resource('report-pimpinan', ReportPimpinanController::class)->names('pimpinan.report-pimpinan');

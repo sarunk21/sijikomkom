@@ -5,49 +5,6 @@
 
 @section('content')
 
-    <!-- Date Range & Skema Filter -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-filter"></i> Filter Data Dashboard
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="startDate" class="form-label">Tanggal Mulai:</label>
-                            <input type="date" class="form-control" id="startDate" name="start_date">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="endDate" class="form-label">Tanggal Akhir:</label>
-                            <input type="date" class="form-control" id="endDate" name="end_date">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="skemaFilter" class="form-label">Filter Skema:</label>
-                            <select class="form-control" id="skemaFilter" name="skema_id">
-                                <option value="">Semua Skema</option>
-                                <!-- Options will be populated by JavaScript -->
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">&nbsp;</label>
-                            <div>
-                                <button type="button" class="btn btn-primary btn-block mb-2" id="applyFilter">
-                                    <i class="fas fa-filter"></i> Terapkan Filter
-                                </button>
-                                <button type="button" class="btn btn-secondary btn-block" id="clearFilter">
-                                    <i class="fas fa-times"></i> Reset Filter
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Content Row -->
     <div class="row">
 
@@ -59,7 +16,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Pendaftaran</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalPendaftaran">-</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalPendaftaran) }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -77,7 +34,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Skema</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSkema">-</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalSkema }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-certificate fa-2x text-gray-300"></i>
@@ -97,12 +54,12 @@
                             </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="tingkatKeberhasilan">-</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $tingkatKeberhasilan }}%</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" id="progressKeberhasilan" style="width: 0%"
-                                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $tingkatKeberhasilan }}%"
+                                            aria-valuenow="{{ $tingkatKeberhasilan }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -123,7 +80,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Total Asesor</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalAsesor">-</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalAsesor }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-user-tie fa-2x text-gray-300"></i>
@@ -140,11 +97,9 @@
         <!-- Tren Pendaftaran Skema Chart -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Tren Pendaftaran Skema</h6>
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tren Pendaftaran Skema (6 Bulan Terakhir)</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="skemaTrendChart"></canvas>
@@ -156,11 +111,9 @@
         <!-- Statistik Keberhasilan Chart -->
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Statistik Keberhasilan</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
                         <canvas id="statistikKeberhasilanChart"></canvas>
@@ -176,11 +129,9 @@
         <!-- Segmentasi Demografi Chart -->
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Segmentasi Demografi</h6>
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Segmentasi Jenis Kelamin</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
                         <canvas id="segmentasiDemografiChart"></canvas>
@@ -192,11 +143,9 @@
         <!-- Workload Asesor Chart -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Workload Asesor</h6>
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Workload Asesor (Top 10)</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="workloadAsesorChart"></canvas>
@@ -212,11 +161,9 @@
         <!-- Tren Peminat Skema Chart -->
         <div class="col-xl-12">
             <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Tren Peminat Skema dari Waktu ke Waktu</h6>
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Skema Terpopuler (6 Bulan Terakhir)</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="trenPeminatSkemaChart"></canvas>
@@ -230,61 +177,124 @@
 
 @push('scripts')
     <!-- Chart.js -->
-<script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
-<!-- Analytics Dashboard -->
-<script src="{{ asset('js/analytics-dashboard-laravel.js') }}"></script>
+    <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
 
-<!-- Debug Script -->
-<script>
-// Debug and ensure data loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== Dashboard Debug Info ===');
-    console.log('Page loaded');
-    console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-    console.log('jQuery loaded:', typeof $ !== 'undefined');
+    <script>
+    // Data dari controller
+    const skemaTrendData = @json($skemaTrend);
+    const statistikKeberhasilanData = @json($statistikKeberhasilan);
+    const segmentasiJenisKelaminData = @json($segmentasiJenisKelamin);
+    const workloadAsesorData = @json($workloadAsesor);
+    const trenPeminatSkemaData = @json($trenPeminatSkema);
 
-    // Wait a bit for the analytics class to initialize
-    setTimeout(function() {
-        console.log('Attempting manual data load test...');
-
-        // Test fetch to analytics endpoint
-        const userType = window.location.pathname.includes('/pimpinan/') ? 'pimpinan' : 'kaprodi';
-        const url = window.location.origin + '/' + userType + '/analytics/dashboard-data';
-
-        console.log('Testing URL:', url);
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            return response.json();
-        })
-        .then(data => {
-            console.log('=== Analytics Data Response ===');
-            console.log(data);
-
-            if (data.success && data.data) {
-                console.log('Data loaded successfully!');
-                console.log('Dashboard Summary:', data.data.dashboard_summary);
-                console.log('Skema Trend items:', data.data.skema_trend?.length || 0);
-                console.log('Kompetensi Skema keys:', Object.keys(data.data.kompetensi_skema || {}).length);
-            } else {
-                console.error('Data load failed:', data.message);
+    // Chart 1: Tren Pendaftaran Skema
+    const skemaTrendCtx = document.getElementById('skemaTrendChart');
+    new Chart(skemaTrendCtx, {
+        type: 'line',
+        data: {
+            labels: skemaTrendData.map(item => item.month),
+            datasets: [{
+                label: 'Total Pendaftaran',
+                data: skemaTrendData.map(item => item.total_pendaftaran),
+                borderColor: 'rgb(78, 115, 223)',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
-        })
-        .catch(error => {
-            console.error('=== Fetch Error ===');
-            console.error(error);
-        });
-    }, 2000);
-});
-</script>
+        }
+    });
+
+    // Chart 2: Statistik Keberhasilan
+    const statistikCtx = document.getElementById('statistikKeberhasilanChart');
+    new Chart(statistikCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statistikKeberhasilanData),
+            datasets: [{
+                data: Object.values(statistikKeberhasilanData),
+                backgroundColor: ['#1cc88a', '#e74a3b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Chart 3: Segmentasi Jenis Kelamin
+    const segmentasiCtx = document.getElementById('segmentasiDemografiChart');
+    new Chart(segmentasiCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(segmentasiJenisKelaminData),
+            datasets: [{
+                data: Object.values(segmentasiJenisKelaminData),
+                backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e', '#36b9cc']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Chart 4: Workload Asesor
+    const workloadCtx = document.getElementById('workloadAsesorChart');
+    new Chart(workloadCtx, {
+        type: 'bar',
+        data: {
+            labels: workloadAsesorData.map(item => item.asesor_name),
+            datasets: [{
+                label: 'Jumlah Ujikom',
+                data: workloadAsesorData.map(item => item.jumlah_ujikom),
+                backgroundColor: 'rgba(246, 194, 62, 0.8)',
+                borderColor: 'rgb(246, 194, 62)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Chart 5: Tren Peminat Skema
+    const trenPeminatCtx = document.getElementById('trenPeminatSkemaChart');
+    new Chart(trenPeminatCtx, {
+        type: 'bar',
+        data: {
+            labels: trenPeminatSkemaData.map(item => item.skema_nama),
+            datasets: [{
+                label: 'Total Pendaftaran',
+                data: trenPeminatSkemaData.map(item => item.total_pendaftaran),
+                backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                borderColor: 'rgb(78, 115, 223)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
 @endpush
