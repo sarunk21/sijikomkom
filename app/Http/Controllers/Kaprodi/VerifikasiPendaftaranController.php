@@ -18,7 +18,15 @@ class VerifikasiPendaftaranController extends Controller
     {
         $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
 
-        $query = Pendaftaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user', 'skema', 'pendaftaranUjikom']);
+        // Load user with file fields for displaying uploaded documents
+        $query = Pendaftaran::with([
+            'jadwal',
+            'jadwal.skema',
+            'jadwal.tuk',
+            'user:id,name,nim,email,no_hp,jurusan,photo_ktp,photo_sertifikat,photo_ktmkhs,photo_administatif',
+            'skema',
+            'pendaftaranUjikom'
+        ]);
 
         // Apply filters
         if ($request->filled('start_date')) {
