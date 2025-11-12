@@ -192,103 +192,111 @@
 
     {{-- Modal Details --}}
     <div class="modal fade" id="modalDetails" tabindex="-1" aria-labelledby="modalDetailsLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalDetailsLabel">Detail Pendaftaran</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalDetailsLabel">
+                        <i class="fas fa-clipboard-check mr-2"></i>Detail Pendaftaran Ujikom
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body bg-light">
                     <!-- Informasi Asesi & Pendaftaran in Cards -->
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="card border-left-primary shadow-sm h-100 mb-3">
-                                <div class="card-body">
-                                    <h6 class="font-weight-bold text-primary mb-3">
-                                        <i class="fas fa-user mr-2"></i>Informasi Asesi
+                        <div class="col-lg-6 mb-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-gradient-primary text-white">
+                                    <h6 class="mb-0 font-weight-bold">
+                                        <i class="fas fa-user-graduate mr-2"></i>Informasi Asesi
                                     </h6>
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td width="40%" class="text-muted"><strong>Nama</strong></td>
-                                            <td id="detail-nama">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>NIM</strong></td>
-                                            <td id="detail-nim">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>Email</strong></td>
-                                            <td id="detail-email">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>No. Telepon</strong></td>
-                                            <td id="detail-phone">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>Jurusan</strong></td>
-                                            <td id="detail-jurusan">-</td>
-                                        </tr>
-                                    </table>
+                                </div>
+                                <div class="card-body">
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Nama Lengkap</small>
+                                        <strong id="detail-nama" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">NIM</small>
+                                        <strong id="detail-nim" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Email</small>
+                                        <strong id="detail-email" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">No. Telepon</small>
+                                        <strong id="detail-phone" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-0">
+                                        <small class="text-muted d-block">Program Studi</small>
+                                        <strong id="detail-jurusan" class="text-dark">-</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card border-left-success shadow-sm h-100 mb-3">
-                                <div class="card-body">
-                                    <h6 class="font-weight-bold text-success mb-3">
+                        <div class="col-lg-6 mb-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-gradient-success text-white">
+                                    <h6 class="mb-0 font-weight-bold">
                                         <i class="fas fa-clipboard-list mr-2"></i>Informasi Pendaftaran
                                     </h6>
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td width="40%" class="text-muted"><strong>Skema</strong></td>
-                                            <td id="detail-skema">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>TUK</strong></td>
-                                            <td id="detail-tuk">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>Tanggal Ujian</strong></td>
-                                            <td id="detail-tanggal">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>Status</strong></td>
-                                            <td id="detail-status">-</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted"><strong>Tanggal Daftar</strong></td>
-                                            <td id="detail-created">-</td>
-                                        </tr>
-                                    </table>
+                                </div>
+                                <div class="card-body">
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Skema Sertifikasi</small>
+                                        <strong id="detail-skema" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Tempat Uji Kompetensi (TUK)</small>
+                                        <strong id="detail-tuk" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Tanggal Ujian</small>
+                                        <strong id="detail-tanggal" class="text-dark">-</strong>
+                                    </div>
+                                    <div class="info-item mb-3">
+                                        <small class="text-muted d-block">Status Pendaftaran</small>
+                                        <span id="detail-status" class="badge badge-info badge-pill">-</span>
+                                    </div>
+                                    <div class="info-item mb-0">
+                                        <small class="text-muted d-block">Tanggal Pendaftaran</small>
+                                        <strong id="detail-created" class="text-dark">-</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Keterangan Card -->
-                    <div class="card border-left-warning shadow-sm mb-3">
-                        <div class="card-body">
-                            <h6 class="font-weight-bold text-warning mb-2">
-                                <i class="fas fa-comment mr-2"></i>Keterangan
+                    <div class="card border-0 shadow-sm mb-3" id="detail-keterangan-card">
+                        <div class="card-header bg-gradient-warning text-white">
+                            <h6 class="mb-0 font-weight-bold">
+                                <i class="fas fa-comment-dots mr-2"></i>Keterangan
                             </h6>
-                            <p id="detail-keterangan" class="mb-0 text-muted">-</p>
+                        </div>
+                        <div class="card-body">
+                            <p id="detail-keterangan" class="mb-0 text-dark">-</p>
                         </div>
                     </div>
 
                     <!-- File Upload Card -->
-                    <div class="card border-left-info shadow-sm" id="detail-files-card">
-                        <div class="card-body">
-                            <h6 class="font-weight-bold text-info mb-3">
-                                <i class="fas fa-file-upload mr-2"></i>File yang Diupload
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-gradient-info text-white">
+                            <h6 class="mb-0 font-weight-bold">
+                                <i class="fas fa-paperclip mr-2"></i>Dokumen Persyaratan
                             </h6>
+                        </div>
+                        <div class="card-body">
                             <div id="detail-files" class="row"></div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Tutup
+                    </button>
                 </div>
             </div>
         </div>
@@ -308,23 +316,68 @@
         }
 
         .card {
+            border-radius: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        #modalDetails .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+        }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+        }
+
+        .info-item {
+            padding: 0.75rem;
+            background: #f8f9fc;
             border-radius: 0.35rem;
         }
 
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
+        .info-item small {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
+        .info-item strong {
+            font-size: 0.95rem;
         }
 
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
+        #detail-files .card {
+            transition: all 0.3s ease;
+            border: 1px solid #e3e6f0;
         }
 
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
+        #detail-files .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-color: #36b9cc;
+        }
+
+        #detail-files .btn {
+            transition: all 0.2s ease;
+        }
+
+        #detail-files .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0.25rem 0.5rem rgba(54, 185, 204, 0.3);
+        }
+
+        .modal-xl {
+            max-width: 1140px;
         }
     </style>
 
@@ -420,12 +473,20 @@
                                 var fileUrl = value.startsWith('http') ? value : '/storage/' + value;
                                 var label = userFileLabels[key];
 
-                                filesHtml += '<div class="col-md-6 mb-3">';
-                                filesHtml += '  <div class="card">';
-                                filesHtml += '    <div class="card-body p-3">';
-                                filesHtml += '      <h6 class="font-weight-bold mb-2">' + label + '</h6>';
+                                // Determine icon based on file type
+                                var icon = 'fa-file';
+                                if (key.includes('ktp')) icon = 'fa-id-card';
+                                else if (key.includes('sertifikat') || key.includes('rekomendasi')) icon = 'fa-file-certificate';
+                                else if (key.includes('ktm') || key.includes('khs')) icon = 'fa-id-badge';
+                                else if (key.includes('administratif')) icon = 'fa-file-alt';
+
+                                filesHtml += '<div class="col-md-6 col-lg-3 mb-3">';
+                                filesHtml += '  <div class="card h-100 border">';
+                                filesHtml += '    <div class="card-body text-center p-3">';
+                                filesHtml += '      <i class="fas ' + icon + ' fa-3x text-info mb-3"></i>';
+                                filesHtml += '      <h6 class="font-weight-bold mb-3" style="font-size: 0.85rem;">' + label + '</h6>';
                                 filesHtml += '      <a href="' + fileUrl + '" target="_blank" class="btn btn-info btn-sm btn-block">';
-                                filesHtml += '        <i class="fas fa-external-link-alt mr-1"></i> Lihat File';
+                                filesHtml += '        <i class="fas fa-eye mr-1"></i> Lihat Dokumen';
                                 filesHtml += '      </a>';
                                 filesHtml += '    </div>';
                                 filesHtml += '  </div>';
