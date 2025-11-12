@@ -233,4 +233,58 @@
 <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
 <!-- Analytics Dashboard -->
 <script src="{{ asset('js/analytics-dashboard-laravel.js') }}"></script>
+
+<!-- Debug Script -->
+<script>
+// Debug and ensure data loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== Dashboard Debug Info ===');
+    console.log('Page loaded');
+    console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+    console.log('jQuery loaded:', typeof $ !== 'undefined');
+
+    // Wait a bit for the analytics class to initialize
+    setTimeout(function() {
+        console.log('Attempting manual data load test...');
+
+        // Test fetch to analytics endpoint
+        const userType = window.location.pathname.includes('/pimpinan/') ? 'pimpinan' : 'kaprodi';
+        const url = window.location.origin + '/' + userType + '/analytics/dashboard-data';
+
+        console.log('Testing URL:', url);
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            return response.json();
+        })
+        .then(data => {
+            console.log('=== Analytics Data Response ===');
+            console.log(data);
+
+            if (data.success && data.data) {
+                console.log('Data loaded successfully!');
+                console.log('Dashboard Summary:', data.data.dashboard_summary);
+                console.log('Skema Trend items:', data.data.skema_trend?.length || 0);
+                console.log('Kompetensi Skema keys:', Object.keys(data.data.kompetensi_skema || {}).length);
+            } else {
+                console.error('Data load failed:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('=== Fetch Error ===');
+            console.error(error);
+        });
+    }, 2000);
+});
+</script>
 @endpush

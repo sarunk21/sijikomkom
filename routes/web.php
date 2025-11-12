@@ -231,6 +231,8 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
 
 Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.pimpinan');
+    Route::get('report-pimpinan/list-nama-kompeten/{id}', [ReportPimpinanController::class, 'listNamaKompeten'])->name('pimpinan.report-pimpinan.list-nama-kompeten');
+    Route::get('report-pimpinan/list-nama-tidak-kompeten/{id}', [ReportPimpinanController::class, 'listNamaTidakKompeten'])->name('pimpinan.report-pimpinan.list-nama-tidak-kompeten');
     Route::resource('report-pimpinan', ReportPimpinanController::class)->names('pimpinan.report-pimpinan');
     Route::resource('laporan-iku', LaporanIKUController::class)->names('pimpinan.laporan-iku');
     Route::resource('profil-pimpinan', ProfilPimpinanController::class)->names('pimpinan.profil-pimpinan');

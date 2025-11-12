@@ -13,13 +13,32 @@ class LaporanIKUController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListPimpinan('laporan-iku');
-        $reports = Report::where('status', operator: 1)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports'));
+
+        $query = Report::where('status', 1)
+            ->with(['user', 'skema']);
+
+        // Apply filters
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        $reports = $query->orderBy('created_at', 'desc')->get();
+
+        // Get all skema for filter dropdown
+        $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports', 'skemas'));
     }
 
     /**

@@ -138,6 +138,12 @@ class AnalyticsController extends Controller
             'message' => 'Sijikomkom Analytics API running',
             'version' => '1.0.0',
             'docs' => '/analytics/docs',
+            'authenticated' => auth()->check(),
+            'user' => auth()->check() ? [
+                'id' => auth()->user()->id,
+                'name' => auth()->user()->name,
+                'user_type' => auth()->user()->user_type
+            ] : null,
             'endpoints' => [
                 'skema-trend' => '/analytics/skema-trend',
                 'kompetensi-skema' => '/analytics/kompetensi-skema',
@@ -172,12 +178,25 @@ class AnalyticsController extends Controller
             $skemaId = $request->query('skema_id') ?: null;
 
             // Menggabungkan semua data analytics untuk dashboard dengan filter
+            // Note: Pastikan parameter sesuai dengan signature method di AnalyticsService
             $skemaTrend = $this->analyticsService->getTrendPendaftaran($skemaId, $startDate, $endDate);
-            $kompetensiSkema = $this->analyticsService->getStatistikKompetensi($startDate, $endDate, $skemaId);
-            $segmentasiDemografi = $this->analyticsService->getSegmentasiDemografi($skemaId);
-            $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate, $skemaId);
-            $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate, $skemaId);
-            $dashboardSummary = $this->analyticsService->getDashboardSummary($skemaId);
+            $kompetensiSkema = $this->analyticsService->getStatistikKompetensi($startDate, $endDate); // Only 2 params
+            $segmentasiDemografi = $this->analyticsService->getSegmentasiDemografi(); // No params
+            $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate); // Only 2 params
+            $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate); // Only 2 params
+            $dashboardSummary = $this->analyticsService->getDashboardSummary(); // No params
+
+            // Calculate tingkat keberhasilan from kompetensiSkema
+            $totalKompeten = 0;
+            $totalTidakKompeten = 0;
+
+            foreach ($kompetensiSkema as $skemaData) {
+                $totalKompeten += $skemaData[5] ?? 0; // status 5 = kompeten
+                $totalTidakKompeten += $skemaData[4] ?? 0; // status 4 = tidak kompeten
+            }
+
+            $totalUjikom = $totalKompeten + $totalTidakKompeten;
+            $tingkatKeberhasilan = $totalUjikom > 0 ? round(($totalKompeten / $totalUjikom) * 100, 2) : 0;
 
             $data = [
                 'skema_trend' => $skemaTrend,
@@ -185,7 +204,9 @@ class AnalyticsController extends Controller
                 'segmentasi_demografi' => $segmentasiDemografi,
                 'workload_asesor' => $workloadAsesor,
                 'tren_peminat_skema' => $trenPeminatSkema,
-                'dashboard_summary' => $dashboardSummary,
+                'dashboard_summary' => array_merge($dashboardSummary, [
+                    'tingkat_keberhasilan' => $tingkatKeberhasilan
+                ]),
                 'filters' => [
                     'start_date' => $startDate ? $startDate->format('Y-m-d') : null,
                     'end_date' => $endDate ? $endDate->format('Y-m-d') : null,
@@ -199,9 +220,12 @@ class AnalyticsController extends Controller
                 'message' => 'Data dashboard berhasil dimuat'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error in getDashboardData: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Error mengambil data dashboard: ' . $e->getMessage()
+                'message' => 'Error mengambil data dashboard: ' . $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null
             ], 500);
         }
     }

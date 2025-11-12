@@ -14,13 +14,35 @@ class VerifikasiPendaftaranController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
-        $verfikasiPendaftaran = Pendaftaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran'));
+
+        $query = Pendaftaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user', 'skema', 'pendaftaranUjikom']);
+
+        // Apply filters
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $verfikasiPendaftaran = $query->orderBy('created_at', 'desc')->get();
+
+        // Get all skema for filter dropdown
+        $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran', 'skemas'));
     }
 
     /**

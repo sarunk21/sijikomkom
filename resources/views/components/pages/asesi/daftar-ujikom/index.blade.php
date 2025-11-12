@@ -72,38 +72,100 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="photo_ktp" class="form-label">Foto KTP <span class="text-danger">*</span></label>
+                    <label for="photo_ktp" class="form-label">
+                        Foto KTP
+                        @if(!auth()->user()->photo_ktp)
+                            <span class="text-danger">*</span>
+                        @else
+                            <small class="text-muted">(Opsional - sudah ada file sebelumnya)</small>
+                        @endif
+                    </label>
+                    @if(auth()->user()->photo_ktp)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . auth()->user()->photo_ktp) }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Lihat File Sebelumnya
+                            </a>
+                        </div>
+                    @endif
                     <input type="file" id="photo_ktp" name="photo_ktp"
-                        class="form-control @error('photo_ktp') is-invalid @enderror" required>
+                        class="form-control @error('photo_ktp') is-invalid @enderror"
+                        {{ auth()->user()->photo_ktp ? '' : 'required' }}>
+                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
                     @error('photo_ktp')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label for="photo_sertifikat" class="form-label">Surat Rekomendasi <span
-                            class="text-danger">*</span></label>
+                    <label for="photo_sertifikat" class="form-label">
+                        Surat Rekomendasi
+                        @if(!auth()->user()->photo_sertifikat)
+                            <span class="text-danger">*</span>
+                        @else
+                            <small class="text-muted">(Opsional - sudah ada file sebelumnya)</small>
+                        @endif
+                    </label>
+                    @if(auth()->user()->photo_sertifikat)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . auth()->user()->photo_sertifikat) }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Lihat File Sebelumnya
+                            </a>
+                        </div>
+                    @endif
                     <input type="file" id="photo_sertifikat" name="photo_sertifikat"
-                        class="form-control @error('photo_sertifikat') is-invalid @enderror" required>
+                        class="form-control @error('photo_sertifikat') is-invalid @enderror"
+                        {{ auth()->user()->photo_sertifikat ? '' : 'required' }}>
+                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
                     @error('photo_sertifikat')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label for="photo_ktmkhs" class="form-label">Foto KTM/KHS <span class="text-danger">*</span></label>
+                    <label for="photo_ktmkhs" class="form-label">
+                        Foto KTM/KHS
+                        @if(!auth()->user()->photo_ktmkhs)
+                            <span class="text-danger">*</span>
+                        @else
+                            <small class="text-muted">(Opsional - sudah ada file sebelumnya)</small>
+                        @endif
+                    </label>
+                    @if(auth()->user()->photo_ktmkhs)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . auth()->user()->photo_ktmkhs) }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Lihat File Sebelumnya
+                            </a>
+                        </div>
+                    @endif
                     <input type="file" id="photo_ktmkhs" name="photo_ktmkhs"
-                        class="form-control @error('photo_ktmkhs') is-invalid @enderror" required>
+                        class="form-control @error('photo_ktmkhs') is-invalid @enderror"
+                        {{ auth()->user()->photo_ktmkhs ? '' : 'required' }}>
+                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
                     @error('photo_ktmkhs')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label for="photo_administatif" class="form-label">Foto Administratif <span
-                            class="text-danger">*</span></label>
+                    <label for="photo_administatif" class="form-label">
+                        Foto Administratif
+                        @if(!auth()->user()->photo_administatif)
+                            <span class="text-danger">*</span>
+                        @else
+                            <small class="text-muted">(Opsional - sudah ada file sebelumnya)</small>
+                        @endif
+                    </label>
+                    @if(auth()->user()->photo_administatif)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . auth()->user()->photo_administatif) }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Lihat File Sebelumnya
+                            </a>
+                        </div>
+                    @endif
                     <input type="file" id="photo_administatif" name="photo_administatif"
-                        class="form-control @error('photo_administatif') is-invalid @enderror" required>
+                        class="form-control @error('photo_administatif') is-invalid @enderror"
+                        {{ auth()->user()->photo_administatif ? '' : 'required' }}>
+                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
                     @error('photo_administatif')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

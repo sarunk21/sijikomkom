@@ -12,7 +12,9 @@
       "Bash(powershell -Command:*)",
       "Bash(git checkout:*)",
       "Bash(Get-Content \"C:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\storage\\logs\\laravel.log\" -Tail 100)",
-      "Bash(Select-String -Pattern \"Signature|FR AK 05\" -Context 2)"
+      "Bash(Select-String -Pattern \"Signature|FR AK 05\" -Context 2)",
+      "Bash(curl:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

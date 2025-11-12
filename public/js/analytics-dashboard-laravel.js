@@ -198,17 +198,41 @@ class AnalyticsDashboardLaravel {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
-                }
+                },
+                credentials: 'same-origin'
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('HTTP error response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+            }
+
+            // Check if response is HTML (redirect to login page)
+            const contentType = response.headers.get('content-type');
+            console.log('Content-Type:', contentType);
+
+            if (!contentType || !contentType.includes('application/json')) {
+                const htmlText = await response.text();
+                console.error('Received HTML instead of JSON (first 500 chars):', htmlText.substring(0, 500));
+
+                // Check if it's a login redirect
+                if (htmlText.includes('login') || htmlText.includes('Login') || htmlText.includes('<!DOCTYPE')) {
+                    console.error('AUTHENTICATION ERROR: User not logged in or session expired!');
+                    console.error('Please login as pimpinan/kaprodi first, then refresh this page.');
+                    throw new Error('AUTHENTICATION REQUIRED: Please login as pimpinan/kaprodi first.');
+                }
+                throw new Error('Server returned HTML instead of JSON. Response starts with: ' + htmlText.substring(0, 100));
             }
 
             const result = await response.json();
             console.log('Analytics response:', result);
 
             if (result.success) {
+                console.log('Successfully received data, rendering charts...');
                 this.renderAllCharts(result.data);
                 this.updateSummaryCards(result.data);
             } else {
@@ -218,18 +242,21 @@ class AnalyticsDashboardLaravel {
 
         } catch (error) {
             console.error('Error loading analytics data:', error);
-            this.showError('Gagal memuat data analytics');
+            console.error('Error stack:', error.stack);
+            this.showError('Gagal memuat data analytics: ' + error.message);
         }
     }
 
     // Render semua chart
     renderAllCharts(data) {
         console.log('Rendering all charts with data:', data);
-        this.renderSkemaTrendChart(data.skema_trend);
-        this.renderKompetensiSkemaChart(data.kompetensi_skema);
-        this.renderSegmentasiDemografiChart(data.segmentasi_demografi);
-        this.renderWorkloadAsesorChart(data.workload_asesor);
-        this.renderTrenPeminatSkemaChart(data.tren_peminat_skema);
+
+        // Render each chart with fallback to empty data
+        this.renderSkemaTrendChart(data.skema_trend || []);
+        this.renderKompetensiSkemaChart(data.kompetensi_skema || {});
+        this.renderSegmentasiDemografiChart(data.segmentasi_demografi || {jenis_kelamin: {}});
+        this.renderWorkloadAsesorChart(data.workload_asesor || []);
+        this.renderTrenPeminatSkemaChart(data.tren_peminat_skema || []);
     }
 
     // Update summary cards
@@ -241,6 +268,7 @@ class AnalyticsDashboardLaravel {
         const totalPendaftaranEl = document.getElementById('totalPendaftaran');
         if (totalPendaftaranEl) {
             totalPendaftaranEl.textContent = totalPendaftaran.toLocaleString();
+            console.log('Updated totalPendaftaran:', totalPendaftaran);
         }
 
         // Update total skema dari dashboard_summary
@@ -248,10 +276,14 @@ class AnalyticsDashboardLaravel {
         const totalSkemaEl = document.getElementById('totalSkema');
         if (totalSkemaEl) {
             totalSkemaEl.textContent = totalSkema;
+            console.log('Updated totalSkema:', totalSkema);
         }
 
-        // Update tingkat keberhasilan dari kompetensi_skema
-        if (data.kompetensi_skema && Object.keys(data.kompetensi_skema).length > 0) {
+        // Update tingkat keberhasilan - prioritize backend calculation
+        let tingkatKeberhasilan = data.dashboard_summary?.tingkat_keberhasilan || 0;
+
+        // Fallback to frontend calculation if not provided by backend
+        if (!tingkatKeberhasilan && data.kompetensi_skema && Object.keys(data.kompetensi_skema).length > 0) {
             let totalPendaftaranKompetensi = 0;
             let totalLulus = 0;
 
@@ -264,17 +296,19 @@ class AnalyticsDashboardLaravel {
                 });
             });
 
-            const avgPassRate = totalPendaftaranKompetensi > 0 ? (totalLulus / totalPendaftaranKompetensi) * 100 : 0;
-            const tingkatKeberhasilanEl = document.getElementById('tingkatKeberhasilan');
-            const progressKeberhasilanEl = document.getElementById('progressKeberhasilan');
+            tingkatKeberhasilan = totalPendaftaranKompetensi > 0 ? (totalLulus / totalPendaftaranKompetensi) * 100 : 0;
+        }
 
-            if (tingkatKeberhasilanEl) {
-                tingkatKeberhasilanEl.textContent = avgPassRate.toFixed(1) + '%';
-            }
-            if (progressKeberhasilanEl) {
-                progressKeberhasilanEl.style.width = avgPassRate + '%';
-                progressKeberhasilanEl.setAttribute('aria-valuenow', avgPassRate);
-            }
+        const tingkatKeberhasilanEl = document.getElementById('tingkatKeberhasilan');
+        const progressKeberhasilanEl = document.getElementById('progressKeberhasilan');
+
+        if (tingkatKeberhasilanEl) {
+            tingkatKeberhasilanEl.textContent = tingkatKeberhasilan.toFixed(1) + '%';
+            console.log('Updated tingkatKeberhasilan:', tingkatKeberhasilan);
+        }
+        if (progressKeberhasilanEl) {
+            progressKeberhasilanEl.style.width = tingkatKeberhasilan + '%';
+            progressKeberhasilanEl.setAttribute('aria-valuenow', tingkatKeberhasilan);
         }
 
         // Update total asesor dari dashboard_summary
@@ -282,6 +316,7 @@ class AnalyticsDashboardLaravel {
         const totalAsesorEl = document.getElementById('totalAsesor');
         if (totalAsesorEl) {
             totalAsesorEl.textContent = totalAsesor;
+            console.log('Updated totalAsesor:', totalAsesor);
         }
     }
 
@@ -490,7 +525,7 @@ class AnalyticsDashboardLaravel {
         }
 
         this.charts.workloadAsesor = new Chart(ctx, {
-            type: 'horizontalBar',
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
@@ -502,6 +537,7 @@ class AnalyticsDashboardLaravel {
                 }]
             },
             options: {
+                indexAxis: 'y', // This makes it horizontal
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
@@ -639,8 +675,37 @@ class AnalyticsDashboardLaravel {
 
     // Show error message
     showError(message) {
+        console.error('=== DASHBOARD ERROR ===');
         console.error(message);
-        // Bisa ditambahkan toast notification di sini
+
+        // Show error in all summary card elements
+        const elements = ['totalPendaftaran', 'totalSkema', 'tingkatKeberhasilan', 'totalAsesor'];
+        elements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = 'Error';
+                el.style.color = '#e74a3b';
+            }
+        });
+
+        // Show alert if it's authentication error
+        if (message.includes('Session expired') || message.includes('not authenticated') || message.includes('AUTHENTICATION REQUIRED')) {
+            const userType = window.location.pathname.includes('/pimpinan/') ? 'pimpinan' : 'kaprodi';
+
+            console.error('========================================');
+            console.error('SOLUSI:');
+            console.error('1. Buka tab baru dan login sebagai ' + userType);
+            console.error('2. Setelah login, kembali ke tab ini');
+            console.error('3. Refresh halaman (F5 atau Ctrl+R)');
+            console.error('========================================');
+
+            alert('⚠️ AUTENTIKASI DIPERLUKAN\n\n' +
+                  'Anda belum login atau session expired.\n\n' +
+                  'Silakan:\n' +
+                  '1. Login sebagai ' + userType + '\n' +
+                  '2. Refresh halaman ini (F5)\n\n' +
+                  'Dashboard akan otomatis load data setelah login.');
+        }
     }
 }
 

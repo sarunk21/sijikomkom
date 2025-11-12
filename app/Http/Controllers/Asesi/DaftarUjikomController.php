@@ -72,26 +72,40 @@ class DaftarUjikomController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'jadwal_id' => 'required|exists:jadwal,id',
-            'photo_ktp' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_sertifikat' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_ktmkhs' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_administatif' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
         $user = User::where('id', Auth::user()->id)->first();
 
-        $photoKtp = $request->file('photo_ktp')->store('photos', 'public');
-        $photoSertifikat = $request->file('photo_sertifikat')->store('photos', 'public');
-        $photoKtmkhs = $request->file('photo_ktmkhs')->store('photos', 'public');
-        $photoAdministatif = $request->file('photo_administatif')->store('photos', 'public');
-        $user->update([
-            'photo_ktp' => $photoKtp,
-            'photo_sertifikat' => $photoSertifikat,
-            'photo_ktmkhs' => $photoKtmkhs,
-            'photo_administatif' => $photoAdministatif,
-        ]);
+        // Dynamic validation rules based on existing files
+        $rules = [
+            'jadwal_id' => 'required|exists:jadwal,id',
+            'photo_ktp' => ($user->photo_ktp ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_sertifikat' => ($user->photo_sertifikat ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_ktmkhs' => ($user->photo_ktmkhs ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_administatif' => ($user->photo_administatif ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
+        ];
+
+        $request->validate($rules);
+
+        // Prepare data to update
+        $updateData = [];
+
+        // Only update files that are uploaded
+        if ($request->hasFile('photo_ktp')) {
+            $updateData['photo_ktp'] = $request->file('photo_ktp')->store('photos', 'public');
+        }
+        if ($request->hasFile('photo_sertifikat')) {
+            $updateData['photo_sertifikat'] = $request->file('photo_sertifikat')->store('photos', 'public');
+        }
+        if ($request->hasFile('photo_ktmkhs')) {
+            $updateData['photo_ktmkhs'] = $request->file('photo_ktmkhs')->store('photos', 'public');
+        }
+        if ($request->hasFile('photo_administatif')) {
+            $updateData['photo_administatif'] = $request->file('photo_administatif')->store('photos', 'public');
+        }
+
+        // Update user only if there are files to update
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
 
         // Gunakan service untuk membuat pembayaran
         try {

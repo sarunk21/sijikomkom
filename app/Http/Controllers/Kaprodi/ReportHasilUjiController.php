@@ -13,16 +13,37 @@ class ReportHasilUjiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListKaprodi('report-hasil-uji');
 
-        $reports = Jadwal::where('status', 4)
-            ->with(['skema', 'tuk'])
-            ->orderBy('tanggal_ujian', 'asc')
-            ->get();
+        $query = Jadwal::where('status', 4)
+            ->with(['skema', 'tuk']);
 
-        return view('components.pages.kaprodi.report-hasil-uji.list', compact('lists', 'reports'));
+        // Apply filters
+        if ($request->filled('start_date')) {
+            $query->whereDate('tanggal_ujian', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('tanggal_ujian', '<=', $request->end_date);
+        }
+
+        if ($request->filled('skema_id')) {
+            $query->where('skema_id', $request->skema_id);
+        }
+
+        if ($request->filled('tuk_id')) {
+            $query->where('tuk_id', $request->tuk_id);
+        }
+
+        $reports = $query->orderBy('tanggal_ujian', 'asc')->get();
+
+        // Get all skema and tuk for filter dropdowns
+        $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
+        $tuks = \App\Models\Tuk::orderBy('nama', 'asc')->get();
+
+        return view('components.pages.kaprodi.report-hasil-uji.list', compact('lists', 'reports', 'skemas', 'tuks'));
     }
 
     /**
