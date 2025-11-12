@@ -23,7 +23,7 @@ class VerifikasiPendaftaranController extends Controller
             'jadwal',
             'jadwal.skema',
             'jadwal.tuk',
-            'user:id,name,nim,email,telephone,jurusan,photo_ktp,photo_sertifikat,photo_ktmkhs,photo_administatif',
+            'user', // Load all user fields including uploaded files
             'skema',
             'pendaftaranUjikom'
         ]);

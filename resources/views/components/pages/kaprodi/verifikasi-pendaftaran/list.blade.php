@@ -326,10 +326,6 @@
         .border-left-info {
             border-left: 0.25rem solid #36b9cc !important;
         }
-
-        #detail-files-card {
-            display: none;
-        }
     </style>
 
     {{-- Scripts --}}
@@ -518,10 +514,9 @@
                     }
 
                     if (hasFiles) {
-                        $('#detail-files-card').show();
                         $('#detail-files').html(filesHtml);
                     } else {
-                        $('#detail-files-card').hide();
+                        $('#detail-files').html('<div class="col-12"><p class="text-muted mb-0">Belum ada file yang diupload</p></div>');
                     }
                 });
 
@@ -531,7 +526,6 @@
                       '#detail-skema, #detail-tuk, #detail-tanggal, #detail-status, #detail-created').text('-');
                     $('#detail-keterangan').text('-');
                     $('#detail-files').html('');
-                    $('#detail-files-card').hide();
                 });
             });
         </script>
