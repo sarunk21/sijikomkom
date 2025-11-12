@@ -393,7 +393,7 @@
                     $('#detail-nama').text(item.user?.name || '-');
                     $('#detail-nim').text(item.user?.nim || '-');
                     $('#detail-email').text(item.user?.email || '-');
-                    $('#detail-phone').text(item.user?.no_hp || '-');
+                    $('#detail-phone').text(item.user?.telephone || '-');
                     $('#detail-jurusan').text(item.user?.jurusan || '-');
 
                     // Populate registration information
