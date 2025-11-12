@@ -172,6 +172,25 @@ class AnalyticsController extends Controller
     public function getDashboardData(Request $request): JsonResponse
     {
         try {
+            // Check if user is authenticated
+            if (!auth()->check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication required. Please login first.',
+                    'error' => 'UNAUTHENTICATED'
+                ], 401);
+            }
+
+            // Check if user has proper user_type
+            $userType = auth()->user()->user_type;
+            if (!in_array($userType, ['pimpinan', 'kaprodi', 'admin'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access. User type: ' . $userType,
+                    'error' => 'UNAUTHORIZED'
+                ], 403);
+            }
+
             // Ambil filter dari request
             $startDate = $request->query('start_date') ? Carbon::parse($request->query('start_date')) : null;
             $endDate = $request->query('end_date') ? Carbon::parse($request->query('end_date')) : null;
@@ -185,6 +204,23 @@ class AnalyticsController extends Controller
             $workloadAsesor = $this->analyticsService->getWorkloadAsesor($startDate, $endDate); // Only 2 params
             $trenPeminatSkema = $this->analyticsService->getTrenPeminatSkema($startDate, $endDate); // Only 2 params
             $dashboardSummary = $this->analyticsService->getDashboardSummary(); // No params
+
+            // Convert Collections to arrays for JSON encoding
+            if (is_object($skemaTrend) && method_exists($skemaTrend, 'toArray')) {
+                $skemaTrend = $skemaTrend->toArray();
+            }
+            if (is_object($trenPeminatSkema) && method_exists($trenPeminatSkema, 'toArray')) {
+                $trenPeminatSkema = $trenPeminatSkema->toArray();
+            }
+
+            // Log data untuk debugging
+            \Log::info('Dashboard data loaded', [
+                'user_type' => auth()->user()->user_type,
+                'skema_trend_count' => is_array($skemaTrend) ? count($skemaTrend) : 0,
+                'kompetensi_skema_count' => is_array($kompetensiSkema) ? count($kompetensiSkema) : 0,
+                'workload_asesor_count' => is_array($workloadAsesor) ? count($workloadAsesor) : 0,
+                'tren_peminat_count' => is_array($trenPeminatSkema) ? count($trenPeminatSkema) : 0
+            ]);
 
             // Calculate tingkat keberhasilan from kompetensiSkema
             $totalKompeten = 0;
