@@ -35,6 +35,10 @@ class User extends Authenticatable
         'photo_diri',
         'tanda_tangan',
         'user_type',
+        'photo_ktp',
+        'photo_sertifikat',
+        'photo_ktmkhs',
+        'photo_administatif',
     ];
 
     /**
