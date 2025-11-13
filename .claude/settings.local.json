@@ -15,7 +15,8 @@
       "Bash(Select-String -Pattern \"Signature|FR AK 05\" -Context 2)",
       "Bash(curl:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(del \"database\\migrations\\2025_11_13_000824_add_asesor_confirmation_to_users_table.php\")"
     ],
     "deny": [],
     "ask": []

@@ -171,6 +171,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('/', [AsesorDashboardController::class, 'index'])->name('dashboard.asesor');
+    Route::post('/confirm-jadwal', [AsesorDashboardController::class, 'confirmJadwal'])->name('asesor.confirm-jadwal');
 
     // Review & Verifikasi routes (NEW - unified menu)
     Route::get('review', [ReviewController::class, 'index'])->name('asesor.review.index');

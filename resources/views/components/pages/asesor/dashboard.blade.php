@@ -8,6 +8,31 @@
     <!-- Content Row -->
     <div class="row">
 
+        @if(isset($pendingConfirmations) && $pendingConfirmations->count() > 0)
+        <!-- Pending Confirmations Alert Card -->
+        <div class="col-xl-12 mb-4">
+            <div class="alert alert-warning border-left-warning shadow py-3" role="alert">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-1">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <strong>Konfirmasi Kehadiran Diperlukan</strong>
+                        </h5>
+                        <p class="mb-0">
+                            Anda memiliki <strong>{{ $pendingConfirmations->count() }}</strong> jadwal ujikom yang memerlukan konfirmasi kehadiran.
+                            <a href="#pendingConfirmationTable" class="alert-link">Lihat jadwal <i class="fas fa-arrow-down"></i></a>
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge badge-warning" style="font-size: 1.5rem; padding: 0.75rem 1rem;">
+                            {{ $pendingConfirmations->count() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Total Ujikom Card -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -158,6 +183,64 @@
         </div>
     </div>
 
+    <!-- Pending Jadwal Confirmation Row -->
+    @if(isset($pendingConfirmations) && $pendingConfirmations->count() > 0)
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3 bg-gradient-warning">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Jadwal Menunggu Konfirmasi Anda
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Anda memiliki <strong>{{ $pendingConfirmations->count() }}</strong> jadwal yang memerlukan konfirmasi kehadiran.
+                        Harap konfirmasi ketersediaan Anda untuk menjadi asesor pada jadwal berikut.
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="pendingConfirmationTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal & Waktu Ujian</th>
+                                    <th>Nama Asesi</th>
+                                    <th>Skema</th>
+                                    <th>TUK</th>
+                                    <th>Ditugaskan Sejak</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($pendingConfirmations as $item)
+                                <tr>
+                                    <td>
+                                        <strong>{{ \Carbon\Carbon::parse($item->jadwal->tanggal_ujian)->format('d M Y') }}</strong><br>
+                                        <small class="text-muted">{{ $item->jadwal->waktu ?? 'Belum ditentukan' }}</small>
+                                    </td>
+                                    <td>{{ $item->asesi->name }}</td>
+                                    <td>{{ $item->jadwal->skema->nama ?? 'N/A' }}</td>
+                                    <td>{{ $item->jadwal->tuk->nama ?? 'N/A' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d M Y H:i') }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success confirm-btn" data-id="{{ $item->id }}" data-asesi="{{ $item->asesi->name }}" data-jadwal="{{ \Carbon\Carbon::parse($item->jadwal->tanggal_ujian)->format('d M Y') }}">
+                                            <i class="fas fa-check mr-1"></i>Konfirmasi Hadir
+                                        </button>
+                                        <button class="btn btn-sm btn-danger reject-btn" data-id="{{ $item->id }}" data-asesi="{{ $item->asesi->name }}" data-jadwal="{{ \Carbon\Carbon::parse($item->jadwal->tanggal_ujian)->format('d M Y') }}">
+                                            <i class="fas fa-times mr-1"></i>Tidak Dapat Hadir
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Jadwal Ujikom Terdekat Row -->
     <div class="row">
         <div class="col-lg-12">
@@ -271,5 +354,73 @@ function updateStatusPenilaianChart() {
     // Simulasi refresh status penilaian chart
     console.log('Refreshing status penilaian chart');
 }
+
+// Asesor Confirmation Handlers
+$(document).ready(function() {
+    // Confirm button handler
+    $('.confirm-btn').on('click', function() {
+        const id = $(this).data('id');
+        const asesi = $(this).data('asesi');
+        const jadwal = $(this).data('jadwal');
+
+        if (confirm(`Konfirmasi kehadiran untuk mengases ${asesi} pada tanggal ${jadwal}?`)) {
+            $.ajax({
+                url: '{{ route("asesor.confirm-jadwal") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    pendaftaran_ujikom_id: id,
+                    status: 'confirmed'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Konfirmasi berhasil! Terima kasih telah mengkonfirmasi kehadiran Anda.');
+                        location.reload();
+                    } else {
+                        alert('Terjadi kesalahan: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan saat mengkonfirmasi. Silakan coba lagi.');
+                    console.error(xhr);
+                }
+            });
+        }
+    });
+
+    // Reject button handler
+    $('.reject-btn').on('click', function() {
+        const id = $(this).data('id');
+        const asesi = $(this).data('asesi');
+        const jadwal = $(this).data('jadwal');
+
+        const notes = prompt(`Anda menolak jadwal untuk mengases ${asesi} pada tanggal ${jadwal}.\n\nMohon berikan alasan (opsional):`);
+
+        if (notes !== null) { // User clicked OK (even if empty)
+            $.ajax({
+                url: '{{ route("asesor.confirm-jadwal") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    pendaftaran_ujikom_id: id,
+                    status: 'rejected',
+                    notes: notes || 'Tidak dapat hadir'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Penolakan berhasil diproses. Admin akan mencari asesor pengganti.');
+                        location.reload();
+                    } else {
+                        alert('Terjadi kesalahan: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan saat memproses penolakan. Silakan coba lagi.');
+                    console.error(xhr);
+                }
+            });
+        }
+    });
+});
 </script>
 @endpush

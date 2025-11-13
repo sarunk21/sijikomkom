@@ -10,7 +10,7 @@ class PendaftaranUjikom extends Model
     use HasFactory;
 
     protected $table = 'pendaftaran_ujikom';
-    protected $fillable = ['pendaftaran_id', 'jadwal_id', 'asesi_id', 'asesor_id', 'status', 'keterangan'];
+    protected $fillable = ['pendaftaran_id', 'jadwal_id', 'asesi_id', 'asesor_id', 'status', 'keterangan', 'asesor_confirmed', 'asesor_confirmed_at', 'asesor_notes'];
 
     protected $statusUjikom = [
         1 => 'Belum Ujikom',

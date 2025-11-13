@@ -7,6 +7,7 @@ use App\Models\Pendaftaran;
 use App\Models\User;
 use App\Models\PendaftaranUjikom;
 use App\Models\Jadwal;
+use App\Models\AsesorRejectionHistory;
 use App\Services\EmailService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -92,13 +93,43 @@ class DistributeUjikomCommand extends Command
             $asesorIndex = 0;
 
             foreach ($pendaftaranSkema as $index => $pendaftar) {
-                $asesorId = $asesorArray[$asesorIndex]['id'];
-
                 // Cek apakah sudah ada pendaftaran ujikom untuk pendaftar ini
                 $existingUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftar->id)->first();
 
                 if ($existingUjikom) {
                     Log::info("Pendaftaran ID {$pendaftar->id} sudah memiliki ujikom, dilewati.");
+                    continue;
+                }
+
+                // Cari asesor yang belum pernah menolak pendaftaran ini
+                $asesorId = null;
+                $attempts = 0;
+                $maxAttempts = count($asesorArray);
+
+                while ($attempts < $maxAttempts) {
+                    $candidateAsesorId = $asesorArray[$asesorIndex]['id'];
+
+                    // Cek apakah asesor ini pernah menolak pendaftaran ini
+                    $hasRejected = AsesorRejectionHistory::where('pendaftaran_id', $pendaftar->id)
+                        ->where('asesor_id', $candidateAsesorId)
+                        ->exists();
+
+                    if (!$hasRejected) {
+                        // Asesor ini belum pernah menolak, gunakan
+                        $asesorId = $candidateAsesorId;
+                        break;
+                    }
+
+                    // Asesor ini sudah pernah menolak, coba asesor berikutnya
+                    Log::info("Asesor ID {$candidateAsesorId} pernah menolak pendaftaran ID {$pendaftar->id}, mencari asesor lain...");
+                    $asesorIndex = ($asesorIndex + 1) % count($asesorArray);
+                    $attempts++;
+                }
+
+                if ($asesorId === null) {
+                    // Semua asesor sudah menolak, skip pendaftaran ini
+                    Log::warning("Semua asesor sudah menolak pendaftaran ID {$pendaftar->id}, tidak bisa didistribusikan.");
+                    $this->warn("Pendaftaran ID {$pendaftar->id} tidak bisa didistribusikan karena semua asesor sudah menolak.");
                     continue;
                 }
 
