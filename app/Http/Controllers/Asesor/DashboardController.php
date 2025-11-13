@@ -101,15 +101,27 @@ class DashboardController extends Controller
             })
             ->values();
 
-        // Pending confirmations - jadwal yang belum dikonfirmasi asesor
+        // Pending confirmations - group by jadwal
         $pendingConfirmations = PendaftaranUjikom::where('asesor_id', $user->id)
             ->where('asesor_confirmed', false)
             ->whereHas('jadwal', function($query) {
-                $query->where('tanggal_ujian', '>=', now()); // Only future jadwal
+                $query->where('tanggal_ujian', '>', now()); // Only future jadwal (belum dimulai)
             })
-            ->with(['asesi', 'jadwal', 'jadwal.skema', 'jadwal.tuk'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->get()
+            ->groupBy('jadwal_id')
+            ->map(function($items) {
+                $first = $items->first();
+                return [
+                    'jadwal_id' => $first->jadwal_id,
+                    'jadwal' => $first->jadwal,
+                    'jumlah_asesi' => $items->count(),
+                    'pendaftaran_ujikom_ids' => $items->pluck('id')->toArray(),
+                    'ditugaskan_sejak' => $items->min('created_at')
+                ];
+            })
+            ->sortBy('jadwal.tanggal_ujian')
+            ->values();
 
         $lists = $this->getMenuListAsesor('dashboard');
 
@@ -129,49 +141,70 @@ class DashboardController extends Controller
     public function confirmJadwal(Request $request)
     {
         $request->validate([
-            'pendaftaran_ujikom_id' => 'required|exists:pendaftaran_ujikom,id',
+            'jadwal_id' => 'required|exists:jadwal,id',
             'status' => 'required|in:confirmed,rejected',
             'notes' => 'nullable|string|max:500'
         ]);
 
         $user = Auth::user();
-        $pendaftaranUjikom = PendaftaranUjikom::findOrFail($request->pendaftaran_ujikom_id);
+        $jadwalId = $request->jadwal_id;
 
-        // Verify this is assigned to the logged-in asesor
-        if ($pendaftaranUjikom->asesor_id != $user->id) {
+        // Ambil semua pendaftaran ujikom untuk jadwal ini yang assigned ke asesor ini
+        $pendaftaranUjikomList = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+            ->where('asesor_id', $user->id)
+            ->where('asesor_confirmed', false)
+            ->with(['jadwal', 'asesi'])
+            ->get();
+
+        if ($pendaftaranUjikomList->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk mengkonfirmasi jadwal ini.'
-            ], 403);
+                'message' => 'Tidak ada jadwal yang perlu dikonfirmasi atau sudah dikonfirmasi sebelumnya.'
+            ], 404);
+        }
+
+        // Cek apakah jadwal sudah dimulai
+        $jadwal = $pendaftaranUjikomList->first()->jadwal;
+        if ($jadwal->tanggal_ujian <= now()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat konfirmasi karena ujian sudah dimulai atau sudah lewat.'
+            ], 400);
         }
 
         // Update confirmation status
         if ($request->status === 'confirmed') {
-            $pendaftaranUjikom->asesor_confirmed = true;
-            $pendaftaranUjikom->asesor_confirmed_at = now();
-            $pendaftaranUjikom->asesor_notes = $request->notes;
-            $pendaftaranUjikom->save();
+            // Konfirmasi semua asesi untuk jadwal ini
+            foreach ($pendaftaranUjikomList as $pendaftaranUjikom) {
+                $pendaftaranUjikom->asesor_confirmed = true;
+                $pendaftaranUjikom->asesor_confirmed_at = now();
+                $pendaftaranUjikom->asesor_notes = $request->notes;
+                $pendaftaranUjikom->save();
+            }
+
+            \Log::info("Asesor {$user->name} (ID: {$user->id}) konfirmasi hadir untuk jadwal ID {$jadwalId} dengan {$pendaftaranUjikomList->count()} asesi");
 
             return response()->json([
                 'success' => true,
-                'message' => 'Konfirmasi kehadiran berhasil.'
+                'message' => "Konfirmasi berhasil untuk {$pendaftaranUjikomList->count()} asesi pada jadwal ini."
             ]);
         } else {
-            // Rejected - simpan history penolakan dan hapus assignment
+            // Rejected - simpan history dan hapus semua assignment untuk jadwal ini
+            foreach ($pendaftaranUjikomList as $pendaftaranUjikom) {
+                // Simpan ke rejection history
+                AsesorRejectionHistory::create([
+                    'pendaftaran_id' => $pendaftaranUjikom->pendaftaran_id,
+                    'jadwal_id' => $pendaftaranUjikom->jadwal_id,
+                    'asesor_id' => $user->id,
+                    'notes' => $request->notes ?? 'Tidak dapat hadir'
+                ]);
 
-            // Simpan ke rejection history agar asesor ini tidak dapat assignment yang sama lagi
-            AsesorRejectionHistory::create([
-                'pendaftaran_id' => $pendaftaranUjikom->pendaftaran_id,
-                'jadwal_id' => $pendaftaranUjikom->jadwal_id,
-                'asesor_id' => $user->id,
-                'notes' => $request->notes ?? 'Tidak dapat hadir'
-            ]);
+                // Hapus assignment
+                $pendaftaranUjikom->delete();
+            }
 
             // Log untuk audit
-            \Log::info("Asesor {$user->name} (ID: {$user->id}) menolak jadwal untuk asesi {$pendaftaranUjikom->asesi->name}. Alasan: " . ($request->notes ?? 'Tidak dapat hadir'));
-
-            // Hapus assignment ini agar sistem distribusi bisa assign asesor baru
-            $pendaftaranUjikom->delete();
+            \Log::info("Asesor {$user->name} (ID: {$user->id}) menolak jadwal ID {$jadwalId} dengan {$pendaftaranUjikomList->count()} asesi. Alasan: " . ($request->notes ?? 'Tidak dapat hadir'));
 
             return response()->json([
                 'success' => true,
