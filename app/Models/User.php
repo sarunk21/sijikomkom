@@ -39,6 +39,9 @@ class User extends Authenticatable
         'photo_sertifikat',
         'photo_ktmkhs',
         'photo_administatif',
+        'is_asesor_active',
+        'asesor_confirmed_at',
+        'confirmed_by',
     ];
 
     /**

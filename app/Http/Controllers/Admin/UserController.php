@@ -547,4 +547,33 @@ class UserController extends Controller
 
         return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
     }
+
+    /**
+     * Toggle asesor active status
+     */
+    public function toggleAsesorStatus($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Only allow toggle for asesor user type
+        if ($user->user_type !== 'asesor') {
+            return redirect()->back()->with('error', 'User bukan asesor');
+        }
+
+        // Toggle status
+        $user->is_asesor_active = !$user->is_asesor_active;
+
+        // Set confirmation data if activating
+        if ($user->is_asesor_active) {
+            $user->asesor_confirmed_at = now();
+            $user->confirmed_by = auth()->id();
+            $message = 'Asesor berhasil diaktifkan';
+        } else {
+            $message = 'Asesor berhasil dinonaktifkan';
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', $message);
+    }
 }
