@@ -66,8 +66,30 @@ class SecondRegistrationService
                 ->where('jadwal_id', $jadwalId)
                 ->first();
 
+            // Jika pembayaran sudah ada, cek statusnya
             if ($existingPayment) {
-                throw new \Exception('Anda sudah mendaftar untuk jadwal ini.');
+                // Jika pembayaran ditolak (status 3), hapus dan buat baru
+                if ($existingPayment->status == 3) {
+                    $existingPayment->delete();
+                }
+                // Jika pembayaran dikonfirmasi (status 4), cek apakah pendaftaran ditolak kaprodi
+                elseif ($existingPayment->status == 4) {
+                    $registration = Pendaftaran::where('user_id', $userId)
+                        ->where('jadwal_id', $jadwalId)
+                        ->first();
+
+                    // Jika pendaftaran ditolak kaprodi (status 2), hapus pembayaran dan pendaftaran lama
+                    if ($registration && $registration->status == 2) {
+                        $registration->delete();
+                        $existingPayment->delete();
+                    } else {
+                        throw new \Exception('Anda sudah mendaftar untuk jadwal ini.');
+                    }
+                }
+                // Status lain (1, 2) tidak boleh daftar lagi
+                else {
+                    throw new \Exception('Anda memiliki pembayaran yang belum diselesaikan untuk jadwal ini. Silakan selesaikan pembayaran terlebih dahulu.');
+                }
             }
 
             // Tentukan status pembayaran berdasarkan riwayat
