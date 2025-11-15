@@ -73,8 +73,8 @@ trait MenuTrait
             ],
             [
                 'title' => 'Bank Soal',
-                'url' => 'admin.apl-2.index',
-                'key' => 'apl-2'
+                'url' => 'admin.bank-soal.index',
+                'key' => 'bank-soal'
             ],
         [
             'title' => 'Testing Tools',

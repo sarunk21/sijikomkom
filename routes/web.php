@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UploadSertifikatAdminController;
 use App\Http\Controllers\Admin\TestingController;
 use App\Http\Controllers\Admin\AdminTemplateController;
+use App\Http\Controllers\Admin\BankSoalController;
 
 use App\Http\Controllers\Asesi\DaftarUjikomController;
 use App\Http\Controllers\Asesi\CustomDataController;
@@ -95,6 +96,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::resource('template-master', AdminTemplateController::class)->names('admin.template-master');
     Route::get('template-master/{id}/download', [AdminTemplateController::class, 'download'])->name('admin.template-master.download');
     Route::post('template-master/{id}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('admin.template-master.toggle-status');
+
+    // Bank Soal routes
+    Route::resource('bank-soal', BankSoalController::class)->names('admin.bank-soal');
+    Route::get('bank-soal/{id}/download', [BankSoalController::class, 'download'])->name('admin.bank-soal.download');
+    Route::post('bank-soal/{id}/toggle-status', [BankSoalController::class, 'toggleStatus'])->name('admin.bank-soal.toggle-status');
+
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('upload-sertifikat', UploadSertifikatAdminController::class)->names('admin.upload-sertifikat-admin');
     // APL2 Template routes (harus sebelum resource)
