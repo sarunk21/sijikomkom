@@ -1,10 +1,9 @@
-<x-layout>
-    <x-slot name="page_name">Penilaian BK/K - {{ $asesi->name }}</x-slot>
-    <x-slot name="page_desc">Hasil Akhir Penilaian | {{ $jadwal->skema->nama_skema }}</x-slot>
+@extends('components.templates.master-layout')
 
-    <x-navbar :lists="$lists" :active="$activeMenu"></x-navbar>
+@section('title', 'Penilaian BK/K - ' . $asesi->name)
+@section('page-title', 'Penilaian BK/K - ' . $asesi->name)
 
-    <div class="container-fluid">
+@section('content')
         <div class="card shadow-sm">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
@@ -41,15 +40,15 @@
                         <table class="table table-sm table-borderless">
                             <tr>
                                 <td width="40%"><strong>Skema</strong></td>
-                                <td>: {{ $jadwal->skema->nama_skema }}</td>
+                                <td>: {{ $jadwal->skema->nama }}</td>
                             </tr>
                             <tr>
                                 <td><strong>TUK</strong></td>
-                                <td>: {{ $jadwal->tuk }}</td>
+                                <td>: {{ $jadwal->tuk->nama ?? $jadwal->tuk }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Tanggal</strong></td>
-                                <td>: {{ $jadwal->tanggal_mulai->format('d/m/Y') }}</td>
+                                <td>: {{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d/m/Y') }}</td>
                             </tr>
                         </table>
                     </div>
@@ -263,4 +262,4 @@
             document.getElementById('hasil_' + value).checked = true;
         }
     </script>
-</x-layout>
+@endsection

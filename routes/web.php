@@ -99,10 +99,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('template-master/{id}/download', [AdminTemplateController::class, 'download'])->name('admin.template-master.download');
     Route::post('template-master/{id}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('admin.template-master.toggle-status');
 
-    // Bank Soal routes
-    Route::resource('bank-soal', BankSoalController::class)->names('admin.bank-soal');
+    // Bank Soal routes (custom routes harus sebelum resource)
     Route::get('bank-soal/{id}/download', [BankSoalController::class, 'download'])->name('admin.bank-soal.download');
     Route::post('bank-soal/{id}/toggle-status', [BankSoalController::class, 'toggleStatus'])->name('admin.bank-soal.toggle-status');
+    Route::resource('bank-soal', BankSoalController::class)->names('admin.bank-soal');
 
     Route::resource('report', ReportController::class)->names('admin.report');
     Route::resource('upload-sertifikat', UploadSertifikatAdminController::class)->names('admin.upload-sertifikat-admin');
@@ -227,8 +227,9 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir', [PemeriksaanController::class, 'formulirList'])->name('asesor.pemeriksaan.formulir-list');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'review'])->name('asesor.pemeriksaan.review');
     Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'saveReview'])->name('asesor.pemeriksaan.save-review');
-    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'frAi07'])->name('asesor.pemeriksaan.fr-ai-07');
-    Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'saveFrAi07'])->name('asesor.pemeriksaan.save-fr-ai-07');
+    // FR AI 07 sekarang sudah masuk ke Bank Soal (tidak perlu route terpisah lagi)
+    // Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'frAi07'])->name('asesor.pemeriksaan.fr-ai-07');
+    // Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'saveFrAi07'])->name('asesor.pemeriksaan.save-fr-ai-07');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'penilaian'])->name('asesor.pemeriksaan.penilaian');
     Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'savePenilaian'])->name('asesor.pemeriksaan.save-penilaian');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/generate', [PemeriksaanController::class, 'generateTemplate'])->name('asesor.pemeriksaan.generate-template');

@@ -155,8 +155,8 @@ class BankSoalController extends Controller
             // Generate unique filename
             $filename = 'bank-soal/' . time() . '_' . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
 
-            // Store file
-            $path = $file->storeAs('public', $filename);
+            // Store file to public disk
+            $path = Storage::disk('public')->putFileAs('', $file, $filename);
 
             // Parse variables from JSON
             $variables = null;
@@ -316,8 +316,13 @@ class BankSoalController extends Controller
 
         // Update file if new file uploaded
         if ($request->hasFile('file')) {
-            // Delete old file
-            Storage::delete('public/' . $bankSoal->file_path);
+            \Log::info('Bank Soal Update: File detected', ['file_name' => $request->file('file')->getClientOriginalName()]);
+
+            // Delete old file if exists
+            if ($bankSoal->file_path && Storage::disk('public')->exists($bankSoal->file_path)) {
+                Storage::disk('public')->delete($bankSoal->file_path);
+                \Log::info('Bank Soal Update: Old file deleted', ['old_path' => $bankSoal->file_path]);
+            }
 
             $file = $request->file('file');
             $originalFilename = $file->getClientOriginalName();
@@ -325,11 +330,19 @@ class BankSoalController extends Controller
             // Generate unique filename
             $filename = 'bank-soal/' . time() . '_' . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
 
-            // Store new file
-            $path = $file->storeAs('public', $filename);
+            // Store new file to public disk
+            $path = Storage::disk('public')->putFileAs('', $file, $filename);
+
+            \Log::info('Bank Soal Update: New file stored', [
+                'filename' => $filename,
+                'storage_path' => $path,
+                'full_path' => storage_path('app/public/' . $filename)
+            ]);
 
             $bankSoal->file_path = $filename;
             $bankSoal->original_filename = $originalFilename;
+        } else {
+            \Log::info('Bank Soal Update: No file uploaded');
         }
 
         // Parse variables from JSON

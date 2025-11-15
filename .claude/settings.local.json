@@ -16,7 +16,9 @@
       "Bash(curl:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(del \"database\\migrations\\2025_11_13_000824_add_asesor_confirmation_to_users_table.php\")"
+      "Bash(del \"database\\migrations\\2025_11_13_000824_add_asesor_confirmation_to_users_table.php\")",
+      "Bash(php -r:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

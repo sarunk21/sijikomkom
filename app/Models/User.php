@@ -101,4 +101,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(AsesorSkema::class, 'asesor_id');
     }
+
+    // Relasi untuk asesi penilaian
+    public function asesiPenilaian()
+    {
+        return $this->hasMany(AsesiPenilaian::class, 'user_id');
+    }
 }

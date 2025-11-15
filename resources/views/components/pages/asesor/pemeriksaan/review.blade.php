@@ -1,10 +1,9 @@
-<x-layout>
-    <x-slot name="page_name">Review Formulir - {{ $bankSoal->nama }}</x-slot>
-    <x-slot name="page_desc">{{ $asesi->name }} | {{ $jadwal->skema->nama_skema }}</x-slot>
+@extends('components.templates.master-layout')
 
-    <x-navbar :lists="$lists" :active="$activeMenu"></x-navbar>
+@section('title', 'Review Formulir - ' . $bankSoal->nama)
+@section('page-title', 'Review Formulir - ' . $bankSoal->nama)
 
-    <div class="container-fluid">
+@section('content')
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
@@ -113,99 +112,122 @@
 
                         <div class="row">
                             @foreach ($asesorFields as $field)
-                                <div class="col-md-{{ $field['width'] ?? 12 }} mb-3">
-                                    <label class="font-weight-bold">
-                                        {{ $field['label'] }}
-                                        @if ($field['required'] ?? false)
-                                            <span class="text-danger">*</span>
-                                        @endif
-                                    </label>
+                                <div class="col-md-{{ $field['width'] ?? 12 }} mb-4">
+                                    <div class="card border-left-info shadow-sm">
+                                        <div class="card-body">
+                                            <label class="font-weight-bold">
+                                                {{ $field['label'] }}
+                                                @if ($field['required'] ?? false)
+                                                    <span class="text-danger">*</span>
+                                                @endif
+                                            </label>
 
-                                    @if ($field['type'] === 'text')
-                                        <input type="text" name="asesor_responses[{{ $field['name'] }}]"
-                                            class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
-                                            {{ $field['required'] ?? false ? 'required' : '' }}>
-
-                                    @elseif ($field['type'] === 'textarea')
-                                        <textarea name="asesor_responses[{{ $field['name'] }}]" class="form-control"
-                                            rows="4" {{ $field['required'] ?? false ? 'required' : '' }}>{{ $response->asesor_responses[$field['name']] ?? '' }}</textarea>
-
-                                    @elseif ($field['type'] === 'number')
-                                        <input type="number" name="asesor_responses[{{ $field['name'] }}]"
-                                            class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
-                                            {{ $field['required'] ?? false ? 'required' : '' }}>
-
-                                    @elseif ($field['type'] === 'email')
-                                        <input type="email" name="asesor_responses[{{ $field['name'] }}]"
-                                            class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
-                                            {{ $field['required'] ?? false ? 'required' : '' }}>
-
-                                    @elseif ($field['type'] === 'date')
-                                        <input type="date" name="asesor_responses[{{ $field['name'] }}]"
-                                            class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
-                                            {{ $field['required'] ?? false ? 'required' : '' }}>
-
-                                    @elseif ($field['type'] === 'checkbox')
-                                        @foreach ($field['options'] ?? [] as $option)
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input"
-                                                    id="asesor_{{ $field['name'] }}_{{ $loop->index }}"
-                                                    name="asesor_responses[{{ $field['name'] }}][]" value="{{ $option }}"
-                                                    {{ in_array($option, $response->asesor_responses[$field['name']] ?? []) ? 'checked' : '' }}>
-                                                <label class="custom-control-label"
-                                                    for="asesor_{{ $field['name'] }}_{{ $loop->index }}">
-                                                    {{ $option }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-
-                                    @elseif ($field['type'] === 'radio')
-                                        @foreach ($field['options'] ?? [] as $option)
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" class="custom-control-input"
-                                                    id="asesor_{{ $field['name'] }}_{{ $loop->index }}"
-                                                    name="asesor_responses[{{ $field['name'] }}]" value="{{ $option }}"
-                                                    {{ ($response->asesor_responses[$field['name']] ?? '') === $option ? 'checked' : '' }}
+                                            @if ($field['type'] === 'text')
+                                                <input type="text" name="asesor_responses[{{ $field['name'] }}]"
+                                                    class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
                                                     {{ $field['required'] ?? false ? 'required' : '' }}>
-                                                <label class="custom-control-label"
-                                                    for="asesor_{{ $field['name'] }}_{{ $loop->index }}">
-                                                    {{ $option }}
-                                                </label>
-                                            </div>
-                                        @endforeach
 
-                                    @elseif ($field['type'] === 'select')
-                                        <select name="asesor_responses[{{ $field['name'] }}]" class="form-control"
-                                            {{ $field['required'] ?? false ? 'required' : '' }}>
-                                            <option value="">-- Pilih --</option>
-                                            @foreach ($field['options'] ?? [] as $option)
-                                                <option value="{{ $option }}"
-                                                    {{ ($response->asesor_responses[$field['name']] ?? '') === $option ? 'selected' : '' }}>
-                                                    {{ $option }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                            @elseif ($field['type'] === 'textarea')
+                                                <textarea name="asesor_responses[{{ $field['name'] }}]" class="form-control"
+                                                    rows="4" {{ $field['required'] ?? false ? 'required' : '' }}>{{ $response->asesor_responses[$field['name']] ?? '' }}</textarea>
 
-                                    @elseif ($field['type'] === 'signature_pad')
-                                        <div class="border rounded p-2 bg-white">
-                                            <canvas id="asesorSignaturePad_{{ $field['name'] }}" width="700"
-                                                height="200"
-                                                style="width: 100%; max-width: 700px; border: 1px solid #ddd;"></canvas>
-                                            <div class="mt-2">
-                                                <button type="button" class="btn btn-sm btn-secondary"
-                                                    onclick="clearAsesorSignature('{{ $field['name'] }}')">
-                                                    <i class="fas fa-eraser mr-1"></i>Hapus
-                                                </button>
-                                            </div>
+                                            @elseif ($field['type'] === 'number')
+                                                <input type="number" name="asesor_responses[{{ $field['name'] }}]"
+                                                    class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
+                                                    {{ $field['required'] ?? false ? 'required' : '' }}>
+
+                                            @elseif ($field['type'] === 'email')
+                                                <input type="email" name="asesor_responses[{{ $field['name'] }}]"
+                                                    class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
+                                                    {{ $field['required'] ?? false ? 'required' : '' }}>
+
+                                            @elseif ($field['type'] === 'date')
+                                                <input type="date" name="asesor_responses[{{ $field['name'] }}]"
+                                                    class="form-control" value="{{ $response->asesor_responses[$field['name']] ?? '' }}"
+                                                    {{ $field['required'] ?? false ? 'required' : '' }}>
+
+                                            @elseif ($field['type'] === 'checkbox')
+                                                @foreach ($field['options'] ?? [] as $option)
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="asesor_{{ $field['name'] }}_{{ $loop->index }}"
+                                                            name="asesor_responses[{{ $field['name'] }}][]" value="{{ $option }}"
+                                                            {{ in_array($option, $response->asesor_responses[$field['name']] ?? []) ? 'checked' : '' }}>
+                                                        <label class="custom-control-label"
+                                                            for="asesor_{{ $field['name'] }}_{{ $loop->index }}">
+                                                            {{ $option }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+
+                                            @elseif ($field['type'] === 'radio')
+                                                @foreach ($field['options'] ?? [] as $option)
+                                                    <div class="custom-control custom-radio">
+                                                        <input type="radio" class="custom-control-input"
+                                                            id="asesor_{{ $field['name'] }}_{{ $loop->index }}"
+                                                            name="asesor_responses[{{ $field['name'] }}]" value="{{ $option }}"
+                                                            {{ ($response->asesor_responses[$field['name']] ?? '') === $option ? 'checked' : '' }}
+                                                            {{ $field['required'] ?? false ? 'required' : '' }}>
+                                                        <label class="custom-control-label"
+                                                            for="asesor_{{ $field['name'] }}_{{ $loop->index }}">
+                                                            {{ $option }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+
+                                            @elseif ($field['type'] === 'select')
+                                                <select name="asesor_responses[{{ $field['name'] }}]" class="form-control"
+                                                    {{ $field['required'] ?? false ? 'required' : '' }}>
+                                                    <option value="">-- Pilih --</option>
+                                                    @foreach ($field['options'] ?? [] as $option)
+                                                        <option value="{{ $option }}"
+                                                            {{ ($response->asesor_responses[$field['name']] ?? '') === $option ? 'selected' : '' }}>
+                                                            {{ $option }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                            @elseif ($field['type'] === 'signature_pad')
+                                                <div class="border rounded p-2 bg-white">
+                                                    <canvas id="asesorSignaturePad_{{ $field['name'] }}" width="700"
+                                                        height="200"
+                                                        style="width: 100%; max-width: 700px; border: 1px solid #ddd;"></canvas>
+                                                    <div class="mt-2">
+                                                        <button type="button" class="btn btn-sm btn-secondary"
+                                                            onclick="clearAsesorSignature('{{ $field['name'] }}')">
+                                                            <i class="fas fa-eraser mr-1"></i>Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="asesor_responses[{{ $field['name'] }}]"
+                                                    id="asesor_signature_{{ $field['name'] }}"
+                                                    value="{{ $response->asesor_responses[$field['name']] ?? '' }}">
+                                            @endif
+
+                                            @if (isset($field['description']) && $field['description'])
+                                                <small class="form-text text-muted">{{ $field['description'] }}</small>
+                                            @endif
+
+                                            <!-- Validasi untuk asesor fields -->
+                                            @if ($bankSoal->target === 'asesor')
+                                                <div class="mt-3 pt-3 border-top">
+                                                    <label class="font-weight-bold text-primary">Pencapaian:</label>
+                                                    <div class="btn-group btn-group-toggle d-block" data-toggle="buttons">
+                                                        <label class="btn btn-outline-success {{ !isset($response->asesor_validations[$field['name']]['is_valid']) || $response->asesor_validations[$field['name']]['is_valid'] ? 'active' : '' }}">
+                                                            <input type="radio" name="asesor_validations[{{ $field['name'] }}][is_valid]"
+                                                                value="1" {{ !isset($response->asesor_validations[$field['name']]['is_valid']) || $response->asesor_validations[$field['name']]['is_valid'] ? 'checked' : '' }}>
+                                                            <i class="fas fa-check mr-1"></i>Ya
+                                                        </label>
+                                                        <label class="btn btn-outline-danger {{ isset($response->asesor_validations[$field['name']]['is_valid']) && !$response->asesor_validations[$field['name']]['is_valid'] ? 'active' : '' }}">
+                                                            <input type="radio" name="asesor_validations[{{ $field['name'] }}][is_valid]"
+                                                                value="0" {{ isset($response->asesor_validations[$field['name']]['is_valid']) && !$response->asesor_validations[$field['name']]['is_valid'] ? 'checked' : '' }}>
+                                                            <i class="fas fa-times mr-1"></i>Tidak
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
-                                        <input type="hidden" name="asesor_responses[{{ $field['name'] }}]"
-                                            id="asesor_signature_{{ $field['name'] }}"
-                                            value="{{ $response->asesor_responses[$field['name']] ?? '' }}">
-                                    @endif
-
-                                    @if (isset($field['description']) && $field['description'])
-                                        <small class="form-text text-muted">{{ $field['description'] }}</small>
-                                    @endif
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -285,4 +307,4 @@
             }
         }
     </script>
-</x-layout>
+@endsection

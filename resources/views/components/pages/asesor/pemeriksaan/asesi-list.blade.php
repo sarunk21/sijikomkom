@@ -1,10 +1,9 @@
-<x-layout>
-    <x-slot name="page_name">Daftar Asesi - {{ $jadwal->skema->nama_skema }}</x-slot>
-    <x-slot name="page_desc">{{ $jadwal->tuk }} | {{ $jadwal->tanggal_mulai->format('d/m/Y') }}</x-slot>
+@extends('components.templates.master-layout')
 
-    <x-navbar :lists="$lists" :active="$activeMenu"></x-navbar>
+@section('title', 'Daftar Asesi - ' . $jadwal->skema->nama)
+@section('page-title', 'Daftar Asesi - ' . $jadwal->skema->nama)
 
-    <div class="container-fluid">
+@section('content')
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
@@ -20,6 +19,73 @@
                         </button>
                     </div>
                 @endif
+
+                <!-- Info Jadwal & Generate FR AK 05 -->
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <div>
+                        <h6 class="mb-1"><strong>{{ $jadwal->skema->nama }}</strong></h6>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d/m/Y') }}
+                            <span class="mx-2">|</span>
+                            <i class="fas fa-map-marker-alt mr-1"></i>{{ $jadwal->tuk->nama ?? '-' }}
+                        </p>
+                    </div>
+
+                    @php
+                        // Check if all asesi have been assessed
+                        $totalAsesi = $asesis->count();
+                        $assessedAsesi = $asesis->filter(function($a) {
+                            $p = $a->asesiPenilaian->first();
+                            return $p && $p->hasil_akhir !== 'belum_dinilai';
+                        })->count();
+                        $allAssessed = $totalAsesi > 0 && $totalAsesi == $assessedAsesi;
+
+                        // Check if FR AK 05 template exists for this skema
+                        $frAk05Template = \App\Models\TemplateMaster::where('skema_id', $jadwal->skema_id)
+                            ->where('tipe_template', 'FR_AK_05')
+                            ->where('is_active', true)
+                            ->first();
+                    @endphp
+
+                    @if($allAssessed && $frAk05Template)
+                        <div>
+                            <a href="{{ route('asesor.fr-ak-05.form', $jadwal->id) }}"
+                               class="btn btn-success btn-lg shadow-sm">
+                                <i class="fas fa-file-alt mr-2"></i>Generate FR AK 05
+                            </a>
+                            <small class="d-block text-success mt-1">
+                                <i class="fas fa-check-circle"></i> {{ $totalAsesi }} asesi telah dinilai
+                            </small>
+                        </div>
+                    @elseif($allAssessed && !$frAk05Template)
+                        <div>
+                            <button class="btn btn-secondary btn-lg shadow-sm" disabled title="Template FR AK 05 belum diupload">
+                                <i class="fas fa-file-alt mr-2"></i>Generate FR AK 05
+                            </button>
+                            <small class="d-block text-warning mt-1">
+                                <i class="fas fa-exclamation-triangle"></i> Template FR AK 05 belum diupload
+                            </small>
+                        </div>
+                    @elseif(!$allAssessed && $frAk05Template)
+                        <div>
+                            <button class="btn btn-secondary btn-lg shadow-sm" disabled title="Belum semua asesi dinilai">
+                                <i class="fas fa-file-alt mr-2"></i>Generate FR AK 05
+                            </button>
+                            <small class="d-block text-muted mt-1">
+                                <i class="fas fa-info-circle"></i> {{ $assessedAsesi }}/{{ $totalAsesi }} asesi telah dinilai
+                            </small>
+                        </div>
+                    @else
+                        <div>
+                            <button class="btn btn-secondary btn-lg shadow-sm" disabled title="Template belum diupload dan belum semua asesi dinilai">
+                                <i class="fas fa-file-alt mr-2"></i>Generate FR AK 05
+                            </button>
+                            <small class="d-block text-muted mt-1">
+                                <i class="fas fa-info-circle"></i> {{ $assessedAsesi }}/{{ $totalAsesi }} dinilai | Template belum ada
+                            </small>
+                        </div>
+                    @endif
+                </div>
 
                 @if ($asesis->isEmpty())
                     <div class="alert alert-info">
@@ -60,23 +126,13 @@
                                                 @endphp
                                                 @if ($totalFormulir > 0)
                                                     <div class="progress" style="height: 25px;">
-                                                        <div class="progress-bar bg-success" role="progressbar"
+                                                        <div class="progress-bar {{ $totalChecked === $totalFormulir ? 'bg-success' : 'bg-warning' }}" role="progressbar"
                                                             style="width: {{ ($totalChecked / $totalFormulir) * 100 }}%">
                                                             {{ $totalChecked }}/{{ $totalFormulir }} Formulir
                                                         </div>
                                                     </div>
                                                 @else
                                                     <span class="badge badge-secondary">Belum ada formulir</span>
-                                                @endif
-
-                                                @if ($penilaian->fr_ai_07_completed)
-                                                    <small class="text-success d-block mt-1">
-                                                        <i class="fas fa-check-circle mr-1"></i>FR AI 07 Selesai
-                                                    </small>
-                                                @else
-                                                    <small class="text-warning d-block mt-1">
-                                                        <i class="fas fa-exclamation-circle mr-1"></i>FR AI 07 Belum
-                                                    </small>
                                                 @endif
                                             @else
                                                 <span class="badge badge-secondary">Belum Diperiksa</span>
@@ -171,5 +227,4 @@
                 @endif
             </div>
         </div>
-    </div>
-</x-layout>
+@endsection

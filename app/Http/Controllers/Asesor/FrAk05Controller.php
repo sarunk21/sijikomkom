@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Asesor;
 
 use App\Http\Controllers\Controller;
+use App\Models\AsesiPenilaian;
 use App\Models\Jadwal;
 use App\Models\PendaftaranUjikom;
 use App\Models\TemplateMaster;
@@ -48,19 +49,28 @@ class FrAk05Controller extends Controller
         // Get jadwal with relationships dan verifikasi skema asesor
         $jadwal = $this->getJadwalForAsesor($jadwalId);
 
-        // Get all asesi for this jadwal
-        $asesiList = PendaftaranUjikom::with(['asesi', 'pendaftaran'])
+        // Get all assessed asesi for this jadwal using AsesiPenilaian (sistem baru)
+        $asesiPenilaianList = AsesiPenilaian::with('asesi')
             ->where('jadwal_id', $jadwalId)
-            ->whereIn('status', [4, 5]) // Only assessed asesi
+            ->where('hasil_akhir', '!=', 'belum_dinilai')
             ->get();
 
         // Check if all asesi have been assessed
         $totalAsesi = PendaftaranUjikom::where('jadwal_id', $jadwalId)->count();
-        $assessedAsesi = $asesiList->count();
+        $assessedAsesi = $asesiPenilaianList->count();
 
         if ($totalAsesi != $assessedAsesi) {
             return redirect()->back()->with('error', 'Belum semua asesi dinilai. Silakan nilai semua asesi terlebih dahulu.');
         }
+
+        // Map ke format yang sama untuk kompatibilitas view
+        $asesiList = $asesiPenilaianList->map(function($penilaian) {
+            return (object)[
+                'asesi' => $penilaian->asesi,
+                'status' => $penilaian->hasil_akhir === 'kompeten' ? 5 : 4,
+                'id' => $penilaian->id,
+            ];
+        });
 
         // Get FR AK 05 template for this skema
         $template = TemplateMaster::where('skema_id', $jadwal->skema_id)
@@ -95,7 +105,7 @@ class FrAk05Controller extends Controller
             'asesi_list' => $asesiList->map(function ($item) {
                 return [
                     'nama' => $item->asesi->name,
-                    'nim' => $item->asesi->nim,
+                    'nim' => $item->asesi->nim ?? '-',
                     'status' => $item->status == 5 ? 'Kompeten' : 'Tidak Kompeten',
                 ];
             })->toArray(),
@@ -162,11 +172,20 @@ class FrAk05Controller extends Controller
                 ]);
             }
 
-            // Get all assessed asesi for this jadwal
-            $asesiList = PendaftaranUjikom::with(['asesi', 'pendaftaran'])
+            // Get all assessed asesi for this jadwal using AsesiPenilaian (sistem baru)
+            $asesiPenilaianList = AsesiPenilaian::with('asesi')
                 ->where('jadwal_id', $jadwalId)
-                ->whereIn('status', [4, 5])
+                ->where('hasil_akhir', '!=', 'belum_dinilai')
                 ->get();
+
+            // Map ke format yang kompatibel untuk processing
+            $asesiList = $asesiPenilaianList->map(function($penilaian) {
+                return (object)[
+                    'asesi' => $penilaian->asesi,
+                    'status' => $penilaian->hasil_akhir === 'kompeten' ? 5 : 4,
+                    'id' => $penilaian->id,
+                ];
+            });
 
             // Get template file path
             $templatePath = storage_path('app/public/' . $template->file_path);

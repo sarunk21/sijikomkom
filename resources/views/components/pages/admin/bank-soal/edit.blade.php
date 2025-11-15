@@ -449,6 +449,11 @@
             updateCustomVariables();
         @endif
 
+        // Check the checkboxes that are in selectedVariables
+        selectedVariables.forEach(variable => {
+            $(`input[value="${variable}"]`).prop('checked', true);
+        });
+
         // Update display on load
         updateSelectedVariablesDisplay();
         updateVariablesInput();
@@ -646,7 +651,14 @@
             }
 
             selectedVariables.forEach(variable => {
-                const label = $(`input[value="${variable}"]`).next('label').find('strong').text();
+                // Try to find label from checkbox
+                let label = $(`input[value="${variable}"]`).next('label').find('strong').text();
+
+                // If not found, use the variable name itself as fallback
+                if (!label || label.trim() === '') {
+                    label = variable;
+                }
+
                 const html = `
                     <span class="selected-variable-item">
                         ${label}

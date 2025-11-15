@@ -71,12 +71,8 @@ class AsesiPenilaian extends Model
     // Helper methods
     public function canGiveHasilAkhir()
     {
-        // Cek apakah semua formulir sudah dicek dan FR AI 07 sudah diisi
-        if (!$this->fr_ai_07_completed) {
-            return false;
-        }
-
-        if (!$this->formulir_status) {
+        // Cek apakah semua formulir Bank Soal sudah dicek
+        if (!$this->formulir_status || empty($this->formulir_status)) {
             return false;
         }
 

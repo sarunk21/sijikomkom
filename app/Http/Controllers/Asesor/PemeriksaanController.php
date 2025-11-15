@@ -7,6 +7,8 @@ use App\Models\AsesiPenilaian;
 use App\Models\BankSoal;
 use App\Models\FormulirResponse;
 use App\Models\Jadwal;
+use App\Models\PendaftaranUjikom;
+use App\Models\Report;
 use App\Models\User;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
@@ -60,10 +62,12 @@ class PemeriksaanController extends Controller
         $jadwal = $this->getJadwalForAsesor($jadwalId);
         $asesorId = Auth::id();
 
-        // Get all asesi in this jadwal
-        $asesis = User::whereHas('jadwals', function ($query) use ($jadwalId) {
-            $query->where('jadwal.id', $jadwalId);
-        })
+        // Get all asesi in this jadwal through pendaftaran_ujikom
+        $asesiIds = DB::table('pendaftaran_ujikom')
+            ->where('jadwal_id', $jadwalId)
+            ->pluck('asesi_id');
+
+        $asesis = User::whereIn('id', $asesiIds)
             ->with(['asesiPenilaian' => function ($query) use ($jadwalId) {
                 $query->where('jadwal_id', $jadwalId);
             }])
@@ -81,9 +85,7 @@ class PemeriksaanController extends Controller
         }
 
         // Reload asesis with penilaian
-        $asesis = User::whereHas('jadwals', function ($query) use ($jadwalId) {
-            $query->where('jadwal.id', $jadwalId);
-        })
+        $asesis = User::whereIn('id', $asesiIds)
             ->with(['asesiPenilaian' => function ($query) use ($jadwalId) {
                 $query->where('jadwal_id', $jadwalId);
             }])
@@ -114,10 +116,11 @@ class PemeriksaanController extends Controller
 
         $asesi = User::findOrFail($asesiId);
 
-        // Get all bank soal untuk skema ini dengan target asesor atau both
+        // Get all bank soal untuk skema ini (semua target: asesi, asesor, both)
+        // Asesor perlu melihat semua formulir untuk review jawaban asesi
         $bankSoals = BankSoal::where('skema_id', $jadwal->skema_id)
             ->where('is_active', true)
-            ->whereIn('target', ['asesor', 'both'])
+            ->orderBy('nama', 'asc')
             ->get();
 
         // Get responses dari asesi
@@ -126,10 +129,16 @@ class PemeriksaanController extends Controller
             ->get()
             ->keyBy('bank_soal_id');
 
-        // Get penilaian record
-        $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
-            ->where('user_id', $asesiId)
-            ->firstOrFail();
+        // Get or create penilaian record
+        $penilaian = AsesiPenilaian::firstOrCreate(
+            [
+                'jadwal_id' => $jadwalId,
+                'user_id' => $asesiId,
+            ],
+            [
+                'asesor_id' => Auth::id(),
+            ]
+        );
 
         return view('components.pages.asesor.pemeriksaan.formulir-list', compact(
             'lists',
@@ -168,15 +177,27 @@ class PemeriksaanController extends Controller
         );
 
         // Get custom fields
-        $asesiFields = collect($bankSoal->field_configurations ?? [])
-            ->filter(function ($field) {
-                return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
-            });
+        // Jika Bank Soal target nya 'asesor', maka semua field masuk ke asesorFields
+        // Jika target nya 'asesi', maka:
+        //   - Field role 'asesi' dan 'both' -> asesiFields (untuk ditampilkan jawaban asesi)
+        //   - Field role 'asesor' -> asesorFields (untuk diisi asesor)
 
-        $asesorFields = collect($bankSoal->field_configurations ?? [])
-            ->filter(function ($field) {
-                return in_array($field['role'] ?? 'asesor', ['asesor', 'both']);
-            });
+        if ($bankSoal->target === 'asesor') {
+            // Untuk formulir asesor, semua field diisi oleh asesor
+            $asesiFields = collect([]);
+            $asesorFields = collect($bankSoal->field_configurations ?? []);
+        } else {
+            // Untuk formulir asesi, pisahkan field berdasarkan role
+            $asesiFields = collect($bankSoal->field_configurations ?? [])
+                ->filter(function ($field) {
+                    return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
+                });
+
+            $asesorFields = collect($bankSoal->field_configurations ?? [])
+                ->filter(function ($field) {
+                    return ($field['role'] ?? 'asesi') === 'asesor';
+                });
+        }
 
         return view('components.pages.asesor.pemeriksaan.review', compact(
             'lists',
@@ -230,45 +251,47 @@ class PemeriksaanController extends Controller
 
     /**
      * Form FR AI 07 (Penilaian Asesor)
+     * DEPRECATED: FR AI 07 sekarang sudah masuk ke Bank Soal (Analis Program)
      */
-    public function frAi07($jadwalId, $asesiId)
-    {
-        $lists = $this->getMenuListAsesor('pemeriksaan');
-        $activeMenu = 'pemeriksaan';
+    // public function frAi07($jadwalId, $asesiId)
+    // {
+    //     $lists = $this->getMenuListAsesor('pemeriksaan');
+    //     $activeMenu = 'pemeriksaan';
 
-        $jadwal = $this->getJadwalForAsesor($jadwalId);
-        $asesi = User::findOrFail($asesiId);
+    //     $jadwal = $this->getJadwalForAsesor($jadwalId);
+    //     $asesi = User::findOrFail($asesiId);
 
-        $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
-            ->where('user_id', $asesiId)
-            ->firstOrFail();
+    //     $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
+    //         ->where('user_id', $asesiId)
+    //         ->firstOrFail();
 
-        return view('components.pages.asesor.pemeriksaan.fr-ai-07', compact(
-            'lists',
-            'activeMenu',
-            'jadwal',
-            'asesi',
-            'penilaian'
-        ));
-    }
+    //     return view('components.pages.asesor.pemeriksaan.fr-ai-07', compact(
+    //         'lists',
+    //         'activeMenu',
+    //         'jadwal',
+    //         'asesi',
+    //         'penilaian'
+    //     ));
+    // }
 
     /**
      * Save FR AI 07
+     * DEPRECATED: FR AI 07 sekarang sudah masuk ke Bank Soal (Analis Program)
      */
-    public function saveFrAi07(Request $request, $jadwalId, $asesiId)
-    {
-        $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
-            ->where('user_id', $asesiId)
-            ->firstOrFail();
+    // public function saveFrAi07(Request $request, $jadwalId, $asesiId)
+    // {
+    //     $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
+    //         ->where('user_id', $asesiId)
+    //         ->firstOrFail();
 
-        $penilaian->update([
-            'fr_ai_07_data' => $request->fr_ai_07_data,
-            'fr_ai_07_completed' => true,
-        ]);
+    //     $penilaian->update([
+    //         'fr_ai_07_data' => $request->fr_ai_07_data,
+    //         'fr_ai_07_completed' => true,
+    //     ]);
 
-        return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
-            ->with('success', 'FR AI 07 berhasil disimpan');
-    }
+    //     return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
+    //         ->with('success', 'FR AI 07 berhasil disimpan');
+    // }
 
     /**
      * Form penilaian BK/K
@@ -325,7 +348,38 @@ class PemeriksaanController extends Controller
             'asesor_id' => Auth::id(),
         ]);
 
-        return redirect()->route('asesor.pemeriksaan.asesi-list', $jadwalId)
+        // Update status di pendaftaran_ujikom untuk sinkronisasi dengan sistem lama
+        $pendaftaranUjikom = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+            ->where('asesi_id', $asesiId)
+            ->first();
+
+        if ($pendaftaranUjikom) {
+            $status = $request->hasil_akhir === 'kompeten' ? 5 : 4;
+            $keterangan = $request->hasil_akhir === 'kompeten' ? 'Kompeten' : 'Tidak Kompeten';
+            
+            $pendaftaranUjikom->update([
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'asesor_id' => Auth::id(),
+            ]);
+
+            // Insert ke report jika belum ada
+            $existingReport = Report::where('pendaftaran_id', $pendaftaranUjikom->id)
+                ->where('user_id', $asesiId)
+                ->first();
+
+            if (!$existingReport) {
+                Report::create([
+                    'user_id' => $asesiId,
+                    'pendaftaran_id' => $pendaftaranUjikom->id,
+                    'skema_id' => $pendaftaranUjikom->jadwal->skema_id,
+                    'jadwal_id' => $jadwalId,
+                    'status' => $request->hasil_akhir === 'kompeten' ? 1 : 2,
+                ]);
+            }
+        }
+
+        return redirect()->route('asesor.hasil-ujikom.show', $jadwalId)
             ->with('success', 'Penilaian berhasil disimpan');
     }
 
@@ -344,16 +398,34 @@ class PemeriksaanController extends Controller
             ->firstOrFail();
 
         // Check if template file exists
-        if (!$bankSoal->file_path || !file_exists(storage_path('app/' . $bankSoal->file_path))) {
-            return redirect()->back()->with('error', 'File template tidak ditemukan');
+        // File disimpan di storage/app/public/bank-soal/xxx.docx
+        $templatePath = storage_path('app/public/' . $bankSoal->file_path);
+
+        if (!$bankSoal->file_path || !file_exists($templatePath)) {
+            return redirect()->back()->with('error', 'File template tidak ditemukan: ' . $bankSoal->file_path);
         }
 
         // Load template
-        $templatePath = storage_path('app/' . $bankSoal->file_path);
         $templateProcessor = new TemplateProcessor($templatePath);
+
+        // Get template variables untuk debugging
+        $templateVariables = $templateProcessor->getVariables();
 
         // Prepare data for replacement
         $data = $this->prepareTemplateData($jadwal, $asesi, $response, $bankSoal);
+
+        // Log data untuk debugging
+        \Log::info('Template Generation Data', [
+            'bank_soal' => $bankSoal->nama,
+            'asesi' => $asesi->name,
+            'template_file' => $bankSoal->file_path,
+            'template_variables_in_docx' => $templateVariables,
+            'bank_soal_variables' => $bankSoal->variables,
+            'bank_soal_field_mappings' => $bankSoal->field_mappings,
+            'data_keys' => array_keys($data),
+            'validations' => $response->asesor_validations ?? [],
+            'all_data' => $data
+        ]);
 
         // Replace variables
         foreach ($data as $key => $value) {
@@ -401,7 +473,14 @@ class PemeriksaanController extends Controller
     {
         $data = [];
 
-        // Database fields from field_mappings
+        // Database fields from variables (auto-fill dari DB)
+        if ($bankSoal->variables && is_array($bankSoal->variables)) {
+            foreach ($bankSoal->variables as $variable) {
+                $data[$variable] = $this->getFieldValue($variable, $asesi, $jadwal);
+            }
+        }
+
+        // Database fields from field_mappings (custom mapping)
         if ($bankSoal->field_mappings) {
             foreach ($bankSoal->field_mappings as $variable => $dbField) {
                 $data[$variable] = $this->getFieldValue($dbField, $asesi, $jadwal);
@@ -419,6 +498,18 @@ class PemeriksaanController extends Controller
         if ($response->asesor_responses) {
             foreach ($response->asesor_responses as $fieldName => $value) {
                 $data[$fieldName] = $value;
+            }
+        }
+
+        // Process validations for checkbox
+        if ($response->asesor_validations) {
+            foreach ($response->asesor_validations as $fieldName => $validation) {
+                // For checkbox fields, set checked based on validation
+                if (isset($validation['is_valid'])) {
+                    // Use X and space instead of checkbox symbols to avoid encoding issues
+                    $data[$fieldName . '_ya'] = $validation['is_valid'] ? 'X' : '';
+                    $data[$fieldName . '_tdk'] = !$validation['is_valid'] ? 'X' : '';
+                }
             }
         }
 
