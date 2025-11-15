@@ -93,13 +93,33 @@
                         @foreach ($asesi as $item)
                             <tr>
                                 <td>{{ $item->asesi->name }} - {{ $item->asesi->nim }}</td>
-                                <td>{{ $item->status_text }}</td>
                                 <td>
-                                    @if ($item->status == 3)
-                                        <a href="{{ route('asesor.hasil-ujikom.show-jawaban-asesi', $item->pendaftaran->id) }}"
-                                            class="btn btn-outline-warning btn-sm shadow-sm">
-                                            Mulai Pemeriksaan
+                                    @if ($item->status == 2)
+                                        <span class="badge badge-warning">Ujikom Berlangsung</span>
+                                    @elseif ($item->status == 3)
+                                        <span class="badge badge-secondary">Ujikom Selesai</span>
+                                    @elseif (in_array($item->status, [4, 5]))
+                                        <span class="badge badge-{{ $item->status == 5 ? 'success' : 'danger' }}">
+                                            {{ $item->status == 5 ? 'Kompeten' : 'Tidak Kompeten' }}
+                                        </span>
+                                    @else
+                                        <span class="badge badge-info">{{ $item->status_text }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if (in_array($item->status, [2, 3]))
+                                        {{-- Sistem Bank Soal (Baru) --}}
+                                        <a href="{{ route('asesor.pemeriksaan.formulir-list', [$jadwal->id, $item->asesi_id]) }}"
+                                            class="btn btn-outline-primary btn-sm shadow-sm">
+                                            <i class="fas fa-clipboard-check"></i> Mulai Pemeriksaan
                                         </a>
+                                    @elseif (in_array($item->status, [4, 5]))
+                                        <a href="{{ route('asesor.pemeriksaan.formulir-list', [$jadwal->id, $item->asesi_id]) }}"
+                                            class="btn btn-outline-secondary btn-sm shadow-sm">
+                                            <i class="fas fa-eye"></i> Lihat Hasil
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Belum dapat diperiksa</span>
                                     @endif
                                 </td>
                             </tr>

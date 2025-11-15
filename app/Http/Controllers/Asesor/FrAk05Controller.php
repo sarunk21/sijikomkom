@@ -9,6 +9,7 @@ use App\Models\TemplateMaster;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -18,6 +19,25 @@ class FrAk05Controller extends Controller
     use MenuTrait;
 
     /**
+     * Helper: Get jadwal dengan verifikasi skema asesor
+     */
+    private function getJadwalForAsesor($jadwalId)
+    {
+        $asesor = Auth::user();
+        
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        // Cari jadwal dengan verifikasi skema
+        return Jadwal::where('id', $jadwalId)
+            ->whereIn('skema_id', $skemaIds)
+            ->with(['skema', 'tuk'])
+            ->firstOrFail();
+    }
+
+    /**
      * Show form for FR AK 05 with pre-filled data
      */
     public function showForm($jadwalId)
@@ -25,8 +45,8 @@ class FrAk05Controller extends Controller
         $lists = $this->getMenuListAsesor('hasil-ujikom');
         $activeMenu = 'hasil-ujikom';
 
-        // Get jadwal with relationships
-        $jadwal = Jadwal::with(['skema', 'tuk'])->findOrFail($jadwalId);
+        // Get jadwal with relationships dan verifikasi skema asesor
+        $jadwal = $this->getJadwalForAsesor($jadwalId);
 
         // Get all asesi for this jadwal
         $asesiList = PendaftaranUjikom::with(['asesi', 'pendaftaran'])
@@ -110,8 +130,8 @@ class FrAk05Controller extends Controller
     public function generate(Request $request, $jadwalId)
     {
         try {
-            // Get jadwal with relationships
-            $jadwal = Jadwal::with(['skema', 'tuk'])->findOrFail($jadwalId);
+            // Get jadwal with relationships dan verifikasi skema asesor
+            $jadwal = $this->getJadwalForAsesor($jadwalId);
             
             // Get template to find signature field name
             $template = TemplateMaster::where('skema_id', $jadwal->skema_id)

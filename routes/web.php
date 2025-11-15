@@ -28,6 +28,7 @@ use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
 use App\Http\Controllers\Asesi\TemplateController;
 use App\Http\Controllers\Asesi\Apl2Controller as AsesiApl2Controller;
+use App\Http\Controllers\Asesi\FormulirController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
 use App\Http\Controllers\Asesor\Apl2Controller as AsesorApl2Controller;
 use App\Http\Controllers\Asesor\ReviewController;
+use App\Http\Controllers\Asesor\PemeriksaanController;
 
 use App\Http\Controllers\Kaprodi\ReportHasilUjiController;
 use App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController;
@@ -174,6 +176,13 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
 
     // Registration info route
     Route::get('registration-info', [App\Http\Controllers\Asesi\RegistrationInfoController::class, 'index'])->name('asesi.registration-info');
+
+    // Formulir routes (Bank Soal)
+    Route::get('formulir/{jadwalId}', [FormulirController::class, 'index'])->name('asesi.formulir.index');
+    Route::get('formulir/{jadwalId}/fill/{bankSoalId}', [FormulirController::class, 'fill'])->name('asesi.formulir.fill');
+    Route::post('formulir/{jadwalId}/save-draft/{bankSoalId}', [FormulirController::class, 'saveDraft'])->name('asesi.formulir.save-draft');
+    Route::post('formulir/{jadwalId}/submit/{bankSoalId}', [FormulirController::class, 'submit'])->name('asesi.formulir.submit');
+    Route::get('formulir/{jadwalId}/view/{bankSoalId}', [FormulirController::class, 'view'])->name('asesi.formulir.view');
 });
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
@@ -212,6 +221,17 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
 
     // APL2 Template routes for asesor
     Route::get('apl2/template', [AsesorApl2Controller::class, 'templateIndex'])->name('asesor.apl2.template.index');
+
+    // Pemeriksaan routes (Bank Soal Review)
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi', [PemeriksaanController::class, 'asesiList'])->name('asesor.pemeriksaan.asesi-list');
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir', [PemeriksaanController::class, 'formulirList'])->name('asesor.pemeriksaan.formulir-list');
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'review'])->name('asesor.pemeriksaan.review');
+    Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'saveReview'])->name('asesor.pemeriksaan.save-review');
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'frAi07'])->name('asesor.pemeriksaan.fr-ai-07');
+    Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'saveFrAi07'])->name('asesor.pemeriksaan.save-fr-ai-07');
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'penilaian'])->name('asesor.pemeriksaan.penilaian');
+    Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'savePenilaian'])->name('asesor.pemeriksaan.save-penilaian');
+    Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/generate', [PemeriksaanController::class, 'generateTemplate'])->name('asesor.pemeriksaan.generate-template');
 });
 
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {

@@ -11,6 +11,7 @@ use App\Services\TemplateGeneratorService;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Apl2Controller extends Controller
 {
@@ -31,8 +32,14 @@ class Apl2Controller extends Controller
         $asesor = Auth::user();
         $lists = $this->getMenuListAsesor('apl2');
 
-        // Ambil pendaftaran yang sudah mengisi APL2 (custom_variables tidak null)
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        // Ambil pendaftaran yang sudah mengisi APL2 dan dari skema yang dimiliki asesor
         $pendaftaran = Pendaftaran::whereNotNull('custom_variables')
+            ->whereIn('skema_id', $skemaIds)
             ->with(['user', 'skema'])
             ->get();
 
@@ -47,12 +54,18 @@ class Apl2Controller extends Controller
         $asesor = Auth::user();
         $lists = $this->getMenuListAsesor('apl2');
 
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
         $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
+            ->whereIn('skema_id', $skemaIds)
             ->with(['user', 'skema'])
             ->first();
 
         if (!$pendaftaran) {
-            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan.');
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan atau Anda tidak memiliki akses ke skema ini.');
         }
 
         // Ambil template APL2 untuk skema ini
@@ -81,10 +94,18 @@ class Apl2Controller extends Controller
         ]);
 
         $asesor = Auth::user();
-        $pendaftaran = Pendaftaran::where('id', $pendaftaranId)->first();
+        
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
+            ->whereIn('skema_id', $skemaIds)
+            ->first();
 
         if (!$pendaftaran) {
-            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan.');
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan atau Anda tidak memiliki akses ke skema ini.');
         }
 
         try {
@@ -121,10 +142,18 @@ class Apl2Controller extends Controller
         ]);
 
         $asesor = Auth::user();
-        $pendaftaran = Pendaftaran::where('id', $request->pendaftaran_id)->first();
+        
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        $pendaftaran = Pendaftaran::where('id', $request->pendaftaran_id)
+            ->whereIn('skema_id', $skemaIds)
+            ->first();
 
         if (!$pendaftaran) {
-            return response()->json(['error' => 'Pendaftaran tidak ditemukan.'], 404);
+            return response()->json(['error' => 'Pendaftaran tidak ditemukan atau Anda tidak memiliki akses ke skema ini.'], 404);
         }
 
         try {
@@ -148,12 +177,19 @@ class Apl2Controller extends Controller
     public function previewApl2Data($pendaftaranId)
     {
         $asesor = Auth::user();
+        
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
         $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
+            ->whereIn('skema_id', $skemaIds)
             ->with(['skema', 'user'])
             ->first();
 
         if (!$pendaftaran) {
-            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan.');
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan atau Anda tidak memiliki akses ke skema ini.');
         }
 
         try {
@@ -193,12 +229,19 @@ class Apl2Controller extends Controller
     public function exportDocx($pendaftaranId)
     {
         $asesor = Auth::user();
+        
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
         $pendaftaran = Pendaftaran::where('id', $pendaftaranId)
+            ->whereIn('skema_id', $skemaIds)
             ->with(['skema', 'user'])
             ->first();
 
         if (!$pendaftaran) {
-            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan.');
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan atau Anda tidak memiliki akses ke skema ini.');
         }
 
         try {
@@ -223,9 +266,15 @@ class Apl2Controller extends Controller
         $asesor = Auth::user();
         $lists = $this->getMenuListAsesor('apl2-template');
 
-        // Ambil semua template APL2 yang aktif
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        // Ambil template APL2 yang aktif dari skema yang dimiliki asesor
         $templates = TemplateMaster::where('tipe_template', 'APL2')
             ->where('is_active', true)
+            ->whereIn('skema_id', $skemaIds)
             ->with('skema')
             ->orderBy('created_at', 'desc')
             ->get();

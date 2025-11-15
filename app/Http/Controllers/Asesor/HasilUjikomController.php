@@ -21,9 +21,23 @@ class HasilUjikomController extends Controller
     public function index(Request $request)
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
+        $asesor = Auth::user();
 
-        // Build query
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = \DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        // Jika asesor tidak memiliki skema, return empty result
+        if ($skemaIds->isEmpty()) {
+            $hasilUjikom = collect();
+            $skemas = collect();
+            return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom', 'skemas'));
+        }
+
+        // Build query - hanya jadwal dengan status 3 dan skema yang dimiliki asesor
         $query = Jadwal::where('status', 3)
+            ->whereIn('skema_id', $skemaIds)
             ->with(['skema', 'tuk']);
 
         // Filter by date range
@@ -42,12 +56,8 @@ class HasilUjikomController extends Controller
 
         $hasilUjikom = $query->orderBy('tanggal_ujian', 'desc')->get();
 
-        // Get all skema for filter dropdown
-        $skemas = \App\Models\Skema::whereIn('id', function($query) {
-            $query->select('skema_id')
-                ->from('jadwal')
-                ->where('status', 3);
-        })->get();
+        // Get skema yang dimiliki asesor untuk filter dropdown
+        $skemas = \App\Models\Skema::whereIn('id', $skemaIds)->get();
 
         return view('components.pages.asesor.hasil-ujikom.list', compact('lists', 'hasilUjikom', 'skemas'));
     }
@@ -74,13 +84,23 @@ class HasilUjikomController extends Controller
     public function show(string $id)
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
+        $asesor = Auth::user();
 
-        $jadwal = Jadwal::where('status', 3)
+        // Get skema IDs yang dimiliki asesor ini
+        $skemaIds = \DB::table('asesor_skema')
+            ->where('asesor_id', $asesor->id)
+            ->pluck('skema_id');
+
+        // Pastikan jadwal adalah milik skema yang dimiliki asesor
+        // Tidak perlu filter status karena asesor harus bisa melihat hasil ujian yang sudah selesai juga
+        $jadwal = Jadwal::where('id', $id)
+            ->whereIn('skema_id', $skemaIds)
             ->with(['skema', 'tuk'])
-            ->orderBy('tanggal_ujian', 'asc')
-            ->first();
+            ->firstOrFail();
 
-        $asesi = PendaftaranUjikom::where('jadwal_id', $jadwal->id)
+        // Get asesi yang ditugaskan ke asesor ini di jadwal ini
+        $asesi = PendaftaranUjikom::where('jadwal_id', $id)
+            ->where('asesor_id', $asesor->id) // Hanya asesi yang ditugaskan ke asesor ini
             ->with(['asesi', 'jadwal', 'jadwal.skema', 'jadwal.tuk', 'pendaftaran'])
             ->orderBy('created_at', 'desc')
             ->get();

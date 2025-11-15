@@ -23,11 +23,19 @@ class UjikomController extends Controller
     {
         $asesi = Auth::user();
         $lists = $this->getMenuListAsesi('ujikom');
-        $pendaftaran = Pendaftaran::where('user_id', $asesi->id)
-            ->with(['pendaftaranUjikom', 'jadwal', 'jadwal.skema', 'jadwal.tuk'])
-            ->get();
 
-        return view('components.pages.asesi.ujikom.list', compact('lists', 'pendaftaran'));
+        // Get jadwal yang sudah dimulai untuk asesi ini
+        // Status 3 = Ujian Berlangsung
+        $jadwals = Pendaftaran::where('user_id', $asesi->id)
+            ->whereHas('jadwal', function($query) {
+                $query->where('status', 3); // 3 = Ujian Berlangsung
+            })
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->get()
+            ->pluck('jadwal')
+            ->unique('id');
+
+        return view('components.pages.asesi.ujikom.list', compact('lists', 'jadwals'));
     }
 
     /**

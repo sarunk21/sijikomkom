@@ -260,27 +260,37 @@
                             <thead>
                                 <tr>
                                     <th>Tanggal & Waktu</th>
-                                    <th>Nama Asesi</th>
                                     <th>Skema</th>
                                     <th>TUK</th>
+                                    <th>Jumlah Asesi</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($jadwalTerdekat as $item)
+                                @forelse($jadwalTerdekat as $item)
                                 <tr>
-                                    <td>{{ $item['tanggal'] }}</td>
-                                    <td>{{ $item['nama'] }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item['tanggal'])->format('d/m/Y') }}</td>
                                     <td>{{ $item['skema'] }}</td>
                                     <td>{{ $item['tuk'] }}</td>
-                                    <td><span class="badge badge-{{ $item['status'] == 'Selesai' || str_contains($item['status'], 'Lolos') ? 'success' : (str_contains($item['status'], 'Menunggu') ? 'warning' : 'info') }}">{{ $item['status'] }}</span></td>
+                                    <td><span class="badge badge-info">{{ $item['jumlah_asesi'] }} Asesi</span></td>
+                                    <td><span class="badge badge-warning">{{ $item['status'] }}</span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary">Detail</button>
-                                        <button class="btn btn-sm btn-success">Mulai Ujikom</button>
+                                        <a href="{{ route('asesor.pemeriksaan.asesi-list', $item['jadwal_id']) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-clipboard-check"></i> Mulai Pemeriksaan
+                                        </a>
+                                        <a href="{{ route('asesor.hasil-ujikom.show', $item['jadwal_id']) }}" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-list"></i> List Asesi
+                                        </a>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        <i class="fas fa-info-circle"></i> Tidak ada jadwal ujian yang sedang berlangsung saat ini.
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

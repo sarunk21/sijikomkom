@@ -77,35 +77,35 @@ class DashboardController extends Controller
                 return [$statusText => $item->jumlah];
             });
 
-        // Jadwal ujikom terdekat yang ditangani asesor ini
-        $jadwalTerdekat = Pendaftaran::whereHas('pendaftaranUjikom', function($query) use ($user) {
-                $query->where('asesor_id', $user->id);
-            })
+        // Jadwal ujikom terdekat - group by jadwal (hanya yang sedang berlangsung)
+        $jadwalTerdekat = PendaftaranUjikom::where('asesor_id', $user->id)
             ->whereHas('jadwal', function($query) {
-                $query->where('tanggal_ujian', '>=', now());
+                $query->where('status', 3); // Hanya jadwal yang sedang berlangsung
             })
-            ->with(['user', 'jadwal', 'skema', 'tuk'])
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'asesi'])
             ->get()
-            ->sortBy(function($pendaftaran) {
-                return $pendaftaran->jadwal->tanggal_ujian ?? now()->addYears(10);
-            })
-            ->take(5)
-            ->map(function($pendaftaran) {
+            ->groupBy('jadwal_id')
+            ->map(function($items) {
+                $first = $items->first();
                 return [
-                    'tanggal' => $pendaftaran->jadwal->tanggal_ujian ?? 'Belum dijadwalkan',
-                    'nama' => $pendaftaran->user->name ?? 'Tidak diketahui',
-                    'skema' => $pendaftaran->skema->nama ?? 'Tidak diketahui',
-                    'tuk' => $pendaftaran->tuk->nama ?? 'Tidak diketahui',
-                    'status' => $this->getStatusText($pendaftaran->status)
+                    'jadwal_id' => $first->jadwal_id,
+                    'tanggal' => $first->jadwal->tanggal_ujian ?? 'Belum dijadwalkan',
+                    'skema' => $first->jadwal->skema->nama ?? 'Tidak diketahui',
+                    'tuk' => $first->jadwal->tuk->nama ?? 'Tidak diketahui',
+                    'jumlah_asesi' => $items->count(),
+                    'status' => $first->jadwal->status_text ?? 'Tidak diketahui'
                 ];
             })
+            ->sortBy('tanggal')
+            ->take(5)
             ->values();
 
-        // Pending confirmations - group by jadwal
+        // Pending confirmations - group by jadwal (hanya jadwal yang belum dimulai)
         $pendingConfirmations = PendaftaranUjikom::where('asesor_id', $user->id)
             ->where('asesor_confirmed', false)
             ->whereHas('jadwal', function($query) {
-                $query->where('tanggal_ujian', '>', now()); // Only future jadwal (belum dimulai)
+                $query->where('status', 1) // Hanya jadwal aktif yang belum dimulai
+                    ->where('tanggal_ujian', '>', now());
             })
             ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
             ->get()

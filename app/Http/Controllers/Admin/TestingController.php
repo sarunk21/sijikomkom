@@ -225,21 +225,31 @@ class TestingController extends Controller
     public function startJadwal()
     {
         try {
-            // Update jadwal aktif yang memiliki ujikom menjadi status 3 (Ujian Berlangsung)
-            $updated = Jadwal::where('status', 1)
+            // Get jadwal yang akan distart
+            $jadwals = Jadwal::where('status', 1)
                 ->whereHas('pendaftaran', function($query) {
                     $query->whereHas('pendaftaranUjikom');
                 })
-                ->update(['status' => 3]);
+                ->get();
 
-            // Update status PendaftaranUjikom dari 6 (Menunggu Konfirmasi) ke 1 (Belum Ujikom)
-            PendaftaranUjikom::where('status', 6)->update(['status' => 1]);
-
-            if ($updated === 0) {
+            if ($jadwals->isEmpty()) {
                 return redirect()->back()->with('info', 'Tidak ada jadwal yang perlu distart.');
             }
 
-            return redirect()->back()->with('success', "Berhasil! {$updated} jadwal dimulai (Ujian Berlangsung).");
+            $updated = 0;
+            foreach ($jadwals as $jadwal) {
+                // Update jadwal ke status 3 (Ujian Berlangsung)
+                $jadwal->update(['status' => 3]);
+                
+                // Update semua PendaftaranUjikom di jadwal ini langsung ke status 2 (Ujikom Berlangsung)
+                PendaftaranUjikom::where('jadwal_id', $jadwal->id)
+                    ->whereIn('status', [1, 6]) // Dari Belum Ujikom atau Menunggu Konfirmasi
+                    ->update(['status' => 2]); // Ke Ujikom Berlangsung
+                
+                $updated++;
+            }
+
+            return redirect()->back()->with('success', "Berhasil! {$updated} jadwal dimulai. Semua asesi di jadwal tersebut sekarang dapat mengisi formulir.");
         } catch (\Exception $e) {
             Log::error('Error saat start jadwal: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -294,18 +304,30 @@ class TestingController extends Controller
     public function selesaikanJadwal()
     {
         try {
-            // Update jadwal yang ujian berlangsung menjadi selesai
-            $updated = Jadwal::where('status', 3)
-                ->update(['status' => 4]);
+            // Get jadwal yang akan diselesaikan
+            $jadwals = Jadwal::where('status', 3)->get();
+
+            if ($jadwals->isEmpty()) {
+                return redirect()->back()->with('info', 'Tidak ada jadwal yang berlangsung.');
+            }
+
+            $updated = 0;
+            foreach ($jadwals as $jadwal) {
+                // Update jadwal ke status 4 (Selesai)
+                $jadwal->update(['status' => 4]);
+                
+                // Update semua PendaftaranUjikom di jadwal ini ke status selesai jika masih berlangsung
+                PendaftaranUjikom::where('jadwal_id', $jadwal->id)
+                    ->where('status', 2) // Masih Ujikom Berlangsung
+                    ->update(['status' => 3]); // Ke Ujikom Selesai
+                
+                $updated++;
+            }
 
             // Update status pendaftaran terkait menjadi selesai
             Pendaftaran::whereHas('jadwal', function($query) {
                 $query->where('status', 4);
             })->update(['status' => 6]);
-
-            if ($updated === 0) {
-                return redirect()->back()->with('info', 'Tidak ada jadwal yang berlangsung.');
-            }
 
             return redirect()->back()->with('success', "Berhasil! {$updated} jadwal diselesaikan. Silakan trigger pembayaran asesor.");
         } catch (\Exception $e) {
