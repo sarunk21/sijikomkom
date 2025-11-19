@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use App\Models\Skema;
-use App\Models\APL2;
+use App\Models\BankSoal;
 use App\Models\TemplateMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +21,15 @@ class APL2Controller extends Controller
     public function index()
     {
         $lists = $this->getMenuListAdmin('apl-2');
-        $skema = Skema::with('apl2')->orderBy('nama', 'asc')->get();
+        $skema = Skema::orderBy('nama', 'asc')->get();
+
+        // Get Bank Soal APL2 for each skema
+        foreach ($skema as $s) {
+            $s->apl2 = BankSoal::where('skema_id', $s->id)
+                ->where('tipe', 'APL2')
+                ->get();
+        }
+
         return view('components.pages.admin.apl2.list', compact('lists', 'skema'));
     }
 
@@ -118,7 +126,7 @@ class APL2Controller extends Controller
     public function show(string $id)
     {
         $lists = $this->getMenuListAdmin('apl-2');
-        $apl2 = APL2::findOrFail($id);
+        $apl2 = BankSoal::where('tipe', 'APL2')->findOrFail($id);
         $skema = $apl2->skema;
         return view('components.pages.admin.apl2.detail', compact('lists', 'apl2', 'skema'));
     }
@@ -130,7 +138,9 @@ class APL2Controller extends Controller
     {
         $lists = $this->getMenuListAdmin('apl-2');
         $skema = Skema::findOrFail($skema_id);
-        $questions = APL2::where('skema_id', $skema_id)->get();
+        $questions = BankSoal::where('skema_id', $skema_id)
+            ->where('tipe', 'APL2')
+            ->get();
         return view('components.pages.admin.apl2.show', compact('lists', 'questions', 'skema'));
     }
 
@@ -140,7 +150,7 @@ class APL2Controller extends Controller
     public function edit(string $id)
     {
         $lists = $this->getMenuListAdmin('apl-2');
-        $apl2 = APL2::find($id);
+        $apl2 = BankSoal::where('tipe', 'APL2')->findOrFail($id);
         $skema = Skema::find($apl2->skema_id);
         return view('components.pages.admin.apl2.edit', compact('lists', 'apl2', 'skema'));
     }
@@ -152,27 +162,20 @@ class APL2Controller extends Controller
     {
         $request->validate([
             'skema_id' => 'required',
-            'question_text' => 'required',
-            'question_type' => 'required|in:text,textarea,checkbox,radio,select,file',
-            'question_options' => 'nullable|string',
+            'nama' => 'required',
+            'field_configurations' => 'required|string',
         ]);
 
         try {
-            $apl2 = APL2::findOrFail($id);
+            $apl2 = BankSoal::where('tipe', 'APL2')->findOrFail($id);
 
-            // Process question options
-            $questionOptions = null;
-            if ($request->question_options) {
-                // Split by comma and trim whitespace
-                $options = array_map('trim', explode(',', $request->question_options));
-                $questionOptions = $options;
-            }
+            // Parse field configurations
+            $fieldConfigurations = json_decode($request->field_configurations, true);
 
             $apl2->update([
                 'skema_id' => $request->skema_id,
-                'question_text' => $request->question_text,
-                'question_type' => $request->question_type,
-                'question_options' => $questionOptions,
+                'nama' => $request->nama,
+                'field_configurations' => $fieldConfigurations,
             ]);
 
             return redirect()->route('admin.apl-2.show-by-skema', $request->skema_id)->with('success', 'APL02 berhasil diperbarui');
@@ -186,7 +189,7 @@ class APL2Controller extends Controller
      */
     public function destroy(string $id)
     {
-        $apl2 = APL2::findOrFail($id);
+        $apl2 = BankSoal::where('tipe', 'APL2')->findOrFail($id);
         try {
             $apl2->delete();
 

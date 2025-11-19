@@ -27,7 +27,6 @@ use App\Http\Controllers\Asesi\ProfilAsesiController;
 use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
 use App\Http\Controllers\Asesi\TemplateController;
-use App\Http\Controllers\Asesi\Apl2Controller as AsesiApl2Controller;
 use App\Http\Controllers\Asesi\FormulirController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
@@ -35,7 +34,6 @@ use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController
 use App\Http\Controllers\Asesor\PembayaranJasaController;
 use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
-use App\Http\Controllers\Asesor\Apl2Controller as AsesorApl2Controller;
 use App\Http\Controllers\Asesor\ReviewController;
 use App\Http\Controllers\Asesor\PemeriksaanController;
 
@@ -171,8 +169,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     // Custom data routes
     Route::get('custom-data/{pendaftaranId}', [CustomDataController::class, 'showForm'])->name('asesi.custom-data.show');
     Route::post('custom-data/{pendaftaranId}', [CustomDataController::class, 'store'])->name('asesi.custom-data.store');
-    Route::post('ujikom/jawaban/{id}', [UjikomController::class, 'store'])->name('asesi.ujikom.store.jawaban');
-    Route::resource('ujikom', UjikomController::class)->names('asesi.ujikom');
+    Route::get('ujikom', [UjikomController::class, 'index'])->name('asesi.ujikom.index');
 
     // Registration info route
     Route::get('registration-info', [App\Http\Controllers\Asesi\RegistrationInfoController::class, 'index'])->name('asesi.registration-info');
@@ -212,15 +209,6 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::post('fr-ak-05/generate/{jadwalId}', [App\Http\Controllers\Asesor\FrAk05Controller::class, 'generate'])->name('asesor.fr-ak-05.generate');
 
     Route::resource('profil-asesor', ProfilAsesorController::class)->names('asesor.profil-asesor');
-
-    // APL2 routes (OLD - can be deprecated later)
-    Route::resource('apl2', AsesorApl2Controller::class)->names('asesor.apl2');
-    Route::post('apl2/add-signature', [AsesorApl2Controller::class, 'addSignature'])->name('asesor.apl2.add-signature');
-    Route::get('apl2/preview-data/{pendaftaranId}', [AsesorApl2Controller::class, 'previewApl2Data'])->name('asesor.apl2.preview-data');
-    Route::get('apl2/export-docx/{pendaftaranId}', [AsesorApl2Controller::class, 'exportDocx'])->name('asesor.apl2.export-docx');
-
-    // APL2 Template routes for asesor
-    Route::get('apl2/template', [AsesorApl2Controller::class, 'templateIndex'])->name('asesor.apl2.template.index');
 
     // Pemeriksaan routes (Bank Soal Review)
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi', [PemeriksaanController::class, 'asesiList'])->name('asesor.pemeriksaan.asesi-list');

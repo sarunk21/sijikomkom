@@ -18,9 +18,9 @@ class Skema extends Model
         return $this->hasMany(Jadwal::class);
     }
 
-    public function apl2()
+    public function bankSoal()
     {
-        return $this->hasMany(APL2::class);
+        return $this->hasMany(BankSoal::class);
     }
 
     // Relasi many-to-many dengan User (asesor)
