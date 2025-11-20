@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\APL2;
+use App\Models\BankSoal;
 use App\Models\Jadwal;
 use App\Models\PendaftaranUjikom;
 use App\Models\Skema;
@@ -80,10 +80,10 @@ class JadwalController extends Controller
         ]);
 
         try {
-            // Cek jika soal belum ada, maka return error
-            $apl2 = APL2::where('skema_id', $request->skema_id)->first();
-            if (!$apl2) {
-                return redirect()->route('admin.jadwal.create')->withInput()->with('error', 'Soal APL2 belum ada, silahkan tambahkan soal terlebih dahulu');
+            // Cek jika soal Bank Soal belum ada, maka return error
+            $bankSoal = BankSoal::where('skema_id', $request->skema_id)->first();
+            if (!$bankSoal) {
+                return redirect()->route('admin.jadwal.create')->withInput()->with('error', 'Bank Soal untuk skema ini belum ada, silahkan tambahkan soal terlebih dahulu');
             }
 
             $jadwal = Jadwal::create([

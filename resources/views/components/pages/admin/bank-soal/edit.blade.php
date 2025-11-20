@@ -198,6 +198,10 @@
                                                     return strpos($key, 'user.') === 0;
                                                 }, ARRAY_FILTER_USE_KEY);
 
+                                                $asesorFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'asesor.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
+
                                                 $skemaFields = array_filter($availableFields, function($key) {
                                                     return strpos($key, 'skema.') === 0;
                                                 }, ARRAY_FILTER_USE_KEY);
@@ -221,6 +225,25 @@
                                                             <i class="fas fa-user me-2"></i>Data User/Asesi
                                                         </h6>
                                             @foreach($userFields as $field => $label)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
+                                                                {{ in_array($field, $existingVariables) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $label }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-3" style="border-left: 3px solid #17a2b8;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-info mb-3">
+                                                            <i class="fas fa-user-tie me-2"></i>Data Asesor
+                                                        </h6>
+                                            @foreach($asesorFields as $field => $label)
                                                         <div class="form-check mb-2">
                                                             <input class="form-check-input database-field" type="checkbox"
                                                                 value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"

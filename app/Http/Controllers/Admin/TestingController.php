@@ -386,7 +386,7 @@ class TestingController extends Controller
         try {
             // Ambil pendaftaran ujikom yang sudah selesai (status 3)
             $pendaftaranUjikomSelesai = PendaftaranUjikom::where('status', 3)
-                ->with(['pendaftaran.asesi', 'pendaftaran.skema', 'asesor'])
+                ->with(['pendaftaran.user', 'pendaftaran.skema', 'asesor'])
                 ->get();
 
             if ($pendaftaranUjikomSelesai->isEmpty()) {
@@ -398,7 +398,7 @@ class TestingController extends Controller
 
             foreach ($pendaftaranUjikomSelesai as $ujikom) {
                 $pendaftaran = $ujikom->pendaftaran;
-                $asesi = $pendaftaran->asesi;
+                $user = $pendaftaran->user;
                 $skema = $pendaftaran->skema;
                 $asesor = $ujikom->asesor;
 
@@ -428,7 +428,7 @@ class TestingController extends Controller
                     $totalUploaded++;
                     $totalAsesiLulus++;
 
-                    Log::info("Sertifikat dibuat untuk asesi: {$asesi->name}, Nomor: {$sertifikat->nomor_sertifikat}");
+                    Log::info("Sertifikat dibuat untuk asesi: {$user->name}, Nomor: {$sertifikat->nomor_sertifikat}");
                 }
             }
 

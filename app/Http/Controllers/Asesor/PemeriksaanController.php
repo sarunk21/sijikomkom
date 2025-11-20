@@ -424,12 +424,71 @@ class PemeriksaanController extends Controller
             'bank_soal_field_mappings' => $bankSoal->field_mappings,
             'data_keys' => array_keys($data),
             'validations' => $response->asesor_validations ?? [],
-            'all_data' => $data
+        ]);
+        
+        \Log::info('Data values for replacement', [
+            'asesor.name' => $data['asesor.name'] ?? 'NOT SET',
+            'asesor_name' => $data['asesor_name'] ?? 'NOT SET',
+            'nama_asesor' => $data['nama_asesor'] ?? 'NOT SET',
+            'user.name' => $data['user.name'] ?? 'NOT SET',
+            'user_name' => $data['user_name'] ?? 'NOT SET',
+            'nama_asesi' => $data['nama_asesi'] ?? 'NOT SET',
+            'skema.nama' => $data['skema.nama'] ?? 'NOT SET',
+            'skema_nama' => $data['skema_nama'] ?? 'NOT SET',
+            'nama_skema' => $data['nama_skema'] ?? 'NOT SET',
+            'jadwal.tanggal_ujian' => $data['jadwal.tanggal_ujian'] ?? 'NOT SET',
         ]);
 
-        // Replace variables
+        // PENTING: Insert signature images DULU sebelum setValue
+        // Karena setValue bisa menghapus placeholder image
+        $this->insertSignatureImages($templateProcessor, $response);
+
+        // Replace variables dari template DOCX
+        // PHPWord's getVariables() mungkin tidak detect semua variable jika ada special chars
+        // Jadi kita loop semua data yang kita punya
+        $signatureFields = ['ttd_digital_asesi', 'ttd_digital_asesor', 'ttd_asesi', 'ttd_asesor'];
+        
+        foreach ($templateVariables as $templateVar) {
+            // Skip signature fields
+            if (in_array($templateVar, $signatureFields)) {
+                continue;
+            }
+            
+            // Check if we have this variable in our data
+            if (isset($data[$templateVar])) {
+                $value = $data[$templateVar];
+                $stringValue = is_array($value) ? json_encode($value) : (string)$value;
+                try {
+                    $templateProcessor->setValue($templateVar, $stringValue);
+                    \Log::info("Successfully replaced: $templateVar = $stringValue");
+                } catch (\Exception $e) {
+                    \Log::warning("Failed to replace $templateVar: " . $e->getMessage());
+                }
+            } else {
+                // Variable not found in data, set empty or log warning
+                \Log::warning("Template variable '$templateVar' not found in data");
+                try {
+                    $templateProcessor->setValue($templateVar, '');
+                } catch (\Exception $e) {
+                    // Ignore
+                }
+            }
+        }
+        
+        // Also try to replace all data keys (in case getVariables missed some)
         foreach ($data as $key => $value) {
-            $templateProcessor->setValue($key, $value);
+            // Skip signature fields
+            if (in_array($key, $signatureFields)) {
+                continue;
+            }
+            
+            $stringValue = is_array($value) ? json_encode($value) : (string)$value;
+            
+            try {
+                $templateProcessor->setValue($key, $stringValue);
+            } catch (\Exception $e) {
+                // Silently ignore, might not be in template
+            }
         }
 
         // Generate filename
@@ -472,18 +531,21 @@ class PemeriksaanController extends Controller
     private function prepareTemplateData($jadwal, $asesi, $response, $bankSoal)
     {
         $data = [];
+        
+        // Get current asesor data
+        $asesor = Auth::user();
 
         // Database fields from variables (auto-fill dari DB)
         if ($bankSoal->variables && is_array($bankSoal->variables)) {
             foreach ($bankSoal->variables as $variable) {
-                $data[$variable] = $this->getFieldValue($variable, $asesi, $jadwal);
+                $data[$variable] = $this->getFieldValue($variable, $asesi, $jadwal, $asesor);
             }
         }
 
         // Database fields from field_mappings (custom mapping)
         if ($bankSoal->field_mappings) {
             foreach ($bankSoal->field_mappings as $variable => $dbField) {
-                $data[$variable] = $this->getFieldValue($dbField, $asesi, $jadwal);
+                $data[$variable] = $this->getFieldValue($dbField, $asesi, $jadwal, $asesor);
             }
         }
 
@@ -512,6 +574,64 @@ class PemeriksaanController extends Controller
                 }
             }
         }
+        
+        // Explicit mapping for common asesor fields
+        $asesorName = $asesor->name ?? '';
+        $asesorEmail = $asesor->email ?? '';
+        $asesorNoReg = $asesor->asesor->no_reg ?? '';
+        
+        $data['asesor.name'] = $asesorName;
+        $data['asesor_name'] = $asesorName;
+        $data['asesorname'] = $asesorName;
+        $data['nama_asesor'] = $asesorName;
+        
+        $data['asesor.email'] = $asesorEmail;
+        $data['asesor_email'] = $asesorEmail;
+        $data['asesoremail'] = $asesorEmail;
+        $data['email_asesor'] = $asesorEmail;
+        
+        $data['asesor.no_reg'] = $asesorNoReg;
+        $data['asesor_no_reg'] = $asesorNoReg;
+        $data['asesornoReg'] = $asesorNoReg;
+        $data['no_reg_asesor'] = $asesorNoReg;
+        
+        // Mapping untuk asesi juga
+        $data['user.name'] = $asesi->name ?? '';
+        $data['user_name'] = $asesi->name ?? '';
+        $data['username'] = $asesi->name ?? '';
+        $data['nama_asesi'] = $asesi->name ?? '';
+        $data['asesi_name'] = $asesi->name ?? '';
+        
+        $data['user.email'] = $asesi->email ?? '';
+        $data['user_email'] = $asesi->email ?? '';
+        $data['useremail'] = $asesi->email ?? '';
+        $data['email_asesi'] = $asesi->email ?? '';
+        $data['asesi_email'] = $asesi->email ?? '';
+        
+        // Mapping untuk skema
+        $skemaNama = $jadwal->skema->nama ?? '';
+        $skemaKode = $jadwal->skema->kode ?? '';
+        $skemaNomor = $jadwal->skema->nomor ?? '';
+        
+        $data['skema.nama'] = $skemaNama;
+        $data['skema_nama'] = $skemaNama;
+        $data['skemanama'] = $skemaNama;
+        $data['nama_skema'] = $skemaNama;
+        
+        $data['skema.kode'] = $skemaKode;
+        $data['skema_kode'] = $skemaKode;
+        $data['skemakode'] = $skemaKode;
+        $data['kode_skema'] = $skemaKode;
+        
+        $data['skema.nomor'] = $skemaNomor;
+        $data['skema_nomor'] = $skemaNomor;
+        $data['skemanomor'] = $skemaNomor;
+        $data['nomor_skema'] = $skemaNomor;
+        
+        // Mapping untuk jadwal
+        $data['jadwal.tanggal_ujian'] = $jadwal->tanggal_ujian ?? '';
+        $data['jadwal_tanggal_ujian'] = $jadwal->tanggal_ujian ?? '';
+        $data['tanggal_ujian'] = $jadwal->tanggal_ujian ?? '';
 
         return $data;
     }
@@ -519,12 +639,18 @@ class PemeriksaanController extends Controller
     /**
      * Helper: Get field value from database
      */
-    private function getFieldValue($dbField, $asesi, $jadwal)
+    private function getFieldValue($dbField, $asesi, $jadwal, $asesor = null)
     {
         $parts = explode('.', $dbField);
 
         if ($parts[0] === 'user') {
             return data_get($asesi, implode('.', array_slice($parts, 1)));
+        } elseif ($parts[0] === 'asesor') {
+            // Support for asesor fields
+            if ($asesor) {
+                return data_get($asesor, implode('.', array_slice($parts, 1)));
+            }
+            return '';
         } elseif ($parts[0] === 'skema') {
             return data_get($jadwal->skema, implode('.', array_slice($parts, 1)));
         } elseif ($parts[0] === 'jadwal') {
@@ -538,6 +664,124 @@ class PemeriksaanController extends Controller
         }
 
         return '';
+    }
+
+    /**
+     * Helper: Insert signature images into template
+     */
+    private function insertSignatureImages($templateProcessor, $response)
+    {
+        // Get signature data from responses
+        $asesiResponses = $response->asesi_responses ?? [];
+        $asesorResponses = $response->asesor_responses ?? [];
+        
+        \Log::info('Checking signatures', [
+            'asesi_response_keys' => array_keys($asesiResponses),
+            'asesor_response_keys' => array_keys($asesorResponses),
+        ]);
+        
+        // Try to insert TTD Asesi
+        $ttdAsesi = $asesiResponses['ttd_digital_asesi'] ?? 
+                    $asesiResponses['ttd_asesi'] ?? 
+                    $asesorResponses['ttd_digital_asesi'] ?? 
+                    $asesorResponses['ttd_asesi'] ?? null;
+        
+        if ($ttdAsesi && str_starts_with($ttdAsesi, 'data:image')) {
+            \Log::info('Found TTD Asesi, inserting...');
+            $this->insertSignature($templateProcessor, 'ttd_digital_asesi', $ttdAsesi);
+            $this->insertSignature($templateProcessor, 'ttd_asesi', $ttdAsesi);
+        } else {
+            \Log::warning('TTD Asesi not found or invalid format');
+        }
+        
+        // Try to insert TTD Asesor  
+        $ttdAsesor = $asesorResponses['ttd_digital_asesor'] ?? 
+                     $asesorResponses['ttd_asesor'] ?? 
+                     $asesiResponses['ttd_digital_asesor'] ?? 
+                     $asesiResponses['ttd_asesor'] ?? null;
+        
+        if ($ttdAsesor && str_starts_with($ttdAsesor, 'data:image')) {
+            \Log::info('Found TTD Asesor, inserting...');
+            $this->insertSignature($templateProcessor, 'ttd_digital_asesor', $ttdAsesor);
+            $this->insertSignature($templateProcessor, 'ttd_asesor', $ttdAsesor);
+        } else {
+            \Log::warning('TTD Asesor not found or invalid format', [
+                'ttd_value' => $ttdAsesor ? substr($ttdAsesor, 0, 50) : 'null'
+            ]);
+        }
+        
+        \Log::info('Signature insertion completed for FR template');
+    }
+    
+    /**
+     * Helper: Insert single signature into template
+     */
+    private function insertSignature($templateProcessor, $placeholder, $base64Image)
+    {
+        try {
+            // Convert base64 to temporary file
+            $imageData = explode(',', $base64Image);
+            if (count($imageData) < 2) {
+                \Log::warning("Invalid base64 image format for {$placeholder}");
+                return;
+            }
+            
+            $encodedImage = $imageData[1];
+            $decodedImage = base64_decode($encodedImage);
+            
+            if ($decodedImage === false) {
+                \Log::warning("Failed to decode base64 image for {$placeholder}");
+                return;
+            }
+            
+            // Create temp file
+            $tempPath = storage_path('app/temp/' . uniqid('sig_') . '.png');
+            
+            // Ensure directory exists
+            $tempDir = dirname($tempPath);
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+            
+            file_put_contents($tempPath, $decodedImage);
+            
+            // Try multiple placeholder formats
+            $placeholders = [
+                $placeholder,
+                '${' . $placeholder . '}',
+            ];
+            
+            foreach ($placeholders as $ph) {
+                try {
+                    // Remove ${} if present
+                    $cleanPlaceholder = str_replace(['${', '}'], '', $ph);
+                    
+                    $templateProcessor->setImageValue(
+                        $cleanPlaceholder,
+                        [
+                            'path' => $tempPath,
+                            'width' => 150,
+                            'height' => 75,
+                            'ratio' => true
+                        ]
+                    );
+                    
+                    \Log::info("Successfully inserted signature image for placeholder: {$cleanPlaceholder}");
+                    
+                    // Don't break - try all placeholders in case template has multiple
+                } catch (\Exception $e) {
+                    \Log::debug("Failed to insert signature with placeholder {$ph}: " . $e->getMessage());
+                }
+            }
+            
+            // Clean up temp file
+            if (file_exists($tempPath)) {
+                @unlink($tempPath);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error("Error inserting signature {$placeholder}: " . $e->getMessage());
+        }
     }
 
     /**

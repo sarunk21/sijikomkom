@@ -25,7 +25,7 @@ class FrAk05Controller extends Controller
     private function getJadwalForAsesor($jadwalId)
     {
         $asesor = Auth::user();
-        
+
         // Get skema IDs yang dimiliki asesor ini
         $skemaIds = DB::table('asesor_skema')
             ->where('asesor_id', $asesor->id)
@@ -36,6 +36,55 @@ class FrAk05Controller extends Controller
             ->whereIn('skema_id', $skemaIds)
             ->with(['skema', 'tuk'])
             ->firstOrFail();
+    }
+
+    /**
+     * Helper: Get field value from database field path (e.g., "skema.nama", "asesor.name")
+     */
+    private function getFieldValueFromPath($fieldPath, $jadwal, $asesor, $skema)
+    {
+        // Split the field path (e.g., "skema.nama" -> ["skema", "nama"])
+        $parts = explode('.', $fieldPath);
+
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $entity = $parts[0]; // e.g., "skema", "asesor", "jadwal"
+        $field = $parts[1];  // e.g., "nama", "name", "tanggal_ujian"
+
+        switch ($entity) {
+            case 'skema':
+                return $skema->{$field} ?? '';
+
+            case 'asesor':
+                if ($field === 'tanggal_lahir' && $asesor->{$field}) {
+                    // Format date if it's a date field
+                    if (is_string($asesor->{$field})) {
+                        return $asesor->{$field};
+                    }
+                    return $asesor->{$field}->format('d/m/Y');
+                }
+                return $asesor->{$field} ?? '';
+
+            case 'jadwal':
+                // Handle nested fields like "jadwal.tuk.nama"
+                if (count($parts) === 3 && $parts[1] === 'tuk') {
+                    return $jadwal->tuk->{$parts[2]} ?? '';
+                }
+                return $jadwal->{$field} ?? '';
+
+            case 'system':
+                if ($field === 'tanggal_generate') {
+                    return now()->format('d-m-Y');
+                } elseif ($field === 'waktu_generate') {
+                    return now()->format('H:i:s');
+                }
+                return '';
+
+            default:
+                return '';
+        }
     }
 
     /**
@@ -201,21 +250,64 @@ class FrAk05Controller extends Controller
             $kompeten = $asesiList->where('status', 5)->count();
             $tidakKompeten = $asesiList->where('status', 4)->count();
 
-            // Prepare basic auto-filled data
+            // Get asesor and skema data
+            $asesor = Auth::user();
+            $skema = $jadwal->skema;
+            $tuk = $jadwal->tuk;
+
+            // Prepare comprehensive auto-filled data
             $autoFilledData = [
-                'skema.judul' => $jadwal->skema->nama,
-                'skema.nomor' => $jadwal->skema->kode ?? '',
-                'tuk' => $jadwal->tuk->nama,
-                'nama_asesor' => Auth::user()->name,
+                // Legacy placeholders (backward compatibility)
+                'skema.judul' => $skema->nama,
+                'skema.nomor' => $skema->kode ?? '',
+                'tuk' => $tuk->nama,
+                'nama_asesor' => $asesor->name,
                 'tanggal' => now()->format('d-m-Y'),
                 'asesi_kompeten' => $kompeten,
                 'asesi_tidak_kompeten' => $tidakKompeten,
                 'total_asesi' => $asesiList->count(),
+
+                // Skema fields (standard database fields)
+                'skema.nama' => $skema->nama,
+                'skema.kode' => $skema->kode ?? '',
+                'skema.kategori' => $skema->kategori ?? '',
+                'skema.bidang' => $skema->bidang ?? '',
+
+                // Asesor fields (standard database fields)
+                'asesor.name' => $asesor->name,
+                'asesor.email' => $asesor->email ?? '',
+                'asesor.telephone' => $asesor->telephone ?? '',
+                'asesor.nik' => $asesor->nik ?? '',
+                'asesor.nip' => $asesor->nip ?? '',
+                'asesor.tempat_lahir' => $asesor->tempat_lahir ?? '',
+                'asesor.tanggal_lahir' => $asesor->tanggal_lahir ? ($asesor->tanggal_lahir instanceof \DateTime ? $asesor->tanggal_lahir->format('d/m/Y') : $asesor->tanggal_lahir) : '',
+                'asesor.jenis_kelamin' => $asesor->jenis_kelamin ?? '',
+                'asesor.alamat' => $asesor->alamat ?? '',
+                'asesor.pendidikan' => $asesor->pendidikan ?? '',
+
+                // Jadwal fields
                 'jadwal.tanggal_ujian' => $jadwal->tanggal_ujian,
-                'jadwal.tuk.alamat' => $jadwal->tuk->alamat ?? '',
+                'jadwal.waktu_mulai' => $jadwal->waktu_mulai ?? '',
+                'jadwal.waktu_selesai' => $jadwal->waktu_selesai ?? '',
+                'jadwal.tuk.nama' => $tuk->nama ?? '',
+                'jadwal.tuk.alamat' => $tuk->alamat ?? '',
+
+                // System fields
                 'system.tanggal_generate' => now()->format('d-m-Y'),
                 'system.waktu_generate' => now()->format('H:i:s'),
             ];
+
+            // Process custom field mappings from template (if any)
+            if ($template->field_mappings && is_array($template->field_mappings)) {
+                foreach ($template->field_mappings as $placeholderName => $databaseField) {
+                    // Get the value from database using the field path
+                    $value = $this->getFieldValueFromPath($databaseField, $jadwal, $asesor, $skema);
+
+                    if ($value !== null) {
+                        $autoFilledData[$placeholderName] = $value;
+                    }
+                }
+            }
 
             // Replace auto-filled variables
             foreach ($autoFilledData as $key => $value) {

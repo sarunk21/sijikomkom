@@ -62,12 +62,12 @@
                                             continue;
                                         }
                                     @endphp
-                                <div class="mb-3">
-                                    <label class="form-label text-muted font-weight-bold">
+                                <div class="mb-2">
+                                    <label class="form-label text-muted font-weight-bold mb-1 small">
                                         {{ $variable['label'] }}
                                     </label>
-                                    <div class="form-control-plaintext bg-light p-2 rounded">
-                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                    <div class="bg-light p-2 rounded small">
+                                        <i class="fas fa-check-circle text-success mr-1"></i>
                                         {{ $pendaftaran->custom_variables[$variable['name']] ?? '-' }}
                                     </div>
                                 </div>
@@ -149,9 +149,9 @@
 
                                             <div class="card mb-3 border-left-primary">
                                                 <div class="card-body">
-                                                    <label for="custom_variable_{{ $variable['name'] }}" class="form-label font-weight-bold">
+                                                    <label for="custom_variable_{{ $variable['name'] }}" class="form-label font-weight-bold" style="word-wrap: break-word; overflow-wrap: break-word;">
                                                         <i class="fas fa-question-circle mr-1"></i>
-                                                        Pertanyaan {{ $index + 1 }}: {{ $variable['label'] }}
+                                                        <span style="display: inline-block; max-width: 100%;">Pertanyaan {{ $index + 1 }}: {{ $variable['label'] }}</span>
                                                         @if($variable['required'] ?? false)
                                                             <span class="text-danger">*</span>
                                                         @endif
@@ -282,9 +282,11 @@
                                         @endif
 
                                         <div class="row">
-                                            <div class="col-md-8">
+                                            <div class="col-12">
                                                 <div class="signature-pad-container">
-                                                    <canvas id="signature-pad" width="600" height="200" class="border"></canvas>
+                                                    <div class="signature-canvas-wrapper" style="max-width: 100%; overflow: hidden;">
+                                                        <canvas id="signature-pad" class="border" style="width: 100%; max-width: 600px; height: 200px;"></canvas>
+                                                    </div>
                                                     <div class="mt-2">
                                                         <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-signature">
                                                             <i class="fas fa-eraser"></i> Hapus Tanda Tangan
@@ -292,11 +294,11 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-12 mt-3">
                                                 <div class="alert alert-warning">
                                                     <i class="fas fa-exclamation-triangle"></i>
                                                     <strong>Penting:</strong>
-                                                    <ul class="mb-0 mt-2">
+                                                    <ul class="mb-0 mt-2 small">
                                                         <li>Tanda tangan harus jelas dan terbaca</li>
                                                         <li>Gunakan mouse atau touch untuk menandatangani</li>
                                                         <li>Tanda tangan akan tersimpan secara digital</li>
@@ -391,16 +393,41 @@
     <style>
         .signature-pad-container {
             position: relative;
+            width: 100%;
+        }
+
+        .signature-canvas-wrapper {
+            width: 100%;
+            max-width: 600px;
         }
 
         #signature-pad {
             border: 2px solid #dee2e6;
             border-radius: 5px;
             background-color: white;
+            display: block;
         }
 
         .border-left-primary {
             border-left: 4px solid #007bff !important;
+        }
+
+        /* Responsive text handling */
+        .form-label, .card-body label {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .form-control-plaintext {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* Prevent horizontal overflow */
+        .card-body {
+            overflow-x: hidden;
         }
     </style>
 
@@ -414,6 +441,19 @@
             const hasTTD = {{ !empty($pendaftaran->ttd_asesi_path) ? 'true' : 'false' }};
             
             if (canvas) {
+                // Set canvas actual size
+                const resizeCanvas = () => {
+                    const wrapper = canvas.parentElement;
+                    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                    const width = Math.min(600, wrapper.clientWidth);
+                    canvas.width = width * ratio;
+                    canvas.height = 200 * ratio;
+                    canvas.getContext("2d").scale(ratio, ratio);
+                };
+                
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+                
                 const signaturePad = new SignaturePad(canvas, {
                     backgroundColor: 'rgba(255, 255, 255, 0)',
                     penColor: 'rgb(0, 0, 0)'

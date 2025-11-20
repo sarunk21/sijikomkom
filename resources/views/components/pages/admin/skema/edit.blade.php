@@ -32,6 +32,17 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="deskripsi" class="form-label">Deskripsi</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="4"
+                        class="form-control @error('deskripsi') is-invalid @enderror"
+                        placeholder="Masukkan deskripsi skema sertifikasi ini...">{{ old('deskripsi', $skema->deskripsi) }}</textarea>
+                    @error('deskripsi')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <small class="form-text text-muted">Deskripsi akan ditampilkan di halaman Skema Sertifikasi untuk asesi</small>
+                </div>
+
+                <div class="mb-3">
                     <label for="kode" class="form-label">Kode Skema <span class="text-danger">*</span></label>
                     <input type="text" id="kode" name="kode" class="form-control @error('kode') is-invalid @enderror"
                         placeholder="Isi Kode Unik di sini..." value="{{ $skema->kode }}" required>

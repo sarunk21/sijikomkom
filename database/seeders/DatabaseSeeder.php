@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             AsesiSeeder::class,
             TukSeeder::class,
             SkemaSeeder::class,
-            Apl2Seeder::class,
         ]);
     }
 }

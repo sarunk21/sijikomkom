@@ -26,7 +26,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('skemas')->orderBy('name', 'asc')->get();
+        $users = User::with('skemas')->orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('user');
         return view('components.pages.admin.user.list', compact('lists', 'users'));
     }

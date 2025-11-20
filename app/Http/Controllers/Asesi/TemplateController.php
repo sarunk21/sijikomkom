@@ -47,6 +47,17 @@ class TemplateController extends Controller
                 return redirect()->back()->with('error', 'Template APL 1 untuk skema "' . $pendaftaran->skema->nama . '" belum tersedia. Silakan hubungi administrator.');
             }
 
+            // Ensure variables is an array (fallback if cast doesn't work)
+            if (is_string($template->variables)) {
+                $template->variables = json_decode($template->variables, true) ?? [];
+            }
+            if (is_string($template->field_configurations)) {
+                $template->field_configurations = json_decode($template->field_configurations, true) ?? [];
+            }
+            if (is_string($template->custom_variables)) {
+                $template->custom_variables = json_decode($template->custom_variables, true) ?? [];
+            }
+
             // Filter custom variables (yang tidak ada di database fields)
             $databaseFields = [
                 'user.name', 'user.email', 'user.telephone', 'user.alamat', 'user.nik', 'user.nim',
@@ -64,7 +75,7 @@ class TemplateController extends Controller
             
             // Collect all signature_pad field names dari field_configurations
             $signaturePadFields = [];
-            if ($template->field_configurations) {
+            if ($template->field_configurations && is_array($template->field_configurations)) {
                 foreach ($template->field_configurations as $fieldConfig) {
                     if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
                         $signaturePadFields[] = $fieldConfig['name'];
@@ -81,7 +92,7 @@ class TemplateController extends Controller
                 }
             }
 
-            if ($template->variables) {
+            if ($template->variables && is_array($template->variables)) {
                 foreach ($template->variables as $variable) {
                     // Skip database fields
                     if (in_array($variable, $databaseFields)) {
@@ -103,7 +114,7 @@ class TemplateController extends Controller
             }
 
             // Handle dynamic field configurations
-            if ($template->field_configurations) {
+            if ($template->field_configurations && is_array($template->field_configurations)) {
                 foreach ($template->field_configurations as $fieldConfig) {
                     $fieldName = $fieldConfig['name'];
                     

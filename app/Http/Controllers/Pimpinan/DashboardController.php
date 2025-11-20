@@ -24,9 +24,9 @@ class DashboardController extends Controller
         // Total Skema
         $totalSkema = Skema::count();
 
-        // Tingkat Keberhasilan
-        $totalKompeten = Pendaftaran::where('status', 5)->count(); // Status 5 = Kompeten
-        $totalTidakKompeten = Pendaftaran::where('status', 4)->count(); // Status 4 = Tidak Kompeten
+        // Tingkat Keberhasilan - ambil dari tabel report
+        $totalKompeten = \App\Models\Report::where('status', 1)->count(); // Status 1 = Kompeten
+        $totalTidakKompeten = \App\Models\Report::where('status', 2)->count(); // Status 2 = Tidak Kompeten
         $totalUjikom = $totalKompeten + $totalTidakKompeten;
         $tingkatKeberhasilan = $totalUjikom > 0 ? round(($totalKompeten / $totalUjikom) * 100, 2) : 0;
 

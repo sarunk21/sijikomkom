@@ -20,7 +20,11 @@
       "Bash(php -r:*)",
       "Bash(dir:*)",
       "Bash(sc query:*)",
-      "Bash(del appModelsAPL2.php)"
+      "Bash(del appModelsAPL2.php)",
+      "Bash(del \"database\\migrations\\2025_11_19_140405_add_deskripsi_to_skema_table.php\")",
+      "Bash(composer dump-autoload:*)",
+      "Bash(find:*)",
+      "Bash(unzip:*)"
     ],
     "deny": [],
     "ask": []

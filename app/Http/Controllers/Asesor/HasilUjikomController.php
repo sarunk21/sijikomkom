@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Asesor;
 
 use App\Http\Controllers\Controller;
-use App\Models\APL2;
+use App\Models\BankSoal;
 use App\Models\Jadwal;
+use App\Models\Pendaftaran;
 use App\Models\PendaftaranUjikom;
 use App\Models\Report;
-use App\Models\Response;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -164,10 +164,22 @@ class HasilUjikomController extends Controller
     {
         $lists = $this->getMenuListAsesor('hasil-ujikom');
 
-        $jawabanAsesi = Response::where('pendaftaran_id', $id)
-            ->with(['pendaftaran', 'pendaftaran.jadwal', 'pendaftaran.jadwal.skema', 'pendaftaran.jadwal.tuk'])
+        // Get pendaftaran dengan jawaban bank soal
+        $pendaftaran = Pendaftaran::with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'user'])
+            ->find($id);
+
+        if (!$pendaftaran) {
+            return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan');
+        }
+
+        // Get bank soal untuk skema ini
+        $bankSoal = BankSoal::where('skema_id', $pendaftaran->skema_id)
+            ->where('is_active', true)
             ->get();
 
-        return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'jawabanAsesi', 'id'));
+        // Jawaban asesi ada di field bank_soal_responses di tabel pendaftaran
+        $jawabanAsesi = $pendaftaran->bank_soal_responses ?? [];
+
+        return view('components.pages.asesor.hasil-ujikom.jawaban-asesi', compact('lists', 'pendaftaran', 'bankSoal', 'jawabanAsesi', 'id'));
     }
 }

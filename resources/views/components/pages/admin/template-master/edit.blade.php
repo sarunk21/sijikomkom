@@ -212,6 +212,10 @@
                                                 $systemFields = array_filter($availableFields, function($key) {
                                                     return strpos($key, 'system.') === 0;
                                                 }, ARRAY_FILTER_USE_KEY);
+
+                                                $asesorFields = array_filter($availableFields, function($key) {
+                                                    return strpos($key, 'asesor.') === 0;
+                                                }, ARRAY_FILTER_USE_KEY);
                                             @endphp
 
                                             <div class="col-md-6">
@@ -221,6 +225,25 @@
                                                             <i class="fas fa-user me-2"></i>Data User/Asesi
                                                         </h6>
                                             @foreach($userFields as $field => $label)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input database-field" type="checkbox"
+                                                                value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
+                                                                {{ is_array(old('variables', $template->variables ?? [])) && in_array($field, old('variables', $template->variables ?? [])) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="field_{{ str_replace('.', '_', $field) }}">
+                                                                <strong>{{ $label }}</strong>
+                                                                <small class="text-muted d-block"><code>${{ $field }}</code></small>
+                                                            </label>
+                                                        </div>
+                                            @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-3" style="border-left: 3px solid #17a2b8;">
+                                                    <div class="card-body">
+                                                        <h6 class="text-info mb-3">
+                                                            <i class="fas fa-user-tie me-2"></i>Data Asesor
+                                                        </h6>
+                                            @foreach($asesorFields as $field => $label)
                                                         <div class="form-check mb-2">
                                                             <input class="form-check-input database-field" type="checkbox"
                                                                 value="{{ $field }}" id="field_{{ str_replace('.', '_', $field) }}"
@@ -460,32 +483,77 @@
                 updateVariablesInput();
             });
 
+            // Handle custom variable type change for BK/K auto-fill
+            $(document).on('change', 'select[name*="[type]"]', function() {
+                const type = $(this).val();
+                const row = $(this).closest('.custom-variable-row');
+                const optionsInput = row.find('input[name*="[options]"]');
+
+                if (type === 'radio') {
+                    // Suggest BK/K options for radio type
+                    if (!optionsInput.val()) {
+                        optionsInput.attr('placeholder', 'Contoh: BK,K atau Belum Kompeten,Kompeten');
+                    }
+                } else if (['checkbox', 'select'].includes(type)) {
+                    optionsInput.attr('placeholder', 'Pisahkan dengan koma (contoh: Opsi 1, Opsi 2)');
+                } else {
+                    optionsInput.val('');
+                    optionsInput.attr('placeholder', '');
+                }
+            });
+
             function addCustomVariableRow(index, existingData = null) {
                 const html = `
-                    <div class="custom-variable-row border rounded p-3 mb-3">
+                    <div class="custom-variable-row bg-white border rounded p-3 mb-3" style="border-left: 4px solid #ffc107 !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0" style="color: #f59e0b;">
+                                <i class="fas fa-edit me-2"></i>Custom Field #${index + 1}
+                            </h6>
+                            <button type="button" class="btn btn-sm btn-danger remove-custom-variable">
+                                <i class="fas fa-trash me-1"></i>Hapus
+                            </button>
+                        </div>
+
                         <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label small fw-semibold">Nama Variable <span class="text-danger">*</span></label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Nama Variable <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][name]" class="form-control"
-                                    placeholder="nama_variable" value="${existingData ? existingData.name || '' : ''}">
+                                    placeholder="contoh: pertanyaan_1" value="${existingData ? existingData.name || '' : ''}">
                                 <small class="text-muted d-block mt-1">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Gunakan format: <code>\${nama_variable}</code> di template
+                                    Akan menjadi <code>$\${nama_variable}</code> di template DOCX
                                 </small>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label small fw-semibold">Label Pertanyaan <span class="text-danger">*</span></label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Label/Pertanyaan <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][label]" class="form-control"
-                                    placeholder="Pertanyaan untuk asesi" value="${existingData ? existingData.label || '' : ''}">
+                                    placeholder="Apakah Anda mampu..." value="${existingData ? existingData.label || '' : ''}">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Label yang ditampilkan di form
+                                </small>
                             </div>
-                            <div class="col-md-2 mb-3">
-                                <label class="form-label small fw-semibold">Untuk Siapa? <span class="text-danger">*</span></label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">
+                                    Untuk Siapa? <span class="text-danger">*</span>
+                                </label>
                                 <select name="custom_variables[${index}][role]" class="form-control">
-                                    <option value="asesi" ${existingData && existingData.role === 'asesi' ? 'selected' : (!existingData ? 'selected' : '')}>Asesi</option>
-                                    <option value="asesor" ${existingData && existingData.role === 'asesor' ? 'selected' : ''}>Asesor</option>
+                                    <option value="asesi" ${existingData && existingData.role === 'asesi' ? 'selected' : (!existingData ? 'selected' : '')}>Asesi (Peserta)</option>
+                                    <option value="asesor" ${existingData && existingData.role === 'asesor' ? 'selected' : ''}>Asesor (Penguji)</option>
                                     <option value="both" ${existingData && existingData.role === 'both' ? 'selected' : ''}>Keduanya</option>
                                 </select>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Field ini akan ditampilkan untuk siapa?
+                                </small>
                             </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label small fw-semibold">Tipe Input</label>
                                 <select name="custom_variables[${index}][type]" class="form-control">
@@ -501,25 +569,19 @@
                                     <option value="signature_pad" ${existingData && existingData.type === 'signature_pad' ? 'selected' : ''}>Signature Pad</option>
                                 </select>
                             </div>
-                            <div class="col-md-1 mb-3">
-                                <label class="form-label small fw-semibold">Aksi</label>
-                                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-custom-variable" title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-semibold">Options (untuk checkbox/radio/select)</label>
+                                <label class="form-label small fw-semibold">
+                                    Options <span class="text-muted small">(untuk checkbox/radio/select)</span>
+                                </label>
                                 <input type="text" name="custom_variables[${index}][options]" class="form-control"
-                                    placeholder="option1,option2,option3" value="${existingData ? existingData.options || '' : ''}">
+                                    placeholder="Contoh: BK,K atau Belum Kompeten,Kompeten" value="${existingData ? existingData.options || '' : ''}">
                                 <small class="text-muted d-block mt-1">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Pisahkan dengan koma
                                 </small>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-semibold">Required</label>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label small fw-semibold">Required?</label>
                                 <select name="custom_variables[${index}][required]" class="form-control">
                                     <option value="0" ${existingData && existingData.required ? '' : 'selected'}>Tidak</option>
                                     <option value="1" ${existingData && existingData.required ? 'selected' : ''}>Ya</option>

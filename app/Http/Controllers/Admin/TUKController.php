@@ -16,7 +16,7 @@ class TUKController extends Controller
      */
     public function index()
     {
-        $tuk = Tuk::orderBy('nama', 'asc')->get();
+        $tuk = Tuk::orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('tuk');
         $activeMenu = 'tuk';
         return view('components.pages.admin.tuk.list', compact('lists', 'activeMenu', 'tuk'));

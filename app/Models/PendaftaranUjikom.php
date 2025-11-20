@@ -16,7 +16,7 @@ class PendaftaranUjikom extends Model
         1 => 'Belum Ujikom',
         2 => 'Ujikom Berlangsung',
         3 => 'Ujikom Selesai',
-        4 => 'Tidak Kompeten',
+        4 => 'Sudah Sertifikat',
         5 => 'Kompeten',
         6 => 'Menunggu Konfirmasi Asesor',
         7 => 'Asesor Tidak Dapat Hadir',

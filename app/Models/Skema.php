@@ -11,7 +11,7 @@ class Skema extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'skema';
-    protected $fillable = ['nama', 'kode', 'kategori', 'bidang'];
+    protected $fillable = ['nama', 'deskripsi', 'kode', 'kategori', 'bidang'];
 
     public function jadwal()
     {

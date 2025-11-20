@@ -28,6 +28,7 @@ use App\Http\Controllers\Asesi\SertifikasiController;
 use App\Http\Controllers\Asesi\UjikomController;
 use App\Http\Controllers\Asesi\TemplateController;
 use App\Http\Controllers\Asesi\FormulirController;
+use App\Http\Controllers\Asesi\SkemaController as AsesiSkemaController;
 
 use App\Http\Controllers\Asesor\VerifikasiPesertaController;
 use App\Http\Controllers\Asesor\DashboardController as AsesorDashboardController;
@@ -154,6 +155,10 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
     Route::resource('profil-asesi', ProfilAsesiController::class)->names('asesi.profil-asesi');
     Route::resource('daftar-ujikom', DaftarUjikomController::class)->names('asesi.daftar-ujikom')->middleware('check.second.registration');
     Route::resource('sertifikasi', SertifikasiController::class)->names('asesi.sertifikasi');
+
+    // Skema routes
+    Route::get('skema', [AsesiSkemaController::class, 'index'])->name('asesi.skema.index');
+    Route::get('skema/{id}', [AsesiSkemaController::class, 'show'])->name('asesi.skema.show');
 
     // APL 1 routes
     Route::get('template/apl1/{pendaftaranId}', [TemplateController::class, 'showApl1Form'])->name('asesi.template.apl1-form');

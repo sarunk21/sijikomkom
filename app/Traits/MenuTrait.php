@@ -124,6 +124,11 @@ trait MenuTrait
                 'key' => 'dashboard'
             ],
             [
+                'title' => 'Skema Sertifikasi',
+                'url' => 'asesi.skema.index',
+                'key' => 'skema'
+            ],
+            [
                 'title' => 'Daftar Ujikom',
                 'url' => 'asesi.daftar-ujikom.index',
                 'key' => 'daftar-ujikom'

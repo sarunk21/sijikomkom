@@ -19,7 +19,7 @@ class SkemaController extends Controller
      */
     public function index()
     {
-        $skema = Skema::with('asesors')->orderBy('nama', 'asc')->get();
+        $skema = Skema::with('asesors')->orderBy('created_at', 'desc')->get();
         $lists = $this->getMenuListAdmin('skema');
         $activeMenu = 'skema';
         return view('components.pages.admin.skema.list', compact('lists', 'activeMenu', 'skema'));
@@ -56,6 +56,7 @@ class SkemaController extends Controller
         try {
             $skema = Skema::create([
                 'nama' => $request->nama,
+                'deskripsi' => $request->deskripsi,
                 'kode' => $request->kode,
                 'kategori' => $request->kategori,
                 'bidang' => $request->bidang,
@@ -126,6 +127,7 @@ class SkemaController extends Controller
             $skema = Skema::find($id);
             $skema->update([
                 'nama' => $request->nama,
+                'deskripsi' => $request->deskripsi,
                 'kode' => $request->kode,
                 'kategori' => $request->kategori,
                 'bidang' => $request->bidang,

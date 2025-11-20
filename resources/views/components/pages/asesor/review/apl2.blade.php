@@ -68,341 +68,97 @@
     <div class="card shadow-sm">
         <div class="card-header bg-warning text-dark">
             <h6 class="m-0 font-weight-bold">
-                <i class="fas fa-file-contract mr-2"></i> Form Review APL2
+                <i class="fas fa-file-contract mr-2"></i> Data APL2 dari Asesi
             </h6>
-            <small>Isi dan berikan penilaian untuk setiap item yang ditugaskan kepada Anda</small>
+            <small>Data yang telah diisi oleh asesi (Read-Only)</small>
         </div>
         <div class="card-body">
-            <form action="{{ route('asesor.review.store-apl2', $pendaftaran->id) }}" method="POST" id="apl2ReviewForm">
-                @csrf
+            @php
+                // Use template custom_variables for APL2
+                $customVariables = $template->custom_variables ?? [];
 
-                {{-- Display Asesi's Data (Read-only) --}}
-                @if($template->custom_variables && count($template->custom_variables) > 0)
+                // Get asesi responses from custom_variables
+                $asesiResponses = $pendaftaran->custom_variables ?? [];
+            @endphp
+
+            @if($customVariables && count($customVariables) > 0)
+                @foreach($customVariables as $index => $variable)
                     @php
-                        $hasAsesiData = false;
-                        $hasAsesorData = false;
-                    @endphp
+                        $variableRole = $variable['role'] ?? 'asesi';
 
-                    {{-- First, show all asesi-filled fields --}}
-                    @foreach($template->custom_variables as $index => $variable)
-                        @php
-                            $variableRole = $variable['role'] ?? 'asesi';
-                            if ($variableRole === 'asesi' || $variableRole === 'both') {
-                                $hasAsesiData = true;
-                                break;
-                            }
-                        @endphp
-                    @endforeach
-
-                    @if($hasAsesiData)
-                        <div class="mb-5">
-                            <h5 class="text-primary border-bottom pb-2 mb-4">
-                                <i class="fas fa-eye mr-2"></i> Data dari Asesi
-                            </h5>
-                            <p class="text-muted small mb-4">Berikut adalah data yang telah diisi oleh asesi</p>
-
-                            @foreach($template->custom_variables as $index => $variable)
-                                @php
-                                    $variableRole = $variable['role'] ?? 'asesi';
-                                    if ($variableRole !== 'asesi' && $variableRole !== 'both') {
-                                        continue;
-                                    }
-
-                                    // Skip signature_pad
-                                    if (isset($variable['type']) && $variable['type'] === 'signature_pad') {
-                                        continue;
-                                    }
-
-                                    $asesiValue = $pendaftaran->custom_variables[$variable['name']] ?? '-';
-                                @endphp
-
-                                <div class="card mb-3 border-left-info">
-                                    <div class="card-body">
-                                        <label class="form-label font-weight-bold text-dark">
-                                            {{ $variable['label'] }}
-                                        </label>
-                                        <div class="form-control-plaintext bg-light p-3 rounded border">
-                                            {{ $asesiValue }}
-                                        </div>
-
-                                        {{-- Assessment for BK/K fields --}}
-                                        @if(isset($variable['type']) && $variable['type'] === 'radio_bk_k')
-                                            <div class="mt-3 p-3 bg-warning-light border border-warning rounded">
-                                                <label class="form-label font-weight-bold text-dark">
-                                                    <i class="fas fa-clipboard-check mr-2"></i> Penilaian Asesor
-                                                </label>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                           name="assessments[{{ $variable['name'] }}]"
-                                                           id="assessment_k_{{ $index }}"
-                                                           value="K"
-                                                           {{ (isset($pendaftaran->asesor_assessment[$variable['name']]['assessment']) && $pendaftaran->asesor_assessment[$variable['name']]['assessment'] === 'K') ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="assessment_k_{{ $index }}">
-                                                        <strong class="text-success">K (Kompeten)</strong>
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                           name="assessments[{{ $variable['name'] }}]"
-                                                           id="assessment_bk_{{ $index }}"
-                                                           value="BK"
-                                                           {{ (isset($pendaftaran->asesor_assessment[$variable['name']]['assessment']) && $pendaftaran->asesor_assessment[$variable['name']]['assessment'] === 'BK') ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="assessment_bk_{{ $index }}">
-                                                        <strong class="text-danger">BK (Belum Kompeten)</strong>
-                                                    </label>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <label class="form-label small">Catatan (opsional)</label>
-                                                    <textarea class="form-control" name="notes[{{ $variable['name'] }}]"
-                                                              rows="2" placeholder="Tambahkan catatan penilaian...">{{ $pendaftaran->asesor_assessment[$variable['name']]['notes'] ?? '' }}</textarea>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Show Asesi's Signature --}}
-                            @if($pendaftaran->ttd_asesi_path)
-                                <div class="card mb-3 border-left-info">
-                                    <div class="card-body">
-                                        <label class="form-label font-weight-bold text-dark">
-                                            <i class="fas fa-signature mr-2"></i> Tanda Tangan Asesi
-                                        </label>
-                                        <div class="border p-3 bg-light rounded">
-                                            <img src="{{ asset('storage/' . $pendaftaran->ttd_asesi_path) }}"
-                                                 alt="Tanda Tangan Asesi"
-                                                 class="img-fluid"
-                                                 style="max-height: 150px; background: white; padding: 10px; border: 1px solid #dee2e6;">
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
-                    {{-- Then, show fields to be filled by asesor --}}
-                    @foreach($template->custom_variables as $index => $variable)
-                        @php
-                            $variableRole = $variable['role'] ?? 'asesi';
-                            if ($variableRole === 'asesor' || $variableRole === 'both') {
-                                $hasAsesorData = true;
-                                break;
-                            }
-                        @endphp
-                    @endforeach
-
-                    @if($hasAsesorData)
-                        <div class="mb-5">
-                            <h5 class="text-success border-bottom pb-2 mb-4">
-                                <i class="fas fa-edit mr-2"></i> Bagian Asesor
-                            </h5>
-                            <p class="text-muted small mb-4">Isi bagian berikut sesuai dengan hasil penilaian Anda</p>
-
-                            @foreach($template->custom_variables as $index => $variable)
-                                @php
-                                    $variableRole = $variable['role'] ?? 'asesi';
-                                    if ($variableRole !== 'asesor' && $variableRole !== 'both') {
-                                        continue;
-                                    }
-
-                                    // Skip signature_pad (handled separately)
-                                    if (isset($variable['type']) && $variable['type'] === 'signature_pad') {
-                                        continue;
-                                    }
-
-                                    $asesorValue = $pendaftaran->asesor_data[$variable['name']] ?? '';
-                                @endphp
-
-                                <div class="card mb-3 border-left-success">
-                                    <div class="card-body">
-                                        <label class="form-label font-weight-bold text-dark" for="asesor_var_{{ $index }}">
-                                            {{ $variable['label'] }}
-                                            @if(isset($variable['required']) && $variable['required'])
-                                                <span class="text-danger">*</span>
-                                            @endif
-                                        </label>
-
-                                        @if(isset($variable['type']) && $variable['type'] === 'textarea')
-                                            <textarea class="form-control"
-                                                      name="asesor_variables[{{ $variable['name'] }}]"
-                                                      id="asesor_var_{{ $index }}"
-                                                      rows="4"
-                                                      placeholder="Masukkan {{ strtolower($variable['label']) }}..."
-                                                      {{ isset($variable['required']) && $variable['required'] ? 'required' : '' }}>{{ $asesorValue }}</textarea>
-                                        @else
-                                            <input type="text"
-                                                   class="form-control"
-                                                   name="asesor_variables[{{ $variable['name'] }}]"
-                                                   id="asesor_var_{{ $index }}"
-                                                   value="{{ $asesorValue }}"
-                                                   placeholder="Masukkan {{ strtolower($variable['label']) }}..."
-                                                   {{ isset($variable['required']) && $variable['required'] ? 'required' : '' }}>
-                                        @endif
-
-                                        @if(isset($variable['description']))
-                                            <small class="form-text text-muted">{{ $variable['description'] }}</small>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- Asesor Signature - Only show if template has signature_pad for asesor --}}
-                    @php
-                        $hasAsesorSignature = false;
-                        if ($template->custom_variables && count($template->custom_variables) > 0) {
-                            foreach ($template->custom_variables as $variable) {
-                                $variableRole = $variable['role'] ?? 'asesi';
-                                if (isset($variable['type']) && $variable['type'] === 'signature_pad' &&
-                                    ($variableRole === 'asesor' || $variableRole === 'both')) {
-                                    $hasAsesorSignature = true;
-                                    break;
-                                }
-                            }
+                        // Skip signature_pad
+                        if (isset($variable['type']) && $variable['type'] === 'signature_pad') {
+                            continue;
                         }
+
+                        // Only show asesi fields (read-only)
+                        if ($variableRole !== 'asesi' && $variableRole !== 'both') {
+                            continue;
+                        }
+
+                        $value = $asesiResponses[$variable['name']] ?? '-';
                     @endphp
 
-                    @if($hasAsesorSignature)
-                        <div class="mb-4">
-                            <h5 class="text-success border-bottom pb-2 mb-4">
-                                <i class="fas fa-signature mr-2"></i> Tanda Tangan Asesor
-                            </h5>
+                    {{-- Display asesi's data (read-only) in card --}}
+                    <div class="card mb-3 bg-light">
+                        <div class="card-body">
+                            <label class="form-label font-weight-bold mb-2">
+                                {{ $variable['label'] }}
+                            </label>
 
-                            @if($pendaftaran->ttd_asesor_path)
-                                <div class="alert alert-success">
-                                    <i class="fas fa-check-circle mr-2"></i> Tanda tangan sudah tersimpan
-                                </div>
-                                <div class="border p-3 bg-light rounded mb-3">
-                                    <img src="{{ asset('storage/' . $pendaftaran->ttd_asesor_path) }}"
-                                         alt="Tanda Tangan Asesor"
-                                         class="img-fluid"
-                                         style="max-height: 150px; background: white; padding: 10px; border: 1px solid #dee2e6;">
-                                </div>
-                                <button type="button" class="btn btn-warning btn-sm" id="changeSignatureBtn">
-                                    <i class="fas fa-edit mr-1"></i> Ubah Tanda Tangan
-                                </button>
-                            @endif
-
-                            <div id="signaturePadContainer" class="{{ $pendaftaran->ttd_asesor_path ? 'd-none' : '' }}">
-                                <div class="border rounded p-3 bg-white mb-2" style="max-width: 700px;">
-                                    <canvas id="signaturePad" width="700" height="200"></canvas>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-secondary" id="clearSignatureBtn">
-                                    <i class="fas fa-eraser mr-1"></i> Hapus Tanda Tangan
-                                </button>
-                                <input type="hidden" name="signature_data" id="signatureData">
+                            <div class="alert alert-secondary mb-0">
+                                {{ $value }}
                             </div>
-                        </div>
-                    @endif
-                @endif
 
-                {{-- Action Buttons --}}
-                <div class="mt-4 pt-4 border-top">
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('asesor.review.show-asesi', $pendaftaran->jadwal_id) }}" class="btn btn-secondary">
-                            <i class="fas fa-times mr-2"></i> Batal
-                        </a>
-                        <div>
-                            <a href="{{ route('asesor.review.generate-apl2', $pendaftaran->id) }}"
-                               class="btn btn-info mr-2"
-                               target="_blank">
-                                <i class="fas fa-download mr-2"></i> Generate APL2
-                            </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save mr-2"></i> Simpan Review
-                            </button>
+                            @if(isset($variable['description']))
+                                <small class="form-text text-muted mt-2">{{ $variable['description'] }}</small>
+                            @endif
                         </div>
                     </div>
+                @endforeach
+
+                {{-- Show asesi signature if exists --}}
+                @if($pendaftaran->ttd_asesi_path)
+                    <div class="card mb-3 bg-light">
+                        <div class="card-body">
+                            <label class="form-label font-weight-bold mb-2">
+                                <i class="fas fa-signature mr-2"></i> Tanda Tangan Asesi
+                            </label>
+                            <div class="border p-3 bg-white rounded">
+                                <img src="{{ asset('storage/' . $pendaftaran->ttd_asesi_path) }}"
+                                     alt="Tanda Tangan Asesi"
+                                     class="img-fluid"
+                                     style="max-height: 150px;">
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Asesi belum mengisi APL2.
                 </div>
-            </form>
+            @endif
+
+            {{-- Action Button --}}
+            <div class="mt-4 pt-4 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ route('asesor.review.show-asesi', $pendaftaran->jadwal_id) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i> Kembali
+                    </a>
+                    <a href="{{ route('asesor.review.generate-apl2', $pendaftaran->id) }}"
+                       class="btn btn-primary"
+                       target="_blank">
+                        <i class="fas fa-download mr-2"></i> Generate APL2
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <style>
-        .border-left-info {
-            border-left: 4px solid #36b9cc !important;
-        }
-
-        .border-left-success {
-            border-left: 4px solid #1cc88a !important;
-        }
-
-        .bg-warning-light {
-            background-color: #fff3cd;
-        }
-
-        #signaturePad {
-            border: 2px dashed #ddd;
-            border-radius: 4px;
-            cursor: crosshair;
-            display: block;
-            touch-action: none;
-        }
-
         .table-borderless td {
             padding: 0.5rem 0;
         }
-
-        .form-check {
-            padding-left: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-check-input {
-            margin-top: 0.3rem;
-        }
     </style>
-
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                // Initialize Signature Pad only if it exists
-                const canvas = document.getElementById('signaturePad');
-                if (!canvas) return; // Exit if signature pad not needed
-
-                const signaturePad = new SignaturePad(canvas, {
-                    backgroundColor: 'rgb(255, 255, 255)',
-                    penColor: 'rgb(0, 0, 0)'
-                });
-
-                // Clear signature
-                $('#clearSignatureBtn').on('click', function() {
-                    signaturePad.clear();
-                    $('#signatureData').val('');
-                });
-
-                // Show signature pad for changing
-                $('#changeSignatureBtn').on('click', function() {
-                    $('#signaturePadContainer').removeClass('d-none');
-                    $(this).hide();
-                });
-
-                // Form submission
-                $('#apl2ReviewForm').on('submit', function(e) {
-                    // Save signature data if signed
-                    if (!signaturePad.isEmpty()) {
-                        const dataURL = signaturePad.toDataURL();
-                        $('#signatureData').val(dataURL);
-                    }
-
-                    // Validate form
-                    if (!this.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        alert('Mohon lengkapi semua field yang wajib diisi');
-                        return false;
-                    }
-
-                    // Confirm submission
-                    if (!confirm('Apakah Anda yakin ingin menyimpan review APL2 ini?')) {
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-            });
-        </script>
-    @endpush
 @endsection

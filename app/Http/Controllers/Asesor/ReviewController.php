@@ -160,7 +160,12 @@ class ReviewController extends Controller
                 ->with('error', 'Template APL1 untuk skema ini belum tersedia.');
         }
 
-        return view('components.pages.asesor.review.apl1', compact('lists', 'pendaftaran', 'template'));
+        // Get Bank Soal APL1 for this skema (if exists)
+        $bankSoal = \App\Models\BankSoal::where('skema_id', $pendaftaran->skema_id)
+            ->where('is_active', true)
+            ->first();
+
+        return view('components.pages.asesor.review.apl1', compact('lists', 'pendaftaran', 'template', 'bankSoal'));
     }
 
     /**
@@ -266,7 +271,12 @@ class ReviewController extends Controller
                 ->with('error', 'Template APL2 untuk skema ini belum tersedia.');
         }
 
-        return view('components.pages.asesor.review.apl2', compact('lists', 'pendaftaran', 'template'));
+        // Get Bank Soal APL2 for this skema
+        $bankSoal = \App\Models\BankSoal::where('skema_id', $pendaftaran->skema_id)
+            ->where('is_active', true)
+            ->first();
+
+        return view('components.pages.asesor.review.apl2', compact('lists', 'pendaftaran', 'template', 'bankSoal'));
     }
 
     /**

@@ -58,4 +58,10 @@ class Jadwal extends Model
     {
         return $this->hasMany(Pendaftaran::class, 'jadwal_id', 'id');
     }
+
+    public function asesorSkema()
+    {
+        // Relasi ke asesor_skema melalui skema_id
+        return $this->hasMany(AsesorSkema::class, 'skema_id', 'skema_id');
+    }
 }

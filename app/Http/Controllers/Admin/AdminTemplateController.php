@@ -76,6 +76,21 @@ class AdminTemplateController extends Controller
             'user.photo_administatif' => 'Foto Administratif (Path)',
             'user.tanda_tangan' => 'Tanda Tangan Digital (Path)',
 
+            // Asesor fields - Data Identitas
+            'asesor.name' => 'Nama Asesor',
+            'asesor.email' => 'Email Asesor',
+            'asesor.telephone' => 'Nomor Telepon Asesor',
+            'asesor.nik' => 'NIK Asesor',
+            'asesor.nip' => 'NIP Asesor',
+
+            // Asesor fields - Data Lainnya
+            'asesor.tempat_lahir' => 'Tempat Lahir Asesor',
+            'asesor.tanggal_lahir' => 'Tanggal Lahir Asesor',
+            'asesor.jenis_kelamin' => 'Jenis Kelamin Asesor',
+            'asesor.alamat' => 'Alamat Asesor',
+            'asesor.pendidikan' => 'Pendidikan Asesor',
+            'asesor.tanda_tangan' => 'Tanda Tangan Asesor (Path)',
+
             // Skema fields
             'skema.nama' => 'Nama Skema',
             'skema.kode' => 'Kode Skema',
@@ -264,6 +279,21 @@ class AdminTemplateController extends Controller
             'user.photo_ktmkhs' => 'Foto KTM/KHS (Path)',
             'user.photo_administatif' => 'Foto Administratif (Path)',
             'user.tanda_tangan' => 'Tanda Tangan Digital (Path)',
+
+            // Asesor fields - Data Identitas
+            'asesor.name' => 'Nama Asesor',
+            'asesor.email' => 'Email Asesor',
+            'asesor.telephone' => 'Nomor Telepon Asesor',
+            'asesor.nik' => 'NIK Asesor',
+            'asesor.nip' => 'NIP Asesor',
+
+            // Asesor fields - Data Lainnya
+            'asesor.tempat_lahir' => 'Tempat Lahir Asesor',
+            'asesor.tanggal_lahir' => 'Tanggal Lahir Asesor',
+            'asesor.jenis_kelamin' => 'Jenis Kelamin Asesor',
+            'asesor.alamat' => 'Alamat Asesor',
+            'asesor.pendidikan' => 'Pendidikan Asesor',
+            'asesor.tanda_tangan' => 'Tanda Tangan Asesor (Path)',
 
             // Skema fields
             'skema.nama' => 'Nama Skema',
