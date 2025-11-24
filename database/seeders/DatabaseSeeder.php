@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             AsesiSeeder::class,
             TukSeeder::class,
             SkemaSeeder::class,
+            SystemAnalystTemplateSeeder::class,
+            SystemAnalystBankSoalSeeder::class,
         ]);
     }
 }
