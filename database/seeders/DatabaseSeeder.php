@@ -15,11 +15,14 @@ class DatabaseSeeder extends Seeder
     {
         // Call Seeders
         $this->call([
-            AsesiSeeder::class,
             TukSeeder::class,
             SkemaSeeder::class,
             SystemAnalystTemplateSeeder::class,
             SystemAnalystBankSoalSeeder::class,
+            AsesiSeeder::class,
+            AsesorSeeder::class,
+            SystemAnalystUjikomSeeder::class,
+            SystemAnalystJuliSeeder::class,
         ]);
     }
 }
