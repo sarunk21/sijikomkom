@@ -50,32 +50,51 @@ class AnalyticsService
 
     /**
      * Mendapatkan statistik kompetensi berdasarkan skema dan status
+     * Menggunakan data dari report.status (1=Kompeten, 2=Tidak Kompeten)
      */
     public function getStatistikKompetensi($startDate = null, $endDate = null)
     {
-        $query = Pendaftaran::select(
-            'skema_id',
-            'status',
-            DB::raw('COUNT(id) as jumlah')
-        );
+        $query = Report::select(
+            'pendaftaran.skema_id',
+            'skema.nama as skema_nama',
+            'skema.kode as skema_kode',
+            'report.status',
+            DB::raw('COUNT(report.id) as jumlah')
+        )
+        ->join('pendaftaran', 'report.pendaftaran_id', '=', 'pendaftaran.id')
+        ->join('skema', 'pendaftaran.skema_id', '=', 'skema.id');
 
         if ($startDate) {
-            $query->where('created_at', '>=', $startDate);
+            $query->where('report.created_at', '>=', $startDate);
         }
 
         if ($endDate) {
-            $query->where('created_at', '<=', $endDate);
+            $query->where('report.created_at', '<=', $endDate);
         }
 
-        $results = $query->groupBy('skema_id', 'status')
+        $results = $query->groupBy('pendaftaran.skema_id', 'skema.nama', 'skema.kode', 'report.status')
                         ->get();
 
         $response = [];
+        $skemaInfo = [];
+
         foreach ($results as $result) {
             if (!isset($response[$result->skema_id])) {
                 $response[$result->skema_id] = [];
+                $skemaInfo[$result->skema_id] = [
+                    'nama' => $result->skema_nama,
+                    'kode' => $result->skema_kode
+                ];
             }
-            $response[$result->skema_id][$result->status] = $result->jumlah;
+            // Map status: 1=Kompeten, 2=Tidak Kompeten
+            // Gunakan key 5 untuk Kompeten dan 4 untuk Tidak Kompeten agar kompatibel dengan controller
+            $statusKey = $result->status == 1 ? 5 : 4;
+            $response[$result->skema_id][$statusKey] = $result->jumlah;
+        }
+
+        // Add skema info to response for better labeling
+        foreach ($response as $skemaId => $statuses) {
+            $response[$skemaId]['_skema_info'] = $skemaInfo[$skemaId] ?? null;
         }
 
         return $response;

@@ -106,6 +106,9 @@ class SystemAnalystJuliSeeder extends Seeder
         }
 
         // Buat data pendaftaran, pendaftaran ujikom, penilaian, dan report untuk setiap asesi
+        // Set tanggal pendaftaran di bulan Juni 2025
+        $tanggalPendaftaran = Carbon::parse('2025-06-15 10:00:00');
+
         foreach ($asesiList as $asesi) {
             // 1. Buat Pendaftaran
             $pendaftaran = Pendaftaran::create([
@@ -123,6 +126,8 @@ class SystemAnalystJuliSeeder extends Seeder
                     'asesor_id' => $asesor->id,
                     'asesor_name' => $asesor->name,
                 ],
+                'created_at' => $tanggalPendaftaran,
+                'updated_at' => $tanggalPendaftaran,
             ]);
 
             // 2. Buat Pendaftaran Ujikom

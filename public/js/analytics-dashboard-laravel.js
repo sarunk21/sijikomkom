@@ -381,23 +381,39 @@ class AnalyticsDashboardLaravel {
 
         // Konversi data kompetensi skema ke format yang bisa ditampilkan
         const labels = [];
-        const passRates = [];
+        const kompetenCounts = [];
+        const tidakKompetenCounts = [];
 
         if (data && Object.keys(data).length > 0) {
             Object.entries(data).forEach(([skemaId, statusData]) => {
-                let totalPendaftaran = 0;
-                let totalLulus = 0;
+                // Skip internal _skema_info key
+                if (skemaId.startsWith('_')) return;
+
+                let totalKompeten = 0;
+                let totalTidakKompeten = 0;
+                let skemaLabel = `Skema ${skemaId}`;
+
+                // Get skema name if available
+                if (statusData._skema_info) {
+                    skemaLabel = `${statusData._skema_info.kode} - ${statusData._skema_info.nama}`;
+                }
 
                 Object.entries(statusData).forEach(([status, jumlah]) => {
-                    totalPendaftaran += jumlah;
-                    if (status.toLowerCase().includes('lulus') || status.toLowerCase().includes('kompeten')) {
-                        totalLulus += jumlah;
+                    // Skip internal keys
+                    if (status.startsWith('_')) return;
+
+                    // Status 5 = Kompeten, Status 4 = Tidak Kompeten
+                    if (status == '5') {
+                        totalKompeten += jumlah;
+                    } else if (status == '4') {
+                        totalTidakKompeten += jumlah;
                     }
                 });
 
-                if (totalPendaftaran > 0) {
-                    labels.push(`Skema ${skemaId}`);
-                    passRates.push((totalLulus / totalPendaftaran) * 100);
+                if (totalKompeten > 0 || totalTidakKompeten > 0) {
+                    labels.push(skemaLabel);
+                    kompetenCounts.push(totalKompeten);
+                    tidakKompetenCounts.push(totalTidakKompeten);
                 }
             });
         }
@@ -405,11 +421,13 @@ class AnalyticsDashboardLaravel {
         // Jika tidak ada data, tampilkan chart kosong
         if (labels.length === 0) {
             labels.push('Tidak ada data');
-            passRates.push(0);
+            kompetenCounts.push(0);
+            tidakKompetenCounts.push(0);
         }
 
         console.log('Statistik keberhasilan labels:', labels);
-        console.log('Statistik keberhasilan pass rates:', passRates);
+        console.log('Statistik keberhasilan kompeten:', kompetenCounts);
+        console.log('Statistik keberhasilan tidak kompeten:', tidakKompetenCounts);
 
         if (this.charts.statistikKeberhasilan) {
             this.charts.statistikKeberhasilan.destroy();
@@ -418,15 +436,15 @@ class AnalyticsDashboardLaravel {
         this.charts.statistikKeberhasilan = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: labels,
+                labels: ['Kompeten', 'Tidak Kompeten'],
                 datasets: [{
-                    data: passRates,
+                    data: [
+                        kompetenCounts.reduce((a, b) => a + b, 0),
+                        tidakKompetenCounts.reduce((a, b) => a + b, 0)
+                    ],
                     backgroundColor: [
-                        'rgba(28, 200, 138, 0.8)',
-                        'rgba(54, 185, 204, 0.8)',
-                        'rgba(246, 194, 62, 0.8)',
-                        'rgba(231, 74, 59, 0.8)',
-                        'rgba(133, 135, 150, 0.8)'
+                        'rgba(28, 200, 138, 0.8)',  // Green for Kompeten
+                        'rgba(231, 74, 59, 0.8)'    // Red for Tidak Kompeten
                     ],
                     borderWidth: 2
                 }]
@@ -437,6 +455,17 @@ class AnalyticsDashboardLaravel {
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }
