@@ -328,7 +328,7 @@
                                 <a href="{{ route('admin.bank-soal.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times mr-1"></i> Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submit-btn">
                                     <i class="fas fa-save mr-1"></i> Simpan
                                 </button>
                             </div>
@@ -619,13 +619,13 @@
             const mappings = {};
 
             $('.custom-variable-row').each(function() {
-                const name = $(this).find('input[name*="[name]"]').val().trim();
-                const label = $(this).find('input[name*="[label]"]').val().trim();
-                const type = $(this).find('select[name*="[type]"]').val();
-                const options = $(this).find('input[name*="[options]"]').val().trim();
-                const required = $(this).find('select[name*="[required]"]').val();
-                const role = $(this).find('select[name*="[role]"]').val();
-                const mapping = $(this).find('select[name*="[mapping]"]').val();
+                const name = $(this).find('input[name*="[name]"]').val()?.trim() || '';
+                const label = $(this).find('textarea[name*="[label]"]').val()?.trim() || '';  // Changed to textarea
+                const type = $(this).find('select[name*="[type]"]').val() || '';
+                const options = $(this).find('textarea[name*="[options]"]').val()?.trim() || '';  // Changed to textarea
+                const required = $(this).find('select[name*="[required]"]').val() || '0';
+                const role = $(this).find('select[name*="[role]"]').val() || 'asesi';
+                const mapping = $(this).find('select[name*="[mapping]"]').val() || '';
 
                 if (name && label) {
                     const variable = {
@@ -656,11 +656,30 @@
         }
 
         function updateVariablesInput() {
-            const filteredSelectedVariables = selectedVariables.filter(v => v && v.trim() !== '');
-            const filteredCustomVariables = customVariables.map(v => v.name).filter(v => v && v.trim() !== '');
+            const filteredSelectedVariables = selectedVariables.filter(v => v && typeof v === 'string' && v.trim() !== '');
+            const filteredCustomVariables = customVariables
+                .map(v => v.name)
+                .filter(v => v && typeof v === 'string' && v.trim() !== '');
             const allVariables = [...filteredSelectedVariables, ...filteredCustomVariables];
             $('#variables-input').val(JSON.stringify(allVariables));
+
+            console.log('Updated variables input:', allVariables);
         }
+
+        // Form submission handler
+        $('form').on('submit', function(e) {
+            // Update all hidden inputs before submit
+            updateCustomVariables();
+            updateVariablesInput();
+
+            console.log('Form submitting...');
+            console.log('Variables:', $('#variables-input').val());
+            console.log('Field Configurations:', $('#field_configurations').val());
+            console.log('Field Mappings:', $('#field_mappings').val());
+
+            // Optional: Disable submit button to prevent double submission
+            $('#submit-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...');
+        });
     });
 </script>
 @endpush

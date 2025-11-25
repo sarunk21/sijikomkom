@@ -216,6 +216,10 @@
 
                                                 // Get existing selected variables
                                                 $existingVariables = old('variables', $bankSoal->variables ?? []);
+                                                // Ensure $existingVariables is always an array
+                                                if (!is_array($existingVariables)) {
+                                                    $existingVariables = [];
+                                                }
                                             @endphp
 
                                             <div class="col-md-6">
@@ -359,7 +363,7 @@
                                 <a href="{{ route('admin.bank-soal.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times mr-1"></i> Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submit-btn">
                                     <i class="fas fa-save mr-1"></i> Update
                                 </button>
                             </div>
@@ -481,6 +485,10 @@
         updateSelectedVariablesDisplay();
         updateVariablesInput();
 
+        // Debug: Log loaded data
+        console.log('Loaded selectedVariables:', selectedVariables);
+        console.log('Loaded customVariables:', customVariables);
+
         // Auto-update target based on tipe selection
         $('#tipe').on('change', function() {
             const tipe = $(this).val();
@@ -509,14 +517,18 @@
             const fieldValue = $(this).val();
             const fieldLabel = $(this).next('label').text();
 
+            console.log('Checkbox changed:', fieldValue, 'Checked:', $(this).is(':checked'));
+
             if ($(this).is(':checked')) {
                 if (!selectedVariables.includes(fieldValue)) {
                     selectedVariables.push(fieldValue);
+                    console.log('Added to selectedVariables:', selectedVariables);
                     updateSelectedVariablesDisplay();
                     updateVariablesInput();
                 }
             } else {
                 selectedVariables = selectedVariables.filter(v => v !== fieldValue);
+                console.log('Removed from selectedVariables:', selectedVariables);
                 updateSelectedVariablesDisplay();
                 updateVariablesInput();
             }
@@ -538,9 +550,15 @@
         });
 
         // Handle custom variable input change
-        $(document).on('input change', '.custom-variable-row input, .custom-variable-row select', function() {
+        $(document).on('input change', '.custom-variable-row input, .custom-variable-row select, .custom-variable-row textarea', function() {
             updateCustomVariables();
             updateVariablesInput();
+        });
+
+        // Character counter for label inputs
+        $(document).on('input', '.custom-label-input', function() {
+            const currentLength = $(this).val().length;
+            $(this).closest('.col-md-4').find('.char-count').text(`${currentLength} karakter`);
         });
 
         function addCustomVariableRow(index, data = null) {
@@ -571,11 +589,12 @@
                             <label class="form-label small fw-semibold">
                                 Label/Pertanyaan <span class="text-danger">*</span>
                             </label>
-                            <input type="text" name="custom_variables[${index}][label]" class="form-control"
-                                placeholder="Apakah Anda mampu..." value="${data ? data.label : ''}">
+                            <textarea name="custom_variables[${index}][label]" class="form-control custom-label-input" rows="3"
+                                placeholder="Apakah Anda mampu...">${data ? data.label : ''}</textarea>
                             <small class="text-muted d-block mt-1">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Label yang ditampilkan di form
+                                Label/soal yang ditampilkan di form
+                                <span class="char-count float-right text-muted">0 karakter</span>
                             </small>
                         </div>
                         <div class="col-md-4 mb-3">
@@ -614,12 +633,11 @@
                             <label class="form-label small fw-semibold">
                                 Options <span class="text-muted small">(untuk checkbox/radio/select)</span>
                             </label>
-                            <input type="text" name="custom_variables[${index}][options]" class="form-control"
-                                placeholder="Contoh: BK,K atau Belum Kompeten,Kompeten"
-                                value="${data && data.options ? (Array.isArray(data.options) ? data.options.join(',') : data.options) : ''}">
+                            <textarea name="custom_variables[${index}][options]" class="form-control" rows="2"
+                                placeholder="Contoh: BK,K atau Belum Kompeten,Kompeten">${data && data.options ? (Array.isArray(data.options) ? data.options.join(',') : data.options) : ''}</textarea>
                             <small class="text-muted d-block mt-1">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Pisahkan dengan koma
+                                Pisahkan dengan koma. Bisa tulis opsi panjang.
                             </small>
                         </div>
                         <div class="col-md-3 mb-3">
@@ -662,6 +680,11 @@
                 </div>
             `;
             $('#custom-variables-container').append(html);
+
+            // Initialize character count for the newly added row
+            const $newRow = $('#custom-variables-container').children().last();
+            const labelValue = data && data.label ? data.label : '';
+            $newRow.find('.char-count').text(`${labelValue.length} karakter`);
         }
 
         function updateSelectedVariablesDisplay() {
@@ -707,13 +730,13 @@
             const mappings = {};
 
             $('.custom-variable-row').each(function() {
-                const name = $(this).find('input[name*="[name]"]').val().trim();
-                const label = $(this).find('input[name*="[label]"]').val().trim();
-                const type = $(this).find('select[name*="[type]"]').val();
-                const options = $(this).find('input[name*="[options]"]').val().trim();
-                const required = $(this).find('select[name*="[required]"]').val();
-                const role = $(this).find('select[name*="[role]"]').val();
-                const mapping = $(this).find('select[name*="[mapping]"]').val();
+                const name = $(this).find('input[name*="[name]"]').val()?.trim() || '';
+                const label = $(this).find('textarea[name*="[label]"]').val()?.trim() || '';  // Changed to textarea
+                const type = $(this).find('select[name*="[type]"]').val() || '';
+                const options = $(this).find('textarea[name*="[options]"]').val()?.trim() || '';  // Changed to textarea
+                const required = $(this).find('select[name*="[required]"]').val() || '0';
+                const role = $(this).find('select[name*="[role]"]').val() || 'asesi';
+                const mapping = $(this).find('select[name*="[mapping]"]').val() || '';
 
                 if (name && label) {
                     const variable = {
@@ -744,11 +767,30 @@
         }
 
         function updateVariablesInput() {
-            const filteredSelectedVariables = selectedVariables.filter(v => v && v.trim() !== '');
-            const filteredCustomVariables = customVariables.map(v => v.name).filter(v => v && v.trim() !== '');
+            const filteredSelectedVariables = selectedVariables.filter(v => v && typeof v === 'string' && v.trim() !== '');
+            const filteredCustomVariables = customVariables
+                .map(v => v.name)
+                .filter(v => v && typeof v === 'string' && v.trim() !== '');
             const allVariables = [...filteredSelectedVariables, ...filteredCustomVariables];
             $('#variables-input').val(JSON.stringify(allVariables));
+
+            console.log('Updated variables input:', allVariables);
         }
+
+        // Form submission handler
+        $('form').on('submit', function(e) {
+            // Update all hidden inputs before submit
+            updateCustomVariables();
+            updateVariablesInput();
+
+            console.log('Form submitting...');
+            console.log('Variables:', $('#variables-input').val());
+            console.log('Field Configurations:', $('#field_configurations').val());
+            console.log('Field Mappings:', $('#field_mappings').val());
+
+            // Optional: Disable submit button to prevent double submission
+            $('#submit-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Updating...');
+        });
     });
 </script>
 @endpush

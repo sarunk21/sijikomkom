@@ -24,7 +24,8 @@
       "Bash(del \"database\\migrations\\2025_11_19_140405_add_deskripsi_to_skema_table.php\")",
       "Bash(composer dump-autoload:*)",
       "Bash(find:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "Bash(Get-Content \"C:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\storage\\logs\\laravel.log\" -Tail 50)"
     ],
     "deny": [],
     "ask": []

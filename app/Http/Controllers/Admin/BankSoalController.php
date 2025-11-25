@@ -7,6 +7,7 @@ use App\Models\BankSoal;
 use App\Models\Skema;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -153,9 +154,9 @@ class BankSoalController extends Controller
             'variables' => 'nullable|string', // JSON string dari JavaScript
             'custom_variables' => 'nullable|array',
             'custom_variables.*.name' => 'nullable|string|max:255',
-            'custom_variables.*.label' => 'nullable|string|max:255',
+            'custom_variables.*.label' => 'nullable|string', // No max length - bisa panjang untuk soal
             'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
-            'custom_variables.*.options' => 'nullable|string',
+            'custom_variables.*.options' => 'nullable|string', // No max length - bisa panjang untuk options
             'custom_variables.*.required' => 'nullable|boolean',
             'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
             'field_configurations' => 'nullable|string',
@@ -191,6 +192,11 @@ class BankSoalController extends Controller
                 $fieldMappings = json_decode($request->field_mappings, true);
             }
 
+            // Process custom variables - filter out empty entries
+            $customVars = $request->custom_variables ?? [];
+            $filteredCustomVars = array_filter($customVars, fn($var) => !empty($var['name']) && !empty($var['label']));
+            $customVariables = !empty($filteredCustomVars) ? array_values($filteredCustomVars) : null;
+
             // Create bank soal record
             BankSoal::create([
                 'skema_id' => $request->skema_id,
@@ -204,7 +210,7 @@ class BankSoalController extends Controller
                 'variables' => $variables,
                 'field_configurations' => $fieldConfigurations,
                 'field_mappings' => $fieldMappings,
-                'custom_variables' => $request->custom_variables
+                'custom_variables' => $customVariables
             ]);
 
             return redirect()->route('admin.bank-soal.index')
@@ -323,35 +329,48 @@ class BankSoalController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'skema_id' => 'required|exists:skema,id',
-            'nama' => 'required|string|max:255',
-            'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
-            'target' => 'required|in:asesi,asesor',
-            'file' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // max 10MB
-            'keterangan' => 'nullable|string',
-            'variables' => 'nullable|string', // JSON string dari JavaScript
-            'custom_variables' => 'nullable|array',
-            'custom_variables.*.name' => 'nullable|string|max:255',
-            'custom_variables.*.label' => 'nullable|string|max:255',
-            'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
-            'custom_variables.*.options' => 'nullable|string',
-            'custom_variables.*.required' => 'nullable|boolean',
-            'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
-            'field_configurations' => 'nullable|string',
-            'field_mappings' => 'nullable|string',
+        Log::info('Bank Soal Update: Start', [
+            'id' => $id,
+            'all_input' => $request->except(['file', '_token']),
+            'has_file' => $request->hasFile('file')
         ]);
+
+        try {
+            $request->validate([
+                'skema_id' => 'required|exists:skema,id',
+                'nama' => 'required|string|max:255',
+                'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
+                'target' => 'required|in:asesi,asesor',
+                'file' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // max 10MB
+                'keterangan' => 'nullable|string',
+                'variables' => 'nullable|string', // JSON string dari JavaScript
+                'custom_variables' => 'nullable|array',
+                'custom_variables.*.name' => 'nullable|string|max:255',
+                'custom_variables.*.label' => 'nullable|string', // No max length - bisa panjang untuk soal
+                'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
+                'custom_variables.*.options' => 'nullable|string', // No max length - bisa panjang untuk options
+                'custom_variables.*.required' => 'nullable|boolean',
+                'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
+                'field_configurations' => 'nullable|string',
+                'field_mappings' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Bank Soal Update: Validation Failed', [
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        }
 
         $bankSoal = BankSoal::findOrFail($id);
 
         // Update file if new file uploaded
         if ($request->hasFile('file')) {
-            \Log::info('Bank Soal Update: File detected', ['file_name' => $request->file('file')->getClientOriginalName()]);
+            Log::info('Bank Soal Update: File detected', ['file_name' => $request->file('file')->getClientOriginalName()]);
 
             // Delete old file if exists
             if ($bankSoal->file_path && Storage::disk('public')->exists($bankSoal->file_path)) {
                 Storage::disk('public')->delete($bankSoal->file_path);
-                \Log::info('Bank Soal Update: Old file deleted', ['old_path' => $bankSoal->file_path]);
+                Log::info('Bank Soal Update: Old file deleted', ['old_path' => $bankSoal->file_path]);
             }
 
             $file = $request->file('file');
@@ -363,7 +382,7 @@ class BankSoalController extends Controller
             // Store new file to public disk
             $path = Storage::disk('public')->putFileAs('', $file, $filename);
 
-            \Log::info('Bank Soal Update: New file stored', [
+            Log::info('Bank Soal Update: New file stored', [
                 'filename' => $filename,
                 'storage_path' => $path,
                 'full_path' => storage_path('app/public/' . $filename)
@@ -372,25 +391,28 @@ class BankSoalController extends Controller
             $bankSoal->file_path = $filename;
             $bankSoal->original_filename = $originalFilename;
         } else {
-            \Log::info('Bank Soal Update: No file uploaded');
+            Log::info('Bank Soal Update: No file uploaded');
         }
 
         // Parse variables from JSON
         $variables = null;
         if ($request->filled('variables')) {
             $variables = json_decode($request->variables, true);
+            Log::info('Bank Soal Update: Variables parsed', ['variables' => $variables]);
         }
 
         // Parse field configurations
         $fieldConfigurations = null;
         if ($request->filled('field_configurations')) {
             $fieldConfigurations = json_decode($request->field_configurations, true);
+            Log::info('Bank Soal Update: Field configurations parsed', ['field_configurations' => $fieldConfigurations]);
         }
 
         // Parse field mappings
         $fieldMappings = null;
         if ($request->filled('field_mappings')) {
             $fieldMappings = json_decode($request->field_mappings, true);
+            Log::info('Bank Soal Update: Field mappings parsed', ['field_mappings' => $fieldMappings]);
         }
 
         // Update other fields
@@ -402,11 +424,35 @@ class BankSoalController extends Controller
         $bankSoal->variables = $variables;
         $bankSoal->field_configurations = $fieldConfigurations;
         $bankSoal->field_mappings = $fieldMappings;
-        $bankSoal->custom_variables = $request->custom_variables;
-        $bankSoal->save();
 
-        return redirect()->route('admin.bank-soal.index')
-            ->with('success', 'Bank soal berhasil diupdate');
+        // Process custom variables - filter out empty entries
+        $customVars = $request->custom_variables ?? [];
+        $filteredCustomVars = array_filter($customVars, function($var) {
+            return !empty($var['name']) && !empty($var['label']);
+        });
+        $bankSoal->custom_variables = !empty($filteredCustomVars) ? array_values($filteredCustomVars) : null;
+
+        try {
+            $bankSoal->save();
+
+            Log::info('Bank Soal Update: Saved successfully', [
+                'id' => $bankSoal->id,
+                'variables' => $variables,
+                'custom_variables' => $bankSoal->custom_variables
+            ]);
+
+            return redirect()->route('admin.bank-soal.index')
+                ->with('success', 'Bank soal berhasil diupdate');
+        } catch (\Exception $e) {
+            Log::error('Bank Soal Update: Save Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Gagal mengupdate bank soal: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
