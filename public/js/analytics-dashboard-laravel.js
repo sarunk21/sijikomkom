@@ -257,6 +257,11 @@ class AnalyticsDashboardLaravel {
         this.renderSegmentasiDemografiChart(data.segmentasi_demografi || {jenis_kelamin: {}});
         this.renderWorkloadAsesorChart(data.workload_asesor || []);
         this.renderTrenPeminatSkemaChart(data.tren_peminat_skema || []);
+
+        // Render advanced charts
+        this.renderConversionFunnelChart(data);
+        this.renderTopPerformingSkemaChart(data.kompetensi_skema || {});
+        this.generateInsights(data);
     }
 
     // Update summary cards
@@ -674,6 +679,260 @@ class AnalyticsDashboardLaravel {
             'rgba(133, 135, 150, ' + alpha + ')'
         ];
         return colors[index % colors.length];
+    }
+
+    // === ADVANCED ANALYTICS CHARTS ===
+
+    // Render Conversion Funnel Chart
+    renderConversionFunnelChart(data) {
+        console.log('Rendering conversion funnel chart');
+        const ctx = document.getElementById('conversionFunnelChart');
+        if (!ctx) {
+            console.error('Canvas conversionFunnelChart not found');
+            return;
+        }
+
+        // Calculate funnel stages
+        const totalPendaftaran = data.dashboard_summary?.total_pendaftaran || 0;
+
+        // Count reports (completed assessments)
+        let totalSelesaiDinilai = 0;
+        let totalKompeten = 0;
+
+        if (data.kompetensi_skema) {
+            Object.values(data.kompetensi_skema).forEach(skema => {
+                Object.entries(skema).forEach(([status, jumlah]) => {
+                    if (status.startsWith('_')) return;
+                    totalSelesaiDinilai += jumlah;
+                    if (status == '5') { // Kompeten
+                        totalKompeten += jumlah;
+                    }
+                });
+            });
+        }
+
+        const funnelData = [
+            { stage: 'Pendaftaran', value: totalPendaftaran, color: 'rgba(78, 115, 223, 0.8)' },
+            { stage: 'Mengikuti Ujian', value: totalSelesaiDinilai, color: 'rgba(54, 185, 204, 0.8)' },
+            { stage: 'Kompeten', value: totalKompeten, color: 'rgba(28, 200, 138, 0.8)' }
+        ];
+
+        // Calculate conversion rate
+        const conversionRate = totalPendaftaran > 0 ? ((totalKompeten / totalPendaftaran) * 100).toFixed(1) : 0;
+        const conversionRateEl = document.getElementById('conversionRate');
+        if (conversionRateEl) {
+            conversionRateEl.textContent = `${conversionRate}%`;
+        }
+
+        if (this.charts.conversionFunnel) {
+            this.charts.conversionFunnel.destroy();
+        }
+
+        this.charts.conversionFunnel = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: funnelData.map(item => item.stage),
+                datasets: [{
+                    label: 'Jumlah Asesi',
+                    data: funnelData.map(item => item.value),
+                    backgroundColor: funnelData.map(item => item.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.x;
+                                const total = funnelData[0].value;
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${value} asesi (${percentage}% dari total pendaftaran)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Render Top Performing Skema Chart
+    renderTopPerformingSkemaChart(data) {
+        console.log('Rendering top performing skema chart');
+        const ctx = document.getElementById('topPerformingSkemaChart');
+        if (!ctx) {
+            console.error('Canvas topPerformingSkemaChart not found');
+            return;
+        }
+
+        const skemaPerformance = [];
+
+        if (data && Object.keys(data).length > 0) {
+            Object.entries(data).forEach(([skemaId, statusData]) => {
+                if (skemaId.startsWith('_')) return;
+
+                let totalKompeten = 0;
+                let totalTidakKompeten = 0;
+                let skemaLabel = `Skema ${skemaId}`;
+
+                if (statusData._skema_info) {
+                    skemaLabel = statusData._skema_info.nama;
+                }
+
+                Object.entries(statusData).forEach(([status, jumlah]) => {
+                    if (status.startsWith('_')) return;
+                    if (status == '5') {
+                        totalKompeten += jumlah;
+                    } else if (status == '4') {
+                        totalTidakKompeten += jumlah;
+                    }
+                });
+
+                const total = totalKompeten + totalTidakKompeten;
+                if (total > 0) {
+                    const passRate = (totalKompeten / total) * 100;
+                    skemaPerformance.push({
+                        label: skemaLabel,
+                        passRate: passRate,
+                        total: total,
+                        kompeten: totalKompeten
+                    });
+                }
+            });
+        }
+
+        // Sort by pass rate descending
+        skemaPerformance.sort((a, b) => b.passRate - a.passRate);
+
+        // Take top 5
+        const topSkemas = skemaPerformance.slice(0, 5);
+
+        if (this.charts.topPerformingSkema) {
+            this.charts.topPerformingSkema.destroy();
+        }
+
+        // Color gradient: green for high, yellow for medium, red for low
+        const colors = topSkemas.map(item => {
+            if (item.passRate >= 80) return 'rgba(28, 200, 138, 0.8)'; // Green
+            if (item.passRate >= 60) return 'rgba(246, 194, 62, 0.8)'; // Yellow
+            return 'rgba(231, 74, 59, 0.8)'; // Red
+        });
+
+        this.charts.topPerformingSkema = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: topSkemas.map(item => item.label),
+                datasets: [{
+                    label: 'Pass Rate (%)',
+                    data: topSkemas.map(item => item.passRate),
+                    backgroundColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const item = topSkemas[index];
+                                return [
+                                    `Pass Rate: ${item.passRate.toFixed(1)}%`,
+                                    `Kompeten: ${item.kompeten} dari ${item.total} asesi`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Generate AI Insights & Recommendations
+    generateInsights(data) {
+        console.log('Generating insights from data');
+
+        // Trend Analysis Insight
+        const trendInsightEl = document.getElementById('insightTrend');
+        if (trendInsightEl && data.tren_peminat_skema && data.tren_peminat_skema.length > 0) {
+            // Analyze trend direction
+            let totalRegistrations = 0;
+            let trendDirection = 'stabil';
+
+            data.tren_peminat_skema.forEach(skema => {
+                if (skema.trend && skema.trend.length >= 2) {
+                    const latest = skema.trend[skema.trend.length - 1].registrations;
+                    const previous = skema.trend[skema.trend.length - 2].registrations;
+                    totalRegistrations += latest;
+
+                    if (latest > previous * 1.1) {
+                        trendDirection = 'meningkat';
+                    } else if (latest < previous * 0.9) {
+                        trendDirection = 'menurun';
+                    }
+                }
+            });
+
+            const trendEmoji = trendDirection === 'meningkat' ? '📈' : trendDirection === 'menurun' ? '📉' : '➡️';
+            trendInsightEl.innerHTML = `<small>${trendEmoji} Tren pendaftaran <strong>${trendDirection}</strong>. ${
+                trendDirection === 'meningkat' ? 'Pertimbangkan menambah kuota ujian.' :
+                trendDirection === 'menurun' ? 'Lakukan promosi untuk meningkatkan minat.' :
+                'Monitor terus untuk identifikasi perubahan pola.'
+            }</small>`;
+        }
+
+        // Capacity Planning Insight
+        const capacityInsightEl = document.getElementById('insightCapacity');
+        if (capacityInsightEl) {
+            const totalPendaftaran = data.dashboard_summary?.total_pendaftaran || 0;
+            const totalAsesor = data.dashboard_summary?.total_asesor || 0;
+            const ratio = totalAsesor > 0 ? (totalPendaftaran / totalAsesor).toFixed(1) : 0;
+
+            capacityInsightEl.innerHTML = `<small>📊 Rasio asesi per asesor: <strong>${ratio}:1</strong>. ${
+                ratio > 25 ? '⚠️ Pertimbangkan rekrut asesor tambahan.' :
+                ratio < 10 ? '✅ Kapasitas asesor mencukupi.' :
+                '✅ Rasio ideal terjaga.'
+            }</small>`;
+        }
+
+        // Action Items Insight
+        const actionInsightEl = document.getElementById('insightAction');
+        if (actionInsightEl) {
+            const tingkatKeberhasilan = data.dashboard_summary?.tingkat_keberhasilan || 0;
+
+            actionInsightEl.innerHTML = `<small>🎯 Tingkat keberhasilan: <strong>${tingkatKeberhasilan.toFixed(1)}%</strong>. ${
+                tingkatKeberhasilan >= 80 ? '🎉 Excellent! Pertahankan kualitas asesmen.' :
+                tingkatKeberhasilan >= 60 ? '⚠️ Perlu evaluasi materi dan metode asesmen.' :
+                '🔴 Urgent! Review komprehensif program sertifikasi diperlukan.'
+            }</small>`;
+        }
     }
 
     // Clear cache

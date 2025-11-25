@@ -215,12 +215,155 @@
             <div class="card shadow mb-4">
                 <!-- Card Header -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Tren Peminat Skema dari Waktu ke Waktu</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line"></i> Tren Peminat Skema dari Waktu ke Waktu
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown">
+                            <i class="fas fa-info-circle text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                            <div class="dropdown-header">Info Chart:</div>
+                            <a class="dropdown-item" href="#">
+                                <small>Menampilkan tren pendaftaran per skema berdasarkan bulan. Berguna untuk melihat pola musiman dan merencanakan kapasitas TUK.</small>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="trenPeminatSkemaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Analytics Row -->
+    <div class="row">
+
+        <!-- Conversion Funnel Chart -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-filter"></i> Conversion Funnel
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                            <i class="fas fa-info-circle text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                            <div class="dropdown-header">Info Funnel:</div>
+                            <a class="dropdown-item" href="#">
+                                <small><strong>Conversion Funnel</strong> menunjukkan perjalanan asesi dari pendaftaran hingga mendapat sertifikat. Berguna untuk identifikasi bottleneck di proses sertifikasi.</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area" style="height: 300px;">
+                        <canvas id="conversionFunnelChart"></canvas>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Conversion Rate: <span id="conversionRate" class="font-weight-bold text-success">-</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performing Skema -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-trophy"></i> Top Performing Skema
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                            <i class="fas fa-info-circle text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                            <div class="dropdown-header">Info Ranking:</div>
+                            <a class="dropdown-item" href="#">
+                                <small><strong>Top Performing Skema</strong> merangking skema berdasarkan tingkat kelulusan (pass rate). Membantu identifikasi skema yang paling diminati dan berhasil.</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area" style="height: 300px;">
+                        <canvas id="topPerformingSkemaChart"></canvas>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-bar"></i>
+                            Diurutkan berdasarkan tingkat kelulusan tertinggi
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights & Recommendations Row -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-lightbulb"></i> AI Insights & Rekomendasi
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="insightsContainer">
+                        <!-- Insights will be populated by JavaScript -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-success h-100">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        <i class="fas fa-chart-line"></i> Trend Analysis
+                                    </div>
+                                    <div class="mb-0 text-gray-800" id="insightTrend">
+                                        <small>Loading insights...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-info h-100">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        <i class="fas fa-users"></i> Capacity Planning
+                                    </div>
+                                    <div class="mb-0 text-gray-800" id="insightCapacity">
+                                        <small>Loading insights...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-warning h-100">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        <i class="fas fa-exclamation-triangle"></i> Action Items
+                                    </div>
+                                    <div class="mb-0 text-gray-800" id="insightAction">
+                                        <small>Loading insights...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
