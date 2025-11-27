@@ -6,29 +6,29 @@
 @section('content')
     {{-- Filter Card --}}
     <div class="card shadow-sm mb-3">
-        <div class="card-header bg-white">
-            <h6 class="mb-0">Filter Data</h6>
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0"><i class="fas fa-filter mr-2"></i>Filter Pendaftaran</h6>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('kaprodi.verifikasi-pendaftaran.index') }}">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="start_date">Tanggal Mulai</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request('start_date') }}">
+                            <label for="start_date">Tanggal Dari</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request('start_date') }}" placeholder="mm/dd/yyyy">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="end_date">Tanggal Akhir</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                            <label for="end_date">Tanggal Sampai</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request('end_date') }}" placeholder="mm/dd/yyyy">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="skema_id">Skema</label>
+                            <label for="skema_id">Skema Sertifikasi</label>
                             <select class="form-control" id="skema_id" name="skema_id">
-                                <option value="">Semua Skema</option>
+                                <option value="">-- Semua Skema --</option>
                                 @foreach($skemas as $skema)
                                     <option value="{{ $skema->id }}" {{ request('skema_id') == $skema->id ? 'selected' : '' }}>
                                         {{ $skema->nama }}
@@ -55,10 +55,10 @@
                 <div class="row">
                     <div class="col-md-12">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter mr-1"></i> Terapkan Filter
+                            <i class="fas fa-search mr-1"></i> Filter
                         </button>
                         <a href="{{ route('kaprodi.verifikasi-pendaftaran.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-redo mr-1"></i> Reset Filter
+                            <i class="fas fa-sync-alt mr-1"></i> Reset
                         </a>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                             <tr>
                                 <td>{{ $item->user->name }} - {{ $item->user->nim }}</td>
                                 <td>{{ $item->skema->nama }}</td>
-                                <td>{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
+                                <td data-order="{{ $item->created_at->timestamp }}">{{ $item->created_at->format('d-m-Y H:i:s') }}</td>
                                 <td>
                                     @if ($item->status == 1)
                                         <span class="text-success">{{ $item->status_text }}</span>
@@ -388,6 +388,7 @@
             $(document).ready(function() {
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
+                    ordering: false, // Disable all sorting to preserve server-side order
                     language: {
                         searchPlaceholder: "Cari Pendaftaran...",
                         search: "",
@@ -399,11 +400,7 @@
                             previous: "Sebelumnya",
                             next: "Berikutnya"
                         }
-                    },
-                    columnDefs: [{
-                        targets: -1,
-                        orderable: false
-                    }]
+                    }
                 });
 
                 // Handle modal keterangan

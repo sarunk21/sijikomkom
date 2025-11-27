@@ -49,7 +49,12 @@ class TestingController extends Controller
 
         $pembayaranAsesorMenunggu = PembayaranAsesor::where('status', 1)->count();
         $sertifikatAktif = Sertif::where('status', 'aktif')->count();
-        $pendaftaranSudahSertifikat = Pendaftaran::where('status', 7)->count();
+
+        // Count stuck distributions (status 7 = Asesor Tidak Dapat Hadir)
+        $pendaftaranStuckDistribution = Pendaftaran::where('status', 7)->count();
+
+        // Untuk backward compatibility, status 8 = Sudah Sertifikat (jika ada)
+        $pendaftaranSudahSertifikat = Pendaftaran::where('status', 8)->count();
 
         return view('components.pages.admin.testing.index', compact(
             'lists',
@@ -63,7 +68,8 @@ class TestingController extends Controller
             'pendaftaranUjikomSelesai',
             'pembayaranAsesorMenunggu',
             'sertifikatAktif',
-            'pendaftaranSudahSertifikat'
+            'pendaftaranSudahSertifikat',
+            'pendaftaranStuckDistribution'
         ));
     }
 
@@ -508,6 +514,130 @@ class TestingController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error fixing stuck payments: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Fix stuck distributions - Redistribute pendaftaran dengan status 7 (Asesor Tidak Dapat Hadir)
+     */
+    public function fixStuckDistributions()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find pendaftaran yang stuck di status 7 (Asesor Tidak Dapat Hadir)
+            $stuckPendaftaran = Pendaftaran::where('status', 7)
+                ->with(['jadwal', 'user', 'skema'])
+                ->get();
+
+            if ($stuckPendaftaran->isEmpty()) {
+                DB::rollBack();
+                return redirect()->back()->with('info', 'Tidak ada pendaftaran yang stuck di status 7.');
+            }
+
+            $redistributed = 0;
+            $failed = [];
+
+            foreach ($stuckPendaftaran as $pendaftaran) {
+                try {
+                    $jadwalId = $pendaftaran->jadwal_id;
+                    $jadwal = $pendaftaran->jadwal;
+
+                    if (!$jadwal) {
+                        $failed[] = "Pendaftaran ID {$pendaftaran->id}: Jadwal tidak ditemukan";
+                        continue;
+                    }
+
+                    // Cari asesor yang pernah menolak pendaftaran ini
+                    $rejectedAsesorIds = DB::table('asesor_rejection_histories')
+                        ->where('pendaftaran_id', $pendaftaran->id)
+                        ->pluck('asesor_id')
+                        ->toArray();
+
+                    // Cari asesor alternatif untuk skema ini yang:
+                    // 1. Punya sertifikasi untuk skema ini
+                    // 2. Belum pernah menolak pendaftaran ini
+                    // 3. Status aktif
+                    // 4. Workload paling rendah untuk jadwal ini
+                    $alternativeAsesor = User::where('user_type', 'asesor')
+                        ->whereHas('skemas', function($query) use ($pendaftaran) {
+                            $query->where('skema_id', $pendaftaran->skema_id);
+                        })
+                        ->whereNotIn('id', $rejectedAsesorIds)
+                        ->whereNotExists(function($query) use ($jadwalId) {
+                            // Exclude asesor yang sudah confirmed untuk jadwal ini
+                            $query->select(DB::raw(1))
+                                ->from('pendaftaran_ujikom')
+                                ->whereColumn('pendaftaran_ujikom.asesor_id', 'users.id')
+                                ->where('pendaftaran_ujikom.jadwal_id', $jadwalId)
+                                ->where('pendaftaran_ujikom.asesor_confirmed', true);
+                        })
+                        ->withCount(['pendaftaranUjikom as workload_count' => function($query) use ($jadwalId) {
+                            // Hitung workload untuk jadwal ini
+                            $query->where('jadwal_id', $jadwalId);
+                        }])
+                        ->orderBy('workload_count', 'asc') // Pilih asesor dengan workload paling sedikit
+                        ->first();
+
+                    if ($alternativeAsesor) {
+                        // Create assignment baru dengan asesor pengganti
+                        PendaftaranUjikom::create([
+                            'pendaftaran_id' => $pendaftaran->id,
+                            'jadwal_id' => $jadwalId,
+                            'asesi_id' => $pendaftaran->user_id,
+                            'asesor_id' => $alternativeAsesor->id,
+                            'status' => 6, // Menunggu Konfirmasi Asesor
+                            'asesor_confirmed' => false,
+                        ]);
+
+                        // Update status pendaftaran kembali ke status 4 (Menunggu Ujian)
+                        $pendaftaran->update([
+                            'status' => 4,
+                            'keterangan' => "Redistribusi otomatis ke asesor {$alternativeAsesor->name}"
+                        ]);
+
+                        Log::info("✅ Redistribusi berhasil: Pendaftaran ID {$pendaftaran->id} (Asesi: {$pendaftaran->user->name}) ditugaskan ke asesor {$alternativeAsesor->name} (ID: {$alternativeAsesor->id}) untuk jadwal ID {$jadwalId}");
+
+                        // Send email to new asesor
+                        try {
+                            $this->emailService->sendKonfirmasiKehadiranEmail(
+                                $alternativeAsesor->email,
+                                $alternativeAsesor->name,
+                                $jadwal,
+                                1 // Jumlah asesi
+                            );
+                            Log::info("📧 Email konfirmasi kehadiran dikirim ke {$alternativeAsesor->email}");
+                        } catch (\Exception $e) {
+                            Log::warning("⚠️ Email redistribusi gagal dikirim ke {$alternativeAsesor->email}: " . $e->getMessage());
+                        }
+
+                        $redistributed++;
+                    } else {
+                        // Tidak ada asesor alternatif tersedia
+                        $failed[] = "Pendaftaran ID {$pendaftaran->id} (Asesi: {$pendaftaran->user->name}): Tidak ada asesor pengganti yang tersedia";
+                        Log::warning("❌ Tidak ada asesor alternatif yang tersedia untuk pendaftaran ID {$pendaftaran->id} (Skema: {$pendaftaran->skema->nama}, Jadwal ID: {$jadwalId})");
+                    }
+
+                } catch (\Exception $e) {
+                    $failed[] = "Pendaftaran ID {$pendaftaran->id}: " . $e->getMessage();
+                    Log::error("Failed to redistribute pendaftaran {$pendaftaran->id}: " . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            $message = "Berhasil redistribusi {$redistributed} dari {$stuckPendaftaran->count()} pendaftaran yang stuck.";
+            if (!empty($failed)) {
+                $message .= "<br><strong>Gagal:</strong><br>" . implode('<br>', $failed);
+                return redirect()->back()->with('warning', $message);
+            }
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error fixing stuck distributions: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }

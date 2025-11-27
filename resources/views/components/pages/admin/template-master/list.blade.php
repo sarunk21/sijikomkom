@@ -40,7 +40,6 @@
                             <th>Tipe Template</th>
                             <th>Skema</th>
                             <th>Variables</th>
-                            <th>TTD</th>
                             <th>Status</th>
                             <th>Tanggal Dibuat</th>
                             <th class="text-center" style="width: 150px;">Aksi</th>
@@ -84,13 +83,6 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    @if($template->ttd_path)
-                                        <i class="fas fa-check-circle text-success" title="TTD tersedia"></i>
-                                    @else
-                                        <i class="fas fa-times-circle text-muted" title="TTD tidak tersedia"></i>
-                                    @endif
-                                </td>
                                 <td>
                                     @if($template->is_active)
                                         <span class="badge badge-success">Aktif</span>
@@ -101,10 +93,6 @@
                                 <td>{{ $template->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center" style="gap: 0.5rem;">
-                                        <a href="{{ route('admin.template-master.show', $template->id) }}"
-                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Detail">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
                                         <a href="{{ route('admin.template-master.edit', $template->id) }}"
                                             class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                             <i class="fas fa-edit text-warning"></i>

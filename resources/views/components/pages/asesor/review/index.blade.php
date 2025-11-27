@@ -24,6 +24,80 @@
         </div>
     @endif
 
+    <!-- Pending Confirmations Section -->
+    @if(isset($pendingConfirmations) && $pendingConfirmations->count() > 0)
+    <div class="card shadow-sm mb-4 border-left-info">
+        <div class="card-header bg-gradient-info text-white">
+            <h6 class="m-0 font-weight-bold">
+                <i class="fas fa-calendar-check mr-2"></i>Jadwal Asesmen Mendatang
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>Catatan:</strong> Anda ditugaskan untuk <strong>{{ $pendingConfirmations->count() }} jadwal ujikom</strong> mendatang.
+                <br><br>
+                Anda dianggap <strong>HADIR</strong> secara default untuk semua jadwal di bawah.
+                <br>
+                Jika Anda <strong>tidak dapat hadir</strong>, silakan klik tombol "Tidak Dapat Hadir" sebelum ujian dimulai.
+                Sistem akan otomatis mencari asesor pengganti.
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="pendingConfirmationTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 15%;">Tanggal Ujian</th>
+                            <th style="width: 25%;">Skema</th>
+                            <th style="width: 20%;">TUK</th>
+                            <th style="width: 10%;" class="text-center">Jumlah Asesi</th>
+                            <th style="width: 15%;">Ditugaskan Sejak</th>
+                            <th style="width: 15%;" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingConfirmations as $item)
+                        <tr id="confirmation-row-{{ $item['jadwal_id'] }}">
+                            <td>
+                                <strong class="text-primary">{{ \Carbon\Carbon::parse($item['jadwal']->tanggal_ujian)->format('d M Y') }}</strong><br>
+                                <small class="text-muted">
+                                    <i class="far fa-clock mr-1"></i>
+                                    {{ \Carbon\Carbon::parse($item['jadwal']->waktu_mulai)->format('H:i') }} -
+                                    {{ \Carbon\Carbon::parse($item['jadwal']->waktu_selesai)->format('H:i') }}
+                                </small>
+                            </td>
+                            <td>
+                                <strong>{{ $item['jadwal']->skema->nama ?? 'N/A' }}</strong><br>
+                                <small class="text-muted">{{ $item['jadwal']->skema->kode ?? '-' }}</small>
+                            </td>
+                            <td>{{ $item['jadwal']->tuk->nama ?? 'N/A' }}</td>
+                            <td class="text-center">
+                                <span class="badge badge-info" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                                    {{ $item['jumlah_asesi'] }} Asesi
+                                </span>
+                            </td>
+                            <td>
+                                <small>{{ \Carbon\Carbon::parse($item['ditugaskan_sejak'])->format('d M Y H:i') }}</small>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-danger reject-btn"
+                                        data-jadwal-id="{{ $item['jadwal_id'] }}"
+                                        data-tanggal="{{ \Carbon\Carbon::parse($item['jadwal']->tanggal_ujian)->format('d M Y') }}"
+                                        data-skema="{{ $item['jadwal']->skema->nama ?? 'N/A' }}"
+                                        data-jumlah="{{ $item['jumlah_asesi'] }}"
+                                        title="Tidak Dapat Hadir">
+                                    <i class="fas fa-times mr-1"></i>Tidak Dapat Hadir
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Filter Card -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
@@ -194,6 +268,66 @@
                 $('#skema_id').on('change', function() {
                     // Uncomment to enable auto-submit
                     // $('#filterForm').submit();
+                });
+
+                // Reject Handler (Tidak Dapat Hadir)
+                $('.reject-btn').on('click', function() {
+                    const jadwalId = $(this).data('jadwal-id');
+                    const tanggal = $(this).data('tanggal');
+                    const skema = $(this).data('skema');
+                    const jumlah = $(this).data('jumlah');
+
+                    const confirmMessage = `Anda akan menolak untuk menjadi asesor pada:\n\n` +
+                        `Tanggal: ${tanggal}\n` +
+                        `Skema: ${skema}\n` +
+                        `Jumlah Asesi: ${jumlah} orang\n\n` +
+                        `Apakah Anda yakin TIDAK DAPAT HADIR?\n` +
+                        `Sistem akan mencari asesor pengganti secara otomatis.`;
+
+                    if (!confirm(confirmMessage)) {
+                        return;
+                    }
+
+                    const notes = prompt('Mohon berikan alasan mengapa Anda tidak dapat hadir (opsional):');
+
+                    if (notes === null) {
+                        return; // User canceled the prompt
+                    }
+
+                    // Send rejection request
+                    $.ajax({
+                        url: '{{ route("asesor.dashboard.confirm-jadwal") }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            jadwal_id: jadwalId,
+                            status: 'rejected',
+                            notes: notes || 'Tidak dapat hadir'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message || 'Penolakan berhasil diproses. Sistem akan mencari asesor pengganti.');
+                                // Remove row from table
+                                $('#confirmation-row-' + jadwalId).fadeOut(300, function() {
+                                    $(this).remove();
+                                    // Reload if no more pending confirmations
+                                    if ($('#pendingConfirmationTable tbody tr:visible').length === 0) {
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                alert('Terjadi kesalahan: ' + (response.message || 'Unknown error'));
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Terjadi kesalahan saat memproses penolakan.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            alert(errorMsg);
+                            console.error(xhr);
+                        }
+                    });
                 });
             });
         </script>

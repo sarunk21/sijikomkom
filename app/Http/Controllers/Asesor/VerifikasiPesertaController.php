@@ -38,7 +38,30 @@ class VerifikasiPesertaController extends Controller
             ->orderBy('jadwal_id', 'desc')
             ->get();
 
-        return view('components.pages.asesor.verifikasi-peserta.list', compact('lists', 'jadwalList'));
+        // Pending confirmations - group by jadwal (hanya jadwal yang belum dimulai)
+        $pendingConfirmations = PendaftaranUjikom::where('asesor_id', Auth::id())
+            ->where('asesor_confirmed', false)
+            ->whereHas('jadwal', function($query) {
+                $query->where('status', 1) // Hanya jadwal aktif yang belum dimulai
+                    ->where('tanggal_ujian', '>', now());
+            })
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->get()
+            ->groupBy('jadwal_id')
+            ->map(function($items) {
+                $first = $items->first();
+                return [
+                    'jadwal_id' => $first->jadwal_id,
+                    'jadwal' => $first->jadwal,
+                    'jumlah_asesi' => $items->count(),
+                    'pendaftaran_ujikom_ids' => $items->pluck('id')->toArray(),
+                    'ditugaskan_sejak' => $items->min('created_at')
+                ];
+            })
+            ->sortBy('jadwal.tanggal_ujian')
+            ->values();
+
+        return view('components.pages.asesor.verifikasi-peserta.list', compact('lists', 'jadwalList', 'pendingConfirmations'));
     }
 
     /**

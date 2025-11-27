@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\Admin\APL2Controller;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\PendaftaranController;
 use App\Http\Controllers\Admin\PembayaranAsesorController;
@@ -75,7 +76,7 @@ Route::group(['middleware' => 'user.type'], function () {
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.admin');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard.admin');
     Route::resource('skema', SkemaController::class)->names('admin.skema');
     Route::resource('tuk', TUKController::class)->names('admin.tuk');
     Route::resource('jadwal', JadwalController::class)->names('admin.jadwal');
@@ -146,6 +147,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::post('testing/trigger-pembayaran-asesor', [TestingController::class, 'triggerPembayaranAsesor'])->name('admin.testing.trigger-pembayaran-asesor');
     Route::post('testing/upload-sertifikat', [TestingController::class, 'uploadSertifikat'])->name('admin.testing.upload-sertifikat');
     Route::post('testing/fix-stuck-payments', [TestingController::class, 'fixStuckPayments'])->name('admin.testing.fix-stuck-payments');
+    Route::post('testing/fix-stuck-distributions', [TestingController::class, 'fixStuckDistributions'])->name('admin.testing.fix-stuck-distributions');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -189,7 +191,7 @@ Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
 
 Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('/', [AsesorDashboardController::class, 'index'])->name('dashboard.asesor');
-    Route::post('/confirm-jadwal', [AsesorDashboardController::class, 'confirmJadwal'])->name('asesor.confirm-jadwal');
+    Route::post('/confirm-jadwal', [AsesorDashboardController::class, 'confirmJadwal'])->name('asesor.dashboard.confirm-jadwal');
 
     // Review & Verifikasi routes (NEW - unified menu)
     Route::get('review', [ReviewController::class, 'index'])->name('asesor.review.index');

@@ -24,6 +24,74 @@
         </div>
     @endif
 
+    {{-- Pending Confirmations Alert --}}
+    @if(isset($pendingConfirmations) && $pendingConfirmations->count() > 0)
+    <div class="card shadow-sm mb-4 border-left-info">
+        <div class="card-header bg-gradient-info">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="fas fa-calendar-check mr-2"></i>Konfirmasi Kehadiran - Jadwal Asesmen Mendatang
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>Catatan:</strong> Anda ditugaskan untuk <strong>{{ $pendingConfirmations->count() }} jadwal</strong> mendatang.
+                Jika Anda <strong>tidak dapat hadir</strong>, silakan klik tombol "Tidak Dapat Hadir" sebelum ujian dimulai.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tanggal & Waktu Ujian</th>
+                            <th>Skema</th>
+                            <th>TUK</th>
+                            <th>Jumlah Asesi</th>
+                            <th>Ditugaskan Sejak</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingConfirmations as $item)
+                        <tr>
+                            <td>
+                                <strong>{{ \Carbon\Carbon::parse($item['jadwal']->tanggal_ujian)->format('d M Y') }}</strong><br>
+                                <small class="text-muted">{{ $item['jadwal']->waktu_mulai ?? 'Belum ditentukan' }}</small>
+                            </td>
+                            <td>{{ $item['jadwal']->skema->nama ?? 'N/A' }}</td>
+                            <td>{{ $item['jadwal']->tuk->nama ?? 'N/A' }}</td>
+                            <td>
+                                <span class="badge badge-primary" style="font-size: 0.9rem;">
+                                    {{ $item['jumlah_asesi'] }} Asesi
+                                </span>
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($item['ditugaskan_sejak'])->format('d M Y H:i') }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-success confirm-btn"
+                                            data-jadwal-id="{{ $item['jadwal_id'] }}"
+                                            data-tanggal="{{ \Carbon\Carbon::parse($item['jadwal']->tanggal_ujian)->format('d M Y') }}"
+                                            data-skema="{{ $item['jadwal']->skema->nama ?? 'N/A' }}"
+                                            data-jumlah="{{ $item['jumlah_asesi'] }}">
+                                        <i class="fas fa-check mr-1"></i>Konfirmasi Hadir
+                                    </button>
+                                    <button class="btn btn-sm btn-danger reject-btn"
+                                            data-jadwal-id="{{ $item['jadwal_id'] }}"
+                                            data-tanggal="{{ \Carbon\Carbon::parse($item['jadwal']->tanggal_ujian)->format('d M Y') }}"
+                                            data-skema="{{ $item['jadwal']->skema->nama ?? 'N/A' }}"
+                                            data-jumlah="{{ $item['jumlah_asesi'] }}">
+                                        <i class="fas fa-times mr-1"></i>Tidak Dapat Hadir
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-header">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Jadwal Ujian Kompetensi</h6>
@@ -214,6 +282,14 @@
         .gap-2 {
             gap: 0.5rem;
         }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+        }
+
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
     </style>
 
     {{-- Scripts --}}
@@ -277,6 +353,74 @@
                 // Reset form when modal is hidden
                 $('#modalHadir, #modalTidakHadir').on('hidden.bs.modal', function() {
                     $(this).find('form')[0].reset();
+                });
+
+                // Handle confirm button dari pending confirmations
+                $('.confirm-btn').on('click', function() {
+                    const jadwalId = $(this).data('jadwal-id');
+                    const tanggal = $(this).data('tanggal');
+                    const skema = $(this).data('skema');
+                    const jumlah = $(this).data('jumlah');
+
+                    if (confirm(`Konfirmasi kehadiran untuk jadwal:\n\nTanggal: ${tanggal}\nSkema: ${skema}\nJumlah Asesi: ${jumlah}\n\nLanjutkan?`)) {
+                        $.ajax({
+                            url: '{{ route("asesor.dashboard.confirm-jadwal") }}',
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                jadwal_id: jadwalId,
+                                status: 'confirmed',
+                                notes: 'Siap hadir'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                alert('Terjadi kesalahan: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                            }
+                        });
+                    }
+                });
+
+                // Handle reject button dari pending confirmations
+                $('.reject-btn').on('click', function() {
+                    const jadwalId = $(this).data('jadwal-id');
+                    const tanggal = $(this).data('tanggal');
+                    const skema = $(this).data('skema');
+                    const jumlah = $(this).data('jumlah');
+
+                    const notes = prompt(`Anda akan menolak jadwal:\n\nTanggal: ${tanggal}\nSkema: ${skema}\nJumlah Asesi: ${jumlah}\n\nMasukkan alasan penolakan:`);
+
+                    if (notes !== null && notes.trim() !== '') {
+                        $.ajax({
+                            url: '{{ route("asesor.dashboard.confirm-jadwal") }}',
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                jadwal_id: jadwalId,
+                                status: 'rejected',
+                                notes: notes
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                alert('Terjadi kesalahan: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                            }
+                        });
+                    } else if (notes !== null) {
+                        alert('Alasan penolakan harus diisi!');
+                    }
                 });
             });
         </script>

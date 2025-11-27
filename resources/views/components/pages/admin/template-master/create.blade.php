@@ -162,7 +162,7 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="custom-fields-tab" data-toggle="tab" href="#custom-fields" role="tab">
-                                            <i class="fas fa-plus-circle me-2"></i>Custom Fields (untuk APL2)
+                                            <i class="fas fa-plus-circle me-2"></i>Custom Fields
                                         </a>
                                     </li>
                                 </ul>

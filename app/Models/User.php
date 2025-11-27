@@ -107,4 +107,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(AsesiPenilaian::class, 'user_id');
     }
+
+    // Relasi untuk pendaftaran ujikom (untuk asesor)
+    public function pendaftaranUjikom()
+    {
+        return $this->hasMany(PendaftaranUjikom::class, 'asesor_id');
+    }
+
+    // Alias untuk relationship skema (singular form)
+    public function skema()
+    {
+        return $this->skemas();
+    }
 }

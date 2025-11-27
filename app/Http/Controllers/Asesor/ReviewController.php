@@ -31,8 +31,40 @@ class ReviewController extends Controller
     {
         $lists = $this->getMenuListAsesor('review');
 
-        // Build query
+        // Pending confirmations - group by jadwal (hanya jadwal yang belum dimulai)
+        $pendingConfirmations = PendaftaranUjikom::where('asesor_id', Auth::id())
+            ->where('asesor_confirmed', false)
+            ->whereHas('jadwal', function($query) {
+                $query->where('status', 1) // Hanya jadwal aktif yang belum dimulai
+                    ->where('tanggal_ujian', '>', now());
+            })
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->get()
+            ->groupBy('jadwal_id')
+            ->map(function($items) {
+                $first = $items->first();
+                return [
+                    'jadwal_id' => $first->jadwal_id,
+                    'jadwal' => $first->jadwal,
+                    'jumlah_asesi' => $items->count(),
+                    'pendaftaran_ujikom_ids' => $items->pluck('id')->toArray(),
+                    'ditugaskan_sejak' => $items->min('created_at')
+                ];
+            })
+            ->sortBy('jadwal.tanggal_ujian')
+            ->values();
+
+        // Build query - hanya jadwal yang sudah confirmed atau sudah dimulai
         $query = PendaftaranUjikom::where('asesor_id', Auth::id())
+            ->where(function($q) {
+                // Tampilkan jadwal yang:
+                // 1. Sudah confirmed oleh asesor, ATAU
+                // 2. Jadwal sudah dimulai/berlangsung (status >= 2)
+                $q->where('asesor_confirmed', true)
+                  ->orWhereHas('jadwal', function($subQuery) {
+                      $subQuery->where('status', '>=', 2); // Status 2 = Pendaftaran, 3 = Berlangsung, 4 = Selesai
+                  });
+            })
             ->with(['jadwal.skema', 'jadwal.tuk']);
 
         // Filter by date range
@@ -81,7 +113,7 @@ class ReviewController extends Controller
             })
             ->get();
 
-        return view('components.pages.asesor.review.index', compact('lists', 'jadwalList', 'skemas'));
+        return view('components.pages.asesor.review.index', compact('lists', 'jadwalList', 'skemas', 'pendingConfirmations'));
     }
 
     /**

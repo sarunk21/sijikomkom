@@ -26,10 +26,20 @@
                                 <td>{{ $item->jadwal->tanggal_ujian }}</td>
                                 <td>{{ $item->jadwal->tuk->nama }}</td>
                                 <td>
-                                    @if($item->status == 4)
+                                    @if($item->status == 1)
+                                        <span class="badge badge-info">{{ $item->status_text }}</span>
+                                    @elseif($item->status == 2)
+                                        <span class="badge badge-danger">{{ $item->status_text }}</span>
+                                    @elseif($item->status == 3)
+                                        <span class="badge badge-primary">{{ $item->status_text }}</span>
+                                    @elseif($item->status == 4)
                                         <span class="badge badge-warning">{{ $item->status_text }}</span>
+                                    @elseif($item->status == 5)
+                                        <span class="badge badge-info">{{ $item->status_text }}</span>
                                     @elseif($item->status == 6)
                                         <span class="badge badge-success">{{ $item->status_text }}</span>
+                                    @elseif($item->status == 7)
+                                        <span class="badge badge-dark">{{ $item->status_text }}</span>
                                     @else
                                         <span class="badge badge-secondary">{{ $item->status_text }}</span>
                                     @endif
@@ -47,7 +57,9 @@
                                 </td>
                                 <td>{{ $item->pendaftaranUjikom ? $item->pendaftaranUjikom->keterangan : '-' }}</td>
                                 <td class="text-center">
-                                    @if(in_array($item->status, [3, 4, 5]))
+                                    @if($item->status == 7)
+                                        <span class="badge badge-danger">Asesor Tidak Hadir - Menunggu Redistribusi</span>
+                                    @elseif(in_array($item->status, [3, 4, 5]))
                                         {{-- Status yang bisa generate APL 1 dan APL 2 --}}
                                         <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 0.5rem;">
                                             @php
@@ -75,7 +87,7 @@
                                             </a>
                                         </div>
                                     @else
-                                        <span class="text-muted">Status: {{ $item->status_text }}</span>
+                                        <span class="text-muted">{{ $item->status_text }}</span>
                                     @endif
                                 </td>
                             </tr>

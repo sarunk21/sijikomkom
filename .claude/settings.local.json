@@ -25,7 +25,8 @@
       "Bash(composer dump-autoload:*)",
       "Bash(find:*)",
       "Bash(unzip:*)",
-      "Bash(Get-Content \"C:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\storage\\logs\\laravel.log\" -Tail 50)"
+      "Bash(Get-Content \"C:\\Users\\Kautsar\\Documents\\Code\\sijikomkom\\storage\\logs\\laravel.log\" -Tail 50)",
+      "Bash(Select-String -Pattern \"redistribusi|Tidak ada asesor\" -Context 2)"
     ],
     "deny": [],
     "ask": []

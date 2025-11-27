@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Traits\MenuTrait;
 use App\Models\Pendaftaran;
 use App\Models\Jadwal;
-use App\Models\Report;
-use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -17,71 +15,58 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-
         $lists = $this->getMenuListKepalaTuk('dashboard');
 
-        // CATATAN: Saat ini tidak ada relasi User -> TUK (user.tuk_id)
-        // Dashboard menampilkan data SEMUA TUK
-        // Untuk filter berdasarkan TUK tertentu, perlu tambahkan kolom tuk_id di tabel users
-        // Contoh: $tukId = $user->tuk_id; lalu filter semua query dengan ->where('tuk_id', $tukId)
+        // Get TUK ID from user (assuming user has tuk_id or get from first TUK if kepala_tuk role)
+        $tukId = $user->tuk_id ?? null;
 
-        if (!$user) {
-            // Jika tidak ada TUK, return data kosong
-            $totalAsesi = 0;
-            $kapasitasTuk = 0;
-            $jadwalHariIni = 0;
-            $pendapatanBulanan = 0;
-            $trenKunjungan = [];
-            $distribusiSkema = [];
-            $jadwalMingguan = [];
-            $laporanBulanan = [
-                'totalUjikom' => 0,
-                'lulus' => 0,
-                'tidakLulus' => 0,
-                'persentaseLulus' => 0
-            ];
+        // If no TUK assigned, show all data (fallback)
+        $tukFilter = function($query) use ($tukId) {
+            if ($tukId) {
+                $query->where('tuk_id', $tukId);
+            }
+        };
 
-            return view('components.pages.tuk.dashboard', compact('lists', 'totalAsesi', 'kapasitasTuk', 'jadwalHariIni', 'pendapatanBulanan', 'trenKunjungan', 'distribusiSkema', 'jadwalMingguan', 'laporanBulanan'));
-        }
+        // Total Jadwal di TUK ini
+        $totalJadwal = Jadwal::when($tukId, $tukFilter)->count();
 
-        $totalAsesi = Pendaftaran::count();
-
-        $jadwalAktif = Jadwal::where('status', 1)
-            ->sum('kuota');
-        $pendaftaranAktif = Pendaftaran::whereIn('status', [4, 5, 6])
-            ->count();
-        $kapasitasTuk = $jadwalAktif > 0 ? round(($pendaftaranAktif / $jadwalAktif) * 100) : 0;
-
-        // Jadwal hari ini
-        $jadwalHariIni = Pendaftaran::whereIn('status', [4, 5, 6])
-            ->whereHas('jadwal', function ($query) {
-                $query->whereDate('tanggal_ujian', today());
-            })
+        // Jadwal Aktif (status 1 = Aktif)
+        $jadwalAktif = Jadwal::when($tukId, $tukFilter)
+            ->where('status', 1)
             ->count();
 
-        // Pendapatan bulanan (hitung berdasarkan jumlah pembayaran yang dikonfirmasi)
-        // Status Pembayaran: 1=Belum Bayar, 2=Menunggu Verifikasi, 3=Ditolak, 4=Dikonfirmasi
-        $pendapatanBulanan = Pembayaran::where('status', 4) // Dikonfirmasi
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count() * config('payment.tuk_per_pendaftaran', 1000000); // Ambil dari config
+        // Jadwal Hari Ini
+        $jadwalHariIni = Jadwal::when($tukId, $tukFilter)
+            ->whereDate('tanggal_ujian', today())
+            ->whereIn('status', [1, 3]) // Aktif atau Sedang Berlangsung
+            ->count();
 
-        // Tren kunjungan (6 bulan terakhir)
-        $trenKunjungan = [];
+        // Jadwal Selesai
+        $jadwalSelesai = Jadwal::when($tukId, $tukFilter)
+            ->where('status', 4) // Selesai
+            ->count();
+
+        // Total Asesi/Peserta di TUK ini (dari pendaftaran yang terhubung ke jadwal TUK)
+        $totalAsesi = Pendaftaran::whereHas('jadwal', function($query) use ($tukId, $tukFilter) {
+            $query->when($tukId, $tukFilter);
+        })->count();
+
+        // Tren Jadwal Ujikom (6 bulan terakhir)
+        $trenJadwal = [];
         for ($i = 5; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
-            $count = Pendaftaran::whereIn('status', [4, 5, 6])
-                ->whereMonth('created_at', $bulan->month)
-                ->whereYear('created_at', $bulan->year)
+            $count = Jadwal::when($tukId, $tukFilter)
+                ->whereMonth('tanggal_ujian', $bulan->month)
+                ->whereYear('tanggal_ujian', $bulan->year)
                 ->count();
-            $trenKunjungan[] = [
-                'bulan' => $bulan->format('M'),
+            $trenJadwal[] = [
+                'bulan' => $bulan->format('M Y'),
                 'jumlah' => $count
             ];
         }
 
-        // Distribusi skema
-        $distribusiSkema = Pendaftaran::whereIn('status', [4, 5, 6])
+        // Distribusi Skema di TUK ini
+        $distribusiSkema = Jadwal::when($tukId, $tukFilter)
             ->with('skema')
             ->get()
             ->groupBy('skema.nama')
@@ -89,66 +74,59 @@ class DashboardController extends Controller
                 return $group->count();
             });
 
-        // Jadwal mingguan
+        // Jadwal Minggu Ini (per hari)
         $jadwalMingguan = [];
         $hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
         foreach ($hari as $index => $namaHari) {
             $tanggal = now()->startOfWeek()->addDays($index);
-            $jumlah = Pendaftaran::whereIn('status', [4, 5, 6])
-                ->whereHas('jadwal', function ($query) use ($tanggal) {
-                    $query->whereDate('tanggal_ujian', $tanggal);
-                })
+            $jumlah = Jadwal::when($tukId, $tukFilter)
+                ->whereDate('tanggal_ujian', $tanggal)
                 ->count();
 
-            $status = $tanggal->isPast() ? 'Selesai' : 'Menunggu';
+            $status = $tanggal->isPast() ? 'Selesai' : 'Akan Datang';
             if ($tanggal->isToday()) {
-                $status = 'Sedang Berlangsung';
+                $status = 'Hari Ini';
             }
 
             $jadwalMingguan[] = [
                 'hari' => $namaHari,
+                'tanggal' => $tanggal->format('d M'),
                 'jumlah' => $jumlah,
                 'status' => $status
             ];
         }
 
-        // Laporan bulanan
-        $totalUjikomBulan = Pendaftaran::whereIn('status', [4, 5, 6])
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
+        // Jadwal Mendatang (5 jadwal terdekat)
+        $jadwalMendatang = Jadwal::when($tukId, $tukFilter)
+            ->with(['skema', 'tuk'])
+            ->where('tanggal_ujian', '>=', now())
+            ->whereIn('status', [1, 3]) // Aktif atau Sedang Berlangsung
+            ->orderBy('tanggal_ujian', 'asc')
+            ->take(5)
+            ->get();
 
-        // Status Report: 1=Kompeten/Lulus, 2=Tidak Kompeten/Tidak Lulus
-        $lulusBulan = Report::where('status', 1) // Kompeten
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-
-        $tidakLulusBulan = Report::where('status', 2) // Tidak Kompeten
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-
-        $persentaseLulus = $totalUjikomBulan > 0 ? round(($lulusBulan / $totalUjikomBulan) * 100) : 0;
-
-        $laporanBulanan = [
-            'totalUjikom' => $totalUjikomBulan,
-            'lulus' => $lulusBulan,
-            'tidakLulus' => $tidakLulusBulan,
-            'persentaseLulus' => $persentaseLulus
+        // Statistik Jadwal per Status
+        $statusJadwal = [
+            'pending' => Jadwal::when($tukId, $tukFilter)->where('status', 0)->count(),
+            'aktif' => Jadwal::when($tukId, $tukFilter)->where('status', 1)->count(),
+            'ditunda' => Jadwal::when($tukId, $tukFilter)->where('status', 2)->count(),
+            'sedang_berlangsung' => Jadwal::when($tukId, $tukFilter)->where('status', 3)->count(),
+            'selesai' => Jadwal::when($tukId, $tukFilter)->where('status', 4)->count(),
         ];
 
         return view('components.pages.tuk.dashboard', compact(
             'lists',
-            'totalAsesi',
-            'kapasitasTuk',
+            'totalJadwal',
+            'jadwalAktif',
             'jadwalHariIni',
-            'pendapatanBulanan',
-            'trenKunjungan',
+            'jadwalSelesai',
+            'totalAsesi',
+            'trenJadwal',
             'distribusiSkema',
             'jadwalMingguan',
-            'laporanBulanan'
+            'jadwalMendatang',
+            'statusJadwal'
         ));
     }
 }

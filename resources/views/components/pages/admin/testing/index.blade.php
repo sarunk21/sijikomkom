@@ -102,6 +102,30 @@
         </div>
     </div>
 
+    <!-- Row 3: Issues & Alerts -->
+    @if($pendaftaranStuckDistribution > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning border-left-warning shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="font-weight-bold mb-1">
+                            <i class="fas fa-users-slash"></i> Stuck Distributions Terdeteksi
+                        </h6>
+                        <p class="mb-0">
+                            Ada <strong>{{ $pendaftaranStuckDistribution }}</strong> pendaftaran yang stuck di status 7 (Asesor Tidak Dapat Hadir).
+                            Gunakan tombol "Fix Stuck Distributions" di bawah untuk redistribusi ke asesor lain.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Testing Buttons -->
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
@@ -258,6 +282,24 @@
                                 @csrf
                                 <button type="submit" class="btn btn-danger btn-sm btn-block">
                                     <i class="fas fa-band-aid"></i> Fix Stuck Payments
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fix Stuck Distributions -->
+                <div class="col-md-6 mb-3">
+                    <div class="card border-warning h-100">
+                        <div class="card-body">
+                            <h6 class="text-warning"><i class="fas fa-redo"></i> Fix Stuck Distributions</h6>
+                            <p class="small text-muted mb-2">
+                                Redistribusi pendaftaran dengan status 7 (Asesor Tidak Dapat Hadir) ke asesor lain yang tersedia dengan workload terendah
+                            </p>
+                            <form action="{{ route('admin.testing.fix-stuck-distributions') }}" method="POST" onsubmit="return confirm('Redistribusi pendaftaran yang stuck? Ini akan mencari asesor pengganti untuk pendaftaran di status 7.')">
+                                @csrf
+                                <button type="submit" class="btn btn-warning btn-sm btn-block">
+                                    <i class="fas fa-sync-alt"></i> Fix Stuck Distributions
                                 </button>
                             </form>
                         </div>

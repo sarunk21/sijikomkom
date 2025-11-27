@@ -31,13 +31,13 @@ class SystemAnalystUjikomSeeder extends Seeder
             return;
         }
 
-        // Buat jadwal ujian tanggal 4 Desember 2025
+        // Buat jadwal ujian tanggal 4 Desember 2024
         $jadwal = Jadwal::create([
             'skema_id' => $skema->id,
             'tuk_id' => $tuk->id,
-            'tanggal_ujian' => '2025-12-04',
-            'tanggal_selesai' => '2025-12-04',
-            'tanggal_maksimal_pendaftaran' => '2025-11-27',
+            'tanggal_ujian' => '2024-12-04',
+            'tanggal_selesai' => '2024-12-04',
+            'tanggal_maksimal_pendaftaran' => '2024-11-27',
             'status' => 4, // Selesai
             'kuota' => 5,
             'keterangan' => 'Ujian Sertifikasi System Analyst - Kelompok 1',
@@ -82,7 +82,7 @@ class SystemAnalystUjikomSeeder extends Seeder
 
         // Buat data pendaftaran, pendaftaran ujikom, penilaian, dan report untuk setiap asesi
         // Set tanggal pendaftaran di bulan November 2025
-        $tanggalPendaftaran = Carbon::parse('2025-11-20 10:00:00');
+        $tanggalPendaftaran = Carbon::parse('2024-11-20 10:00:00');
 
         foreach ($asesorDistribution as $asesorId => $asesiGroup) {
             foreach ($asesiGroup as $asesi) {
@@ -115,7 +115,7 @@ class SystemAnalystUjikomSeeder extends Seeder
                     'status' => 5, // Kompeten
                     'keterangan' => 'Asesi dinyatakan KOMPETEN',
                     'asesor_confirmed' => true,
-                    'asesor_confirmed_at' => Carbon::parse('2025-12-04 16:00:00'),
+                    'asesor_confirmed_at' => Carbon::parse('2024-12-04 16:00:00'),
                     'asesor_notes' => 'Asesi menunjukkan kompetensi yang baik dalam seluruh aspek penilaian',
                 ]);
 
@@ -129,30 +129,30 @@ class SystemAnalystUjikomSeeder extends Seeder
                             'formulir_id' => 1,
                             'formulir_name' => 'FR.AK.01',
                             'is_checked' => true,
-                            'checked_at' => '2025-12-04 14:00:00',
+                            'checked_at' => '2024-12-04 14:00:00',
                         ],
                         [
                             'formulir_id' => 2,
                             'formulir_name' => 'FR.AK.02',
                             'is_checked' => true,
-                            'checked_at' => '2025-12-04 14:30:00',
+                            'checked_at' => '2024-12-04 14:30:00',
                         ],
                         [
                             'formulir_id' => 3,
                             'formulir_name' => 'FR.AK.03',
                             'is_checked' => true,
-                            'checked_at' => '2025-12-04 15:00:00',
+                            'checked_at' => '2024-12-04 15:00:00',
                         ],
                     ],
                     'fr_ai_07_completed' => true,
                     'fr_ai_07_data' => [
                         'rekomendasi' => 'K', // Kompeten
                         'catatan' => 'Memenuhi seluruh kriteria kompetensi',
-                        'completed_at' => '2025-12-04 15:30:00',
+                        'completed_at' => '2024-12-04 15:30:00',
                     ],
                     'hasil_akhir' => 'kompeten',
                     'catatan_asesor' => 'Asesi menunjukkan pemahaman yang baik dan mampu menerapkan konsep System Analyst dengan tepat',
-                    'penilaian_at' => Carbon::parse('2025-12-04 15:30:00'),
+                    'penilaian_at' => Carbon::parse('2024-12-04 15:30:00'),
                 ]);
 
                 // 4. Buat Report
@@ -169,7 +169,7 @@ class SystemAnalystUjikomSeeder extends Seeder
         }
 
         $this->command->info('Seeder System Analyst Ujikom selesai!');
-        $this->command->info('Jadwal: 4 Desember 2025');
+        $this->command->info('Jadwal: 4 Desember 2024');
         $this->command->info('TUK: ' . $tuk->nama);
         $this->command->info('Total Asesi: ' . $asesiList->count());
         $this->command->info('Asesor 1 (' . $asesor1->name . '): 3 asesi');

@@ -30,22 +30,25 @@ class VerifikasiPendaftaranController extends Controller
 
         // Apply filters
         if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+            $query->whereDate('pendaftaran.created_at', '>=', $request->start_date);
         }
 
         if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+            $query->whereDate('pendaftaran.created_at', '<=', $request->end_date);
         }
 
         if ($request->filled('skema_id')) {
-            $query->where('skema_id', $request->skema_id);
+            $query->where('pendaftaran.skema_id', $request->skema_id);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('pendaftaran.status', $request->status);
         }
 
-        $verfikasiPendaftaran = $query->orderBy('created_at', 'desc')->get();
+        // Sort by created_at descending (latest first), then by id descending
+        $verfikasiPendaftaran = $query->orderBy('pendaftaran.created_at', 'desc')
+            ->orderBy('pendaftaran.id', 'desc')
+            ->get();
 
         // Get all skema for filter dropdown
         $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
