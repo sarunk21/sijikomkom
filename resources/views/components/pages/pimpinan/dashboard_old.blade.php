@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Dashboard Pimpinan')
-@section('page-title', 'Executive Dashboard')
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 
 @section('content')
 
@@ -44,28 +44,28 @@
             </div>
         </div>
 
-        <!-- Pass Rate Card -->
+        <!-- Tingkat Keberhasilan Card -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pass Rate
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tingkat Keberhasilan
                             </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $passRate }}%</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $tingkatKeberhasilan }}%</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $passRate }}%"
-                                            aria-valuenow="{{ $passRate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $tingkatKeberhasilan }}%"
+                                            aria-valuenow="{{ $tingkatKeberhasilan }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-trophy fa-2x text-gray-300"></i>
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -91,113 +91,14 @@
         </div>
     </div>
 
-    <!-- Row 2: Secondary KPIs -->
-    <div class="row">
-        <!-- Total Jadwal -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Jadwal</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalJadwal) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total TUK -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total TUK</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalTuk }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-building fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Utilisasi Kapasitas -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Utilisasi Kapasitas</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $utilisasiKapasitas }}%</div>
-                            <div class="progress progress-sm mt-2">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ $utilisasiKapasitas }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Growth Rate -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-{{ $growthRate >= 0 ? 'success' : 'danger' }} shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-{{ $growthRate >= 0 ? 'success' : 'danger' }} text-uppercase mb-1">Growth Rate (MoM)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $growthRate >= 0 ? '+' : '' }}{{ $growthRate }}%</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AI Insights -->
-    @if(count($insights) > 0)
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-lightbulb mr-2"></i>Executive Insights</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @foreach($insights as $insight)
-                        <div class="col-md-6 mb-3">
-                            <div class="alert alert-{{ $insight['type'] }} mb-0">
-                                <strong><i class="fas {{ $insight['icon'] }} mr-2"></i>{{ $insight['title'] }}</strong><br>
-                                {{ $insight['message'] }}
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
     <!-- Content Row -->
     <div class="row">
 
-        <!-- Tren Pendaftaran Chart -->
+        <!-- Tren Pendaftaran Skema Chart -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Tren Pendaftaran (12 Bulan Terakhir)</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Tren Pendaftaran Skema (6 Bulan Terakhir)</h6>
                 </div>
                 <div class="card-body">
                     <div class="chart-area">
@@ -207,11 +108,11 @@
             </div>
         </div>
 
-        <!-- Distribusi Skema Chart -->
+        <!-- Statistik Keberhasilan Chart -->
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Top 5 Skema Terpopuler</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Statistik Keberhasilan</h6>
                 </div>
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
@@ -261,10 +162,10 @@
         <div class="col-xl-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Distribusi Beban Kerja Asesor</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Skema Terpopuler (6 Bulan Terakhir)</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
+                    <div class="chart-area">
                         <canvas id="trenPeminatSkemaChart"></canvas>
                     </div>
                 </div>
@@ -280,25 +181,24 @@
 
     <script>
     // Data dari controller
-    const trendPendaftaranData = @json($trendPendaftaran);
-    const distribusiSkemaData = @json($distribusiSkema);
-    const segmentasiGenderData = @json($segmentasiGender);
-    const topAsesorData = @json($topAsesor);
-    const workloadDistributionData = @json($workloadDistribution);
+    const skemaTrendData = @json($skemaTrend);
+    const statistikKeberhasilanData = @json($statistikKeberhasilan);
+    const segmentasiJenisKelaminData = @json($segmentasiJenisKelamin);
+    const workloadAsesorData = @json($workloadAsesor);
+    const trenPeminatSkemaData = @json($trenPeminatSkema);
 
-    // Chart 1: Tren Pendaftaran (12 Bulan)
-    const trendCtx = document.getElementById('skemaTrendChart');
-    new Chart(trendCtx, {
+    // Chart 1: Tren Pendaftaran Skema
+    const skemaTrendCtx = document.getElementById('skemaTrendChart');
+    new Chart(skemaTrendCtx, {
         type: 'line',
         data: {
-            labels: trendPendaftaranData.map(item => item.bulan),
+            labels: skemaTrendData.map(item => item.month),
             datasets: [{
                 label: 'Total Pendaftaran',
-                data: trendPendaftaranData.map(item => item.jumlah),
+                data: skemaTrendData.map(item => item.total_pendaftaran),
                 borderColor: 'rgb(78, 115, 223)',
                 backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                tension: 0.3,
-                fill: true
+                tension: 0.3
             }]
         },
         options: {
@@ -312,15 +212,15 @@
         }
     });
 
-    // Chart 2: Distribusi Skema (Top 5)
-    const distribusiCtx = document.getElementById('statistikKeberhasilanChart');
-    new Chart(distribusiCtx, {
+    // Chart 2: Statistik Keberhasilan
+    const statistikCtx = document.getElementById('statistikKeberhasilanChart');
+    new Chart(statistikCtx, {
         type: 'doughnut',
         data: {
-            labels: distribusiSkemaData.map(item => item.nama),
+            labels: Object.keys(statistikKeberhasilanData),
             datasets: [{
-                data: distribusiSkemaData.map(item => item.total),
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                data: Object.values(statistikKeberhasilanData),
+                backgroundColor: ['#1cc88a', '#e74a3b']
             }]
         },
         options: {
@@ -329,15 +229,15 @@
         }
     });
 
-    // Chart 3: Segmentasi Gender
+    // Chart 3: Segmentasi Jenis Kelamin
     const segmentasiCtx = document.getElementById('segmentasiDemografiChart');
     new Chart(segmentasiCtx, {
         type: 'pie',
         data: {
-            labels: Object.keys(segmentasiGenderData),
+            labels: Object.keys(segmentasiJenisKelaminData),
             datasets: [{
-                data: Object.values(segmentasiGenderData),
-                backgroundColor: ['#4e73df', '#e74a3b']
+                data: Object.values(segmentasiJenisKelaminData),
+                backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e', '#36b9cc']
             }]
         },
         options: {
@@ -346,15 +246,15 @@
         }
     });
 
-    // Chart 4: Top 10 Asesor
+    // Chart 4: Workload Asesor
     const workloadCtx = document.getElementById('workloadAsesorChart');
     new Chart(workloadCtx, {
         type: 'bar',
         data: {
-            labels: topAsesorData.map(item => item.nama),
+            labels: workloadAsesorData.map(item => item.asesor_name),
             datasets: [{
-                label: 'Total Asesi',
-                data: topAsesorData.map(item => item.total),
+                label: 'Jumlah Ujikom',
+                data: workloadAsesorData.map(item => item.jumlah_ujikom),
                 backgroundColor: 'rgba(246, 194, 62, 0.8)',
                 borderColor: 'rgb(246, 194, 62)',
                 borderWidth: 1
@@ -371,20 +271,29 @@
         }
     });
 
-    // Chart 5: Workload Distribution
-    const distribCtx = document.getElementById('trenPeminatSkemaChart');
-    new Chart(distribCtx, {
-        type: 'doughnut',
+    // Chart 5: Tren Peminat Skema
+    const trenPeminatCtx = document.getElementById('trenPeminatSkemaChart');
+    new Chart(trenPeminatCtx, {
+        type: 'bar',
         data: {
-            labels: Object.keys(workloadDistributionData),
+            labels: trenPeminatSkemaData.map(item => item.skema_nama),
             datasets: [{
-                data: Object.values(workloadDistributionData),
-                backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e', '#fd7e14', '#e74a3b']
+                label: 'Total Pendaftaran',
+                data: trenPeminatSkemaData.map(item => item.total_pendaftaran),
+                backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                borderColor: 'rgb(78, 115, 223)',
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
         }
     });
     </script>
