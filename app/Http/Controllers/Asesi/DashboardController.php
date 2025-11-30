@@ -121,12 +121,20 @@ class DashboardController extends Controller
             ->limit(5)
             ->get()
             ->map(function($pendaftaran) {
+                $tanggalUjian = null;
+                $hariLagi = null;
+
+                if ($pendaftaran->jadwal && $pendaftaran->jadwal->tanggal_ujian) {
+                    $tanggalUjian = \Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian)->format('d M Y H:i');
+                    $hariLagi = now()->diffInDays(\Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian), false);
+                }
+
                 return [
-                    'tanggal_ujian' => $pendaftaran->jadwal ? $pendaftaran->jadwal->tanggal_ujian->format('d M Y H:i') : '-',
+                    'tanggal_ujian' => $tanggalUjian ?? '-',
                     'skema' => $pendaftaran->skema->nama ?? 'Unknown',
                     'tuk' => $pendaftaran->jadwal->tuk->name ?? 'Unknown',
                     'status' => $this->getStatusText($pendaftaran->status),
-                    'hari_lagi' => $pendaftaran->jadwal ? now()->diffInDays($pendaftaran->jadwal->tanggal_ujian, false) : null
+                    'hari_lagi' => $hariLagi
                 ];
             });
 

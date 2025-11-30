@@ -96,26 +96,6 @@
                                     <i class="fas fa-download mr-2"></i> Generate & Download APL 2
                                 </a>
 
-                                @php
-                                    // Cek apakah ujian sudah dimulai
-                                    $ujianSudahDimulai = false;
-                                    if ($pendaftaran->jadwal && $pendaftaran->jadwal->tanggal_ujian && $pendaftaran->jadwal->waktu_mulai) {
-                                        $waktuMulaiUjian = \Carbon\Carbon::parse($pendaftaran->jadwal->tanggal_ujian . ' ' . $pendaftaran->jadwal->waktu_mulai);
-                                        $ujianSudahDimulai = now()->greaterThanOrEqualTo($waktuMulaiUjian);
-                                    }
-                                @endphp
-
-                                @if(!$ujianSudahDimulai)
-                                    <a href="{{ route('asesi.sertifikasi.apl2', $pendaftaran->id) }}"
-                                        class="btn btn-warning btn-lg ml-2"
-                                        onclick="return confirm('Apakah Anda yakin ingin mengedit data yang sudah diisi?')">
-                                        <i class="fas fa-edit mr-2"></i> Edit Data
-                                    </a>
-                                @else
-                                    <button class="btn btn-secondary btn-lg ml-2" disabled title="Ujian sudah dimulai, tidak dapat edit lagi">
-                                        <i class="fas fa-lock mr-2"></i> Edit Data (Terkunci)
-                                    </button>
-                                @endif
                             </div>
                         @else
                             <!-- Ada data yang perlu diisi -->
