@@ -5,18 +5,43 @@
 
 @section('content')
 
-    <!-- Content Row -->
-    <div class="row">
+    {{-- Hero Section --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 bg-gradient-primary text-white">
+                <div class="card-body py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="mb-2"><i class="fas fa-user-graduate mr-2"></i>Selamat Datang, {{ Auth::user()->name }}!</h3>
+                            <p class="mb-0 opacity-75">Dashboard Personal - Pantau progress sertifikasi Anda</p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <div class="display-4">{{ \Carbon\Carbon::now()->format('d M Y') }}</div>
+                            <small class="opacity-75">{{ \Carbon\Carbon::now()->format('H:i') }} WIB</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Total Pendaftaran Card -->
+    {{-- KPI Cards Row 1 --}}
+    <div class="row">
+        <!-- Total Pendaftaran -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Pendaftaran</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalPendaftaran }}</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Pendaftaran</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalPendaftaran) }}</div>
+                            @if($growthRate > 0)
+                                <small class="text-success"><i class="fas fa-arrow-up"></i> +{{ $growthRate }}% vs bulan lalu</small>
+                            @elseif($growthRate < 0)
+                                <small class="text-danger"><i class="fas fa-arrow-down"></i> {{ $growthRate }}% vs bulan lalu</small>
+                            @else
+                                <small class="text-muted"><i class="fas fa-minus"></i> Stabil</small>
+                            @endif
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
@@ -26,43 +51,15 @@
             </div>
         </div>
 
-        <!-- Jadwal Ujikom Card -->
+        <!-- Total Sertifikat -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Jadwal Ujikom</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $jadwalUjikom }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status Sertifikasi Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Status Sertifikasi
-                            </div>
-                            <div class="row no-gutters align-items-center">
-                                <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $statusSertifikasi }}%</div>
-                                </div>
-                                <div class="col">
-                                    <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $statusSertifikasi }}%"
-                                            aria-valuenow="{{ $statusSertifikasi }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sertifikat Kompeten</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalSertifikat) }}</div>
+                            <small class="text-muted">{{ $totalSkema }} Skema Diikuti</small>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-certificate fa-2x text-gray-300"></i>
@@ -72,25 +69,53 @@
             </div>
         </div>
 
-        <!-- Pembayaran Pending Card -->
+        <!-- Tingkat Keberhasilan -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tingkat Keberhasilan</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $statusSertifikasi }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                             style="width: {{ $statusSertifikasi }}%"
+                                             aria-valuenow="{{ $statusSertifikasi }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Pass Rate Personal</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jadwal Mendatang -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pembayaran Pending</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pembayaranPending }}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Jadwal Mendatang</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($jadwalUjikom) }}</div>
                             @if($pembayaranPending > 0)
-                                <div class="mt-1">
-                                    <a href="{{ route('asesi.informasi-pembayaran.index') }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-credit-card"></i> Lihat Detail
-                                    </a>
-                                </div>
+                                <small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ $pembayaranPending }} Pembayaran Pending</small>
+                            @else
+                                <small class="text-success"><i class="fas fa-check-circle"></i> Pembayaran Clear</small>
                             @endif
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -98,66 +123,74 @@
         </div>
     </div>
 
-    <!-- Content Row -->
+    {{-- Charts Row --}}
     <div class="row">
-
-        <!-- Area Chart - Tren Pendaftaran -->
-        <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Tren Pendaftaran Ujikom</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Filter Periode:</div>
-                            <a class="dropdown-item" href="#" onclick="updateChart('month')">Bulan Ini</a>
-                            <a class="dropdown-item" href="#" onclick="updateChart('quarter')">Kuartal Ini</a>
-                            <a class="dropdown-item" href="#" onclick="updateChart('year')">Tahun Ini</a>
-                        </div>
-                    </div>
+        <!-- Performance by Skema -->
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-trophy mr-2"></i>Performa per Skema
+                    </h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="trenPendaftaranChart"></canvas>
-                    </div>
+                    @if($performanceSkema->count() > 0)
+                        @foreach($performanceSkema as $perf)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small font-weight-bold">{{ $perf['nama'] }}</span>
+                                    <span class="badge badge-{{ $perf['pass_rate'] >= 80 ? 'success' : ($perf['pass_rate'] >= 60 ? 'warning' : 'danger') }}">
+                                        {{ $perf['pass_rate'] }}%
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-{{ $perf['pass_rate'] >= 80 ? 'success' : ($perf['pass_rate'] >= 60 ? 'warning' : 'danger') }}"
+                                         role="progressbar"
+                                         style="width: {{ $perf['pass_rate'] }}%"
+                                         aria-valuenow="{{ $perf['pass_rate'] }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ $perf['kompeten'] }}/{{ $perf['total_ujian'] }} Kompeten</small>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                            <p>Belum ada data performa</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Pie Chart - Status Pendaftaran -->
-        <div class="col-xl-4 col-lg-5">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Status Pendaftaran</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Filter:</div>
-                            <a class="dropdown-item" href="#" onclick="updateStatusChart()">Refresh</a>
-                        </div>
-                    </div>
+        <!-- Status Pendaftaran Pie Chart -->
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie mr-2"></i>Distribusi Status
+                    </h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
                         <canvas id="statusPendaftaranChart"></canvas>
                     </div>
-                    <div class="mt-4 text-center small">
+                    <div class="mt-4 small">
+                        @php
+                            $colors = ['success', 'warning', 'danger', 'info', 'secondary', 'primary'];
+                            $index = 0;
+                        @endphp
                         @foreach($statusPendaftaran as $status => $jumlah)
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-{{ $loop->index == 0 ? 'success' : ($loop->index == 1 ? 'warning' : 'danger') }}"></i> {{ $status }}
-                            </span>
+                            <div class="mb-2">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-{{ $colors[$index % count($colors)] }}"></i>
+                                </span>
+                                <span class="font-weight-bold">{{ $status }}:</span>
+                                <span class="float-right">{{ $jumlah }}</span>
+                            </div>
+                            @php $index++; @endphp
                         @endforeach
                     </div>
                 </div>
@@ -165,33 +198,140 @@
         </div>
     </div>
 
-    <!-- Recent Activities Row -->
+    {{-- Jadwal & Sertifikat Row --}}
     <div class="row">
-        <div class="col-lg-12">
+        <!-- Jadwal Mendatang Detail -->
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-alt mr-2"></i>Jadwal Ujian Mendatang
+                    </h6>
+                    <span class="badge badge-primary">{{ $jadwalMendatang->count() }}</span>
+                </div>
+                <div class="card-body">
+                    @if($jadwalMendatang->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Skema</th>
+                                        <th>TUK</th>
+                                        <th>Countdown</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($jadwalMendatang as $jadwal)
+                                        <tr>
+                                            <td>
+                                                <small class="font-weight-bold">{{ $jadwal['tanggal_ujian'] }}</small>
+                                            </td>
+                                            <td><small>{{ Str::limit($jadwal['skema'], 20) }}</small></td>
+                                            <td><small>{{ Str::limit($jadwal['tuk'], 15) }}</small></td>
+                                            <td>
+                                                @if($jadwal['hari_lagi'] !== null)
+                                                    @if($jadwal['hari_lagi'] > 0)
+                                                        <span class="badge badge-warning">{{ $jadwal['hari_lagi'] }} hari lagi</span>
+                                                    @elseif($jadwal['hari_lagi'] == 0)
+                                                        <span class="badge badge-danger">Hari ini!</span>
+                                                    @else
+                                                        <span class="badge badge-secondary">Sudah lewat</span>
+                                                    @endif
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                            <p>Tidak ada jadwal mendatang</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Riwayat Sertifikasi -->
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-award mr-2"></i>Riwayat Sertifikasi
+                    </h6>
+                    <span class="badge badge-success">{{ $totalSertifikat }} Kompeten</span>
+                </div>
+                <div class="card-body">
+                    @if($riwayatSertifikasi->count() > 0)
+                        <div class="list-group list-group-flush">
+                            @foreach($riwayatSertifikasi as $riwayat)
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1 font-weight-bold">{{ $riwayat['skema'] }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar mr-1"></i>{{ $riwayat['tanggal'] }}
+                                            </small>
+                                        </div>
+                                        <span class="badge badge-{{ $riwayat['status_badge'] }} badge-pill">
+                                            {{ $riwayat['status'] }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-certificate fa-3x mb-3"></i>
+                            <p>Belum ada riwayat sertifikasi</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Aktivitas Terbaru --}}
+    <div class="row">
+        <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Aktivitas Terbaru</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history mr-2"></i>Aktivitas Terbaru (10 Terakhir)
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered" id="aktivitasTable" width="100%" cellspacing="0">
-                            <thead>
+                        <table class="table table-hover" id="aktivitasTable">
+                            <thead class="thead-light">
                                 <tr>
-                                    <th>Tanggal</th>
-                                    <th>Aktivitas</th>
-                                    <th>Status</th>
-                                    <th>Keterangan</th>
+                                    <th width="15%">Tanggal</th>
+                                    <th width="20%">Aktivitas</th>
+                                    <th width="20%">Status</th>
+                                    <th width="45%">Keterangan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($aktivitas as $item)
-                                <tr>
-                                    <td>{{ $item['tanggal'] }}</td>
-                                    <td>{{ $item['aktivitas'] }}</td>
-                                    <td><span class="badge badge-{{ $item['status'] == 'Selesai' || str_contains($item['status'], 'Lolos') ? 'success' : (str_contains($item['status'], 'Menunggu') ? 'warning' : 'danger') }}">{{ $item['status'] }}</span></td>
-                                    <td>{{ $item['keterangan'] }}</td>
-                                </tr>
-                                @endforeach
+                                @forelse($aktivitas as $item)
+                                    <tr>
+                                        <td><small>{{ $item['tanggal'] }}</small></td>
+                                        <td><small class="font-weight-bold">{{ $item['aktivitas'] }}</small></td>
+                                        <td>
+                                            <span class="badge badge-{{ $item['status_badge'] }}">{{ $item['status'] }}</span>
+                                        </td>
+                                        <td><small>{{ $item['keterangan'] }}</small></td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                                            <p>Belum ada aktivitas</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -200,45 +340,57 @@
         </div>
     </div>
 
-    {{-- Include Payment Confirmation Modal --}}
-    @include('components.modals.payment-confirmation-modal')
 @endsection
+
+@push('styles')
+<style>
+/* Card Animations */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+/* Badge Pulse for Warnings */
+.badge-warning, .badge-danger {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Responsive Chart Container */
+.chart-area {
+    position: relative;
+    height: 300px;
+}
+
+.chart-pie {
+    position: relative;
+    height: 250px;
+}
+</style>
+@endpush
 
 @push('scripts')
 <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
 <script>
 // Data dari controller
-const trenData = @json($trenPendaftaran);
 const statusData = @json($statusPendaftaran);
-
-// Chart untuk tren pendaftaran
-const trenCtx = document.getElementById('trenPendaftaranChart').getContext('2d');
-const trenChart = new Chart(trenCtx, {
-    type: 'line',
-    data: {
-        labels: trenData.map(item => item.bulan),
-        datasets: [{
-            label: 'Jumlah Pendaftaran',
-            data: trenData.map(item => item.jumlah),
-            borderColor: 'rgb(78, 115, 223)',
-            backgroundColor: 'rgba(78, 115, 223, 0.1)',
-            tension: 0.1,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    }
-});
 
 // Chart untuk status pendaftaran
 const statusCtx = document.getElementById('statusPendaftaranChart').getContext('2d');
@@ -248,8 +400,24 @@ const statusChart = new Chart(statusCtx, {
         labels: Object.keys(statusData),
         datasets: [{
             data: Object.values(statusData),
-            backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc', '#6f42c1'],
-            hoverBackgroundColor: ['#17a673', '#f4b619', '#d52a1a', '#2c9faf', '#5a32a3']
+            backgroundColor: [
+                '#1cc88a', // success
+                '#f6c23e', // warning
+                '#e74a3b', // danger
+                '#36b9cc', // info
+                '#6f42c1', // secondary
+                '#4e73df'  // primary
+            ],
+            hoverBackgroundColor: [
+                '#17a673',
+                '#f4b619',
+                '#d52a1a',
+                '#2c9faf',
+                '#5a32a3',
+                '#2e59d9'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
         }]
     },
     options: {
@@ -258,21 +426,40 @@ const statusChart = new Chart(statusCtx, {
         plugins: {
             legend: {
                 display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#fff',
+                borderWidth: 1,
+                displayColors: true,
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return label + ': ' + value + ' (' + percentage + '%)';
+                    }
+                }
             }
-        }
+        },
+        cutout: '70%'
     }
 });
 
-
-
-function updateChart(period) {
-    // Simulasi update chart berdasarkan periode
-    console.log('Updating chart for period:', period);
-}
-
-function updateStatusChart() {
-    // Simulasi refresh status chart
-    console.log('Refreshing status chart');
-}
+// DataTable for Aktivitas
+$(document).ready(function() {
+    $('#aktivitasTable').DataTable({
+        "pageLength": 10,
+        "ordering": true,
+        "searching": true,
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
+        }
+    });
+});
 </script>
 @endpush
