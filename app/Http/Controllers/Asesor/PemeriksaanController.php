@@ -177,6 +177,9 @@ class PemeriksaanController extends Controller
         );
 
         // Get custom fields
+        // Cek apakah menggunakan field_configurations atau custom_variables
+        $fieldSource = $bankSoal->field_configurations ?? $bankSoal->custom_variables ?? [];
+
         // Jika Bank Soal target nya 'asesor', maka semua field masuk ke asesorFields
         // Jika target nya 'asesi', maka:
         //   - Field role 'asesi' dan 'both' -> asesiFields (untuk ditampilkan jawaban asesi)
@@ -185,15 +188,15 @@ class PemeriksaanController extends Controller
         if ($bankSoal->target === 'asesor') {
             // Untuk formulir asesor, semua field diisi oleh asesor
             $asesiFields = collect([]);
-            $asesorFields = collect($bankSoal->field_configurations ?? []);
+            $asesorFields = collect($fieldSource);
         } else {
             // Untuk formulir asesi, pisahkan field berdasarkan role
-            $asesiFields = collect($bankSoal->field_configurations ?? [])
+            $asesiFields = collect($fieldSource)
                 ->filter(function ($field) {
                     return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
                 });
 
-            $asesorFields = collect($bankSoal->field_configurations ?? [])
+            $asesorFields = collect($fieldSource)
                 ->filter(function ($field) {
                     return ($field['role'] ?? 'asesi') === 'asesor';
                 });
@@ -308,6 +311,12 @@ class PemeriksaanController extends Controller
             ->where('user_id', $asesiId)
             ->firstOrFail();
 
+        // Check if sudah dinilai
+        if ($penilaian->hasil_akhir !== 'belum_dinilai') {
+            return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
+                ->with('info', 'Asesi ini sudah dinilai sebelumnya.');
+        }
+
         // Check if can give hasil akhir
         if (!$penilaian->canGiveHasilAkhir()) {
             return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
@@ -336,6 +345,12 @@ class PemeriksaanController extends Controller
         $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
             ->where('user_id', $asesiId)
             ->firstOrFail();
+
+        // Check if sudah dinilai
+        if ($penilaian->hasil_akhir !== 'belum_dinilai') {
+            return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
+                ->with('error', 'Penilaian sudah pernah diberikan sebelumnya dan tidak dapat diubah.');
+        }
 
         if (!$penilaian->canGiveHasilAkhir()) {
             return redirect()->back()->with('error', 'Belum memenuhi syarat untuk memberikan penilaian.');

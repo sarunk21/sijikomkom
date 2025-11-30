@@ -128,6 +128,17 @@ class HasilUjikomController extends Controller
 
         // Update status ujikom
         $pendaftaranUjikom = PendaftaranUjikom::find($id);
+
+        // Cek apakah sudah pernah dinilai (cek di Report)
+        $existingReport = Report::where('user_id', $pendaftaranUjikom->asesi_id)
+            ->where('jadwal_id', $pendaftaranUjikom->jadwal_id)
+            ->first();
+
+        if ($existingReport) {
+            return redirect()->route('asesor.hasil-ujikom.show', $pendaftaranUjikom->jadwal_id)
+                ->with('error', 'Asesi ini sudah pernah dinilai sebelumnya dan tidak dapat diubah.');
+        }
+
         $pendaftaranUjikom->asesor_id = Auth::user()->id;
         $pendaftaranUjikom->status = $request->status;
 
@@ -140,13 +151,13 @@ class HasilUjikomController extends Controller
         // Insert ke report
         Report::create([
             'user_id' => $pendaftaranUjikom->asesi_id,
-            'pendaftaran_id' => $id,
+            'pendaftaran_id' => $pendaftaranUjikom->pendaftaran_id,
             'skema_id' => $pendaftaranUjikom->jadwal->skema_id,
             'jadwal_id' => $pendaftaranUjikom->jadwal_id,
             'status' => $status,
         ]);
 
-        return redirect()->route('asesor.hasil-ujikom.show', $id)->with('success', 'Status berhasil diubah');
+        return redirect()->route('asesor.hasil-ujikom.show', $pendaftaranUjikom->jadwal_id)->with('success', 'Status berhasil diubah');
     }
 
     /**

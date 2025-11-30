@@ -53,7 +53,17 @@
         <!-- Action Buttons -->
         <div class="card shadow-sm mb-3">
             <div class="card-body text-center">
-                @if ($penilaian->canGiveHasilAkhir())
+                @if ($penilaian->hasil_akhir !== 'belum_dinilai')
+                    {{-- Sudah dinilai, tampilkan status --}}
+                    <div class="alert alert-success mb-0" role="alert">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <strong>Penilaian Sudah Diberikan</strong>
+                        <br>
+                        <span class="badge badge-{{ $penilaian->hasil_akhir === 'kompeten' ? 'success' : 'danger' }} mt-2 px-3 py-2" style="font-size: 1.1rem;">
+                            {{ strtoupper($penilaian->hasil_akhir) }}
+                        </span>
+                    </div>
+                @elseif ($penilaian->canGiveHasilAkhir())
                     <a href="{{ route('asesor.pemeriksaan.penilaian', [$jadwal->id, $asesi->id]) }}"
                         class="btn btn-success btn-lg">
                         <i class="fas fa-award mr-2"></i>Berikan Penilaian BK/K
