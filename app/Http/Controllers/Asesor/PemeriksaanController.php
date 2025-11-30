@@ -140,6 +140,9 @@ class PemeriksaanController extends Controller
             ]
         );
 
+        // Check if sudah dinilai (untuk disable edit)
+        $isFinalized = $penilaian->hasil_akhir !== 'belum_dinilai';
+
         return view('components.pages.asesor.pemeriksaan.formulir-list', compact(
             'lists',
             'activeMenu',
@@ -147,7 +150,8 @@ class PemeriksaanController extends Controller
             'asesi',
             'bankSoals',
             'responses',
-            'penilaian'
+            'penilaian',
+            'isFinalized'
         ));
     }
 
@@ -202,6 +206,12 @@ class PemeriksaanController extends Controller
                 });
         }
 
+        // Check if sudah dinilai BK/K (untuk read-only mode)
+        $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
+            ->where('user_id', $asesiId)
+            ->first();
+        $isFinalized = $penilaian && $penilaian->hasil_akhir !== 'belum_dinilai';
+
         return view('components.pages.asesor.pemeriksaan.review', compact(
             'lists',
             'activeMenu',
@@ -210,7 +220,8 @@ class PemeriksaanController extends Controller
             'bankSoal',
             'response',
             'asesiFields',
-            'asesorFields'
+            'asesorFields',
+            'isFinalized'
         ));
     }
 
@@ -219,6 +230,16 @@ class PemeriksaanController extends Controller
      */
     public function saveReview(Request $request, $jadwalId, $asesiId, $bankSoalId)
     {
+        // Check if sudah dinilai BK/K
+        $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
+            ->where('user_id', $asesiId)
+            ->first();
+        
+        if ($penilaian && $penilaian->hasil_akhir !== 'belum_dinilai') {
+            return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
+                ->with('error', 'Tidak dapat mengubah review. Penilaian sudah finalisasi (sudah dinilai BK/K).');
+        }
+
         $response = FormulirResponse::where('jadwal_id', $jadwalId)
             ->where('user_id', $asesiId)
             ->where('bank_soal_id', $bankSoalId)
@@ -583,9 +604,9 @@ class PemeriksaanController extends Controller
             foreach ($response->asesor_validations as $fieldName => $validation) {
                 // For checkbox fields, set checked based on validation
                 if (isset($validation['is_valid'])) {
-                    // Use X and space instead of checkbox symbols to avoid encoding issues
-                    $data[$fieldName . '_ya'] = $validation['is_valid'] ? 'X' : '';
-                    $data[$fieldName . '_tdk'] = !$validation['is_valid'] ? 'X' : '';
+                    // Use checkbox symbols untuk generate template
+                    $data[$fieldName . '_ya'] = $validation['is_valid'] ? '☑' : '☐';
+                    $data[$fieldName . '_tdk'] = !$validation['is_valid'] ? '☑' : '☐';
                 }
             }
         }
@@ -719,9 +740,14 @@ class PemeriksaanController extends Controller
             \Log::info('Found TTD Asesor, inserting...');
             $this->insertSignature($templateProcessor, 'ttd_digital_asesor', $ttdAsesor);
             $this->insertSignature($templateProcessor, 'ttd_asesor', $ttdAsesor);
+            // Try additional common asesor signature placeholder names
+            $this->insertSignature($templateProcessor, 'ttd_digital_asesor_fr', $ttdAsesor);
+            $this->insertSignature($templateProcessor, 'signature_asesor', $ttdAsesor);
         } else {
             \Log::warning('TTD Asesor not found or invalid format', [
-                'ttd_value' => $ttdAsesor ? substr($ttdAsesor, 0, 50) : 'null'
+                'ttd_value' => $ttdAsesor ? substr($ttdAsesor, 0, 50) : 'null',
+                'asesor_response_keys' => array_keys($asesorResponses),
+                'asesi_response_keys' => array_keys($asesiResponses),
             ]);
         }
         

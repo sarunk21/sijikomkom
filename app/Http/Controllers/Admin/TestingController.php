@@ -247,6 +247,11 @@ class TestingController extends Controller
                 // Update jadwal ke status 3 (Ujian Berlangsung)
                 $jadwal->update(['status' => 3]);
                 
+                // Update status Pendaftaran dari 4 (Menunggu Ujian) ke 5 (Ujian Berlangsung)
+                Pendaftaran::where('jadwal_id', $jadwal->id)
+                    ->where('status', 4)
+                    ->update(['status' => 5]);
+                
                 // Update semua PendaftaranUjikom di jadwal ini langsung ke status 2 (Ujikom Berlangsung)
                 PendaftaranUjikom::where('jadwal_id', $jadwal->id)
                     ->whereIn('status', [1, 6]) // Dari Belum Ujikom atau Menunggu Konfirmasi

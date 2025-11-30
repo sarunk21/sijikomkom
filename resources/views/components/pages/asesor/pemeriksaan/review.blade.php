@@ -11,14 +11,24 @@
                 </h5>
             </div>
             <div class="card-body">
-                <!-- Info -->
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <strong>Petunjuk:</strong> Periksa jawaban asesi, isi field asesor jika ada, dan beri validasi (Sesuai/Tidak Sesuai). Default validasi adalah "Sesuai".
-                </div>
+                <!-- Warning if finalized -->
+                @if ($isFinalized ?? false)
+                    <div class="alert alert-warning">
+                        <i class="fas fa-lock mr-2"></i>
+                        <strong>Mode Read-Only:</strong> Penilaian sudah finalisasi (sudah dinilai BK/K). Anda hanya dapat melihat review, tidak dapat mengubahnya.
+                    </div>
+                @else
+                    <!-- Info -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Petunjuk:</strong> Periksa jawaban asesi, isi field asesor jika ada, dan beri validasi (Sesuai/Tidak Sesuai). Default validasi adalah "Sesuai".
+                    </div>
+                @endif
 
                 <form method="POST" action="{{ route('asesor.pemeriksaan.save-review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}" enctype="multipart/form-data">
                     @csrf
+                    
+                    <fieldset {{ ($isFinalized ?? false) ? 'disabled' : '' }}>
 
                     <!-- Jawaban Asesi -->
                     @if ($asesiFields->isNotEmpty())
@@ -256,6 +266,8 @@
                         <small class="text-muted">Centang jika pemeriksaan formulir ini sudah selesai</small>
                     </div>
 
+                    </fieldset>
+
                     <hr class="my-4">
 
                     <div class="d-flex justify-content-between align-items-center">
@@ -263,9 +275,11 @@
                             class="btn btn-secondary">
                             <i class="fas fa-arrow-left mr-1"></i>Kembali
                         </a>
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save mr-1"></i>Simpan Review
-                        </button>
+                        @if (!($isFinalized ?? false))
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save mr-1"></i>Simpan Review
+                            </button>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -292,10 +306,15 @@
                         signaturePad.fromDataURL(existingSignature);
                     }
 
-                    signaturePad.addEventListener('endStroke', function() {
-                        document.getElementById('asesor_signature_{{ $field['name'] }}').value = signaturePad
-                            .toDataURL();
-                    });
+                    @if ($isFinalized ?? false)
+                        // Disable signature pad if finalized
+                        signaturePad.off();
+                    @else
+                        signaturePad.addEventListener('endStroke', function() {
+                            document.getElementById('asesor_signature_{{ $field['name'] }}').value = signaturePad
+                                .toDataURL();
+                        });
+                    @endif
                 })();
             @endif
         @endforeach

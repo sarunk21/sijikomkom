@@ -43,6 +43,40 @@
                         <h6 class="m-0 font-weight-bold text-primary">Form Edit Bank Soal</h6>
                     </div>
                     <div class="card-body">
+                        <!-- Alert Messages -->
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                <strong>Terjadi kesalahan:</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
                         <form action="{{ route('admin.bank-soal.update', $bankSoal->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
@@ -137,11 +171,12 @@
                             <div class="mb-3">
                                 <label for="file" class="form-label">Upload File Baru (Opsional)</label>
                                 <input type="file" class="form-control @error('file') is-invalid @enderror"
-                                    id="file" name="file" accept=".pdf,.doc,.docx">
+                                    id="file" name="file" accept=".pdf,.doc,.docx" onchange="displayFileSize(this)">
                                 @error('file')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="text-muted">Kosongkan jika tidak ingin mengubah file. Format: PDF, DOC, DOCX. Maksimal 10MB</small>
+                                <small class="text-muted d-block">Kosongkan jika tidak ingin mengubah file. Format: PDF, DOC, DOCX. Maksimal 10MB</small>
+                                <small class="text-info" id="fileSizeInfo"></small>
                             </div>
 
                             <!-- Keterangan -->
@@ -792,5 +827,26 @@
             $('#submit-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Updating...');
         });
     });
+
+    // Function to display file size
+    function displayFileSize(input) {
+        const fileSizeInfo = document.getElementById('fileSizeInfo');
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileSize = file.size;
+            const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+            
+            if (fileSize > 10 * 1024 * 1024) { // 10MB
+                fileSizeInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ukuran file: ' + fileSizeMB + ' MB (Terlalu besar! Maksimal 10MB)';
+                fileSizeInfo.className = 'text-danger d-block mt-1';
+                input.value = ''; // Clear file
+            } else {
+                fileSizeInfo.innerHTML = '<i class="fas fa-check-circle"></i> Ukuran file: ' + fileSizeMB + ' MB';
+                fileSizeInfo.className = 'text-success d-block mt-1';
+            }
+        } else {
+            fileSizeInfo.innerHTML = '';
+        }
+    }
 </script>
 @endpush

@@ -14,7 +14,6 @@
                             <th>Tanggal Assesmen</th>
                             <th>TUK</th>
                             <th>Status</th>
-                            <th>Status APL2</th>
                             <th>Keterangan</th>
                             <th class="text-center" style="width: 150px;">Aksi</th>
                         </tr>
@@ -42,17 +41,6 @@
                                         <span class="badge badge-dark">{{ $item->status_text }}</span>
                                     @else
                                         <span class="badge badge-secondary">{{ $item->status_text }}</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @php
-                                        $isReviewedByAsesor = !empty($item->asesor_assessment);
-                                    @endphp
-
-                                    @if($isReviewedByAsesor)
-                                        <span class="badge badge-danger">Direview Asesor</span>
-                                    @else
-                                        <span class="badge badge-secondary">Belum Diisi</span>
                                     @endif
                                 </td>
                                 <td>{{ $item->pendaftaranUjikom ? $item->pendaftaranUjikom->keterangan : '-' }}</td>

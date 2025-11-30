@@ -335,28 +335,48 @@ class BankSoalController extends Controller
             'has_file' => $request->hasFile('file')
         ]);
 
+        // Build validation rules
+        $rules = [
+            'skema_id' => 'required|exists:skema,id',
+            'nama' => 'required|string|max:255',
+            'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
+            'target' => 'required|in:asesi,asesor',
+            'keterangan' => 'nullable|string',
+            'variables' => 'nullable|string', // JSON string dari JavaScript
+            'custom_variables' => 'nullable|array',
+            'custom_variables.*.name' => 'nullable|string|max:255',
+            'custom_variables.*.label' => 'nullable|string', // No max length - bisa panjang untuk soal
+            'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
+            'custom_variables.*.options' => 'nullable|string', // No max length - bisa panjang untuk options
+            'custom_variables.*.required' => 'nullable|boolean',
+            'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
+            'field_configurations' => 'nullable|string',
+            'field_mappings' => 'nullable|string',
+        ];
+
+        // Only validate file if it exists
+        if ($request->hasFile('file')) {
+            $rules['file'] = 'file|mimes:pdf,doc,docx|max:10240'; // max 10MB
+        }
+
+        $messages = [
+            'file.max' => 'Ukuran file terlalu besar. Maksimal 10MB.',
+            'file.mimes' => 'Format file tidak valid. Hanya menerima PDF, DOC, atau DOCX.',
+            'file.file' => 'File yang diupload tidak valid.',
+        ];
+
         try {
-            $request->validate([
-                'skema_id' => 'required|exists:skema,id',
-                'nama' => 'required|string|max:255',
-                'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
-                'target' => 'required|in:asesi,asesor',
-                'file' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // max 10MB
-                'keterangan' => 'nullable|string',
-                'variables' => 'nullable|string', // JSON string dari JavaScript
-                'custom_variables' => 'nullable|array',
-                'custom_variables.*.name' => 'nullable|string|max:255',
-                'custom_variables.*.label' => 'nullable|string', // No max length - bisa panjang untuk soal
-                'custom_variables.*.type' => 'nullable|string|in:text,textarea,checkbox,radio,select,number,email,date,file,signature_pad',
-                'custom_variables.*.options' => 'nullable|string', // No max length - bisa panjang untuk options
-                'custom_variables.*.required' => 'nullable|boolean',
-                'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
-                'field_configurations' => 'nullable|string',
-                'field_mappings' => 'nullable|string',
-            ]);
+            $request->validate($rules, $messages);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Bank Soal Update: Validation Failed', [
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
+                'has_file' => $request->hasFile('file'),
+                'file_input' => $request->file('file'),
+                'file_info' => $request->hasFile('file') ? [
+                    'name' => $request->file('file')->getClientOriginalName(),
+                    'size' => $request->file('file')->getSize(),
+                    'mime' => $request->file('file')->getMimeType(),
+                ] : 'No file uploaded'
             ]);
             throw $e;
         }
@@ -365,31 +385,51 @@ class BankSoalController extends Controller
 
         // Update file if new file uploaded
         if ($request->hasFile('file')) {
-            Log::info('Bank Soal Update: File detected', ['file_name' => $request->file('file')->getClientOriginalName()]);
+            try {
+                $file = $request->file('file');
+                Log::info('Bank Soal Update: File detected', [
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'mime_type' => $file->getMimeType()
+                ]);
+                
+                // Check if file is valid
+                if (!$file->isValid()) {
+                    throw new \Exception('File upload error: ' . $file->getErrorMessage());
+                }
 
-            // Delete old file if exists
-            if ($bankSoal->file_path && Storage::disk('public')->exists($bankSoal->file_path)) {
-                Storage::disk('public')->delete($bankSoal->file_path);
-                Log::info('Bank Soal Update: Old file deleted', ['old_path' => $bankSoal->file_path]);
+                // Delete old file if exists
+                if ($bankSoal->file_path && Storage::disk('public')->exists($bankSoal->file_path)) {
+                    Storage::disk('public')->delete($bankSoal->file_path);
+                    Log::info('Bank Soal Update: Old file deleted', ['old_path' => $bankSoal->file_path]);
+                }
+
+                $originalFilename = $file->getClientOriginalName();
+
+                // Generate unique filename
+                $filename = 'bank-soal/' . time() . '_' . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+
+                // Store new file to public disk
+                $path = Storage::disk('public')->putFileAs('', $file, $filename);
+
+                Log::info('Bank Soal Update: New file stored', [
+                    'filename' => $filename,
+                    'storage_path' => $path,
+                    'full_path' => storage_path('app/public/' . $filename)
+                ]);
+
+                $bankSoal->file_path = $filename;
+                $bankSoal->original_filename = $originalFilename;
+            } catch (\Exception $e) {
+                Log::error('Bank Soal Update: File upload failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', 'Gagal upload file: ' . $e->getMessage() . '. Pastikan ukuran file < 10MB dan format PDF/DOC/DOCX.')
+                    ->withInput();
             }
-
-            $file = $request->file('file');
-            $originalFilename = $file->getClientOriginalName();
-
-            // Generate unique filename
-            $filename = 'bank-soal/' . time() . '_' . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-
-            // Store new file to public disk
-            $path = Storage::disk('public')->putFileAs('', $file, $filename);
-
-            Log::info('Bank Soal Update: New file stored', [
-                'filename' => $filename,
-                'storage_path' => $path,
-                'full_path' => storage_path('app/public/' . $filename)
-            ]);
-
-            $bankSoal->file_path = $filename;
-            $bankSoal->original_filename = $originalFilename;
         } else {
             Log::info('Bank Soal Update: No file uploaded');
         }

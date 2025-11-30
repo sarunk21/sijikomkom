@@ -172,11 +172,20 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
-                                                class="btn btn-sm btn-primary mb-1">
-                                                <i class="fas fa-clipboard-check mr-1"></i>
-                                                {{ $asesorCompleted ? 'Edit Review' : 'Review' }}
-                                            </a>
+                                            @if ($penilaian->hasil_akhir !== 'belum_dinilai')
+                                                {{-- Sudah dinilai BK/K, hanya bisa lihat --}}
+                                                <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
+                                                    class="btn btn-sm btn-secondary mb-1">
+                                                    <i class="fas fa-eye mr-1"></i>Lihat Review
+                                                </a>
+                                            @else
+                                                {{-- Belum dinilai, masih bisa edit --}}
+                                                <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
+                                                    class="btn btn-sm btn-primary mb-1">
+                                                    <i class="fas fa-clipboard-check mr-1"></i>
+                                                    {{ $asesorCompleted ? 'Edit Review' : 'Review' }}
+                                                </a>
+                                            @endif
 
                                             @if ($response && $response->is_asesor_completed && $bankSoal->file_path)
                                                 <a href="{{ route('asesor.pemeriksaan.generate-template', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
