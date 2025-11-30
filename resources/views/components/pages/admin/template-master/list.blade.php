@@ -97,22 +97,6 @@
                                             class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                             <i class="fas fa-edit text-warning"></i>
                                         </a>
-                                        <a href="{{ route('admin.template-master.download', $template->id) }}"
-                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Download">
-                                            <i class="fas fa-download text-info"></i>
-                                        </a>
-                                        <form action="{{ route('admin.template-master.toggle-status', $template->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                                title="{{ $template->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
-                                                onclick="return confirm('{{ $template->is_active ? 'Nonaktifkan' : 'Aktifkan' }} template ini?')">
-                                                @if($template->is_active)
-                                                    <i class="fas fa-toggle-on text-success"></i>
-                                                @else
-                                                    <i class="fas fa-toggle-off text-muted"></i>
-                                                @endif
-                                            </button>
-                                        </form>
                                         <form action="{{ route('admin.template-master.destroy', $template->id) }}" method="POST" class="d-inline"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus template ini?')">
                                             @csrf

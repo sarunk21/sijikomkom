@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('skema_id')->constrained('skema')->comment('ID skema sertifikasi');
             $table->string('nama')->comment('Nama bank soal / formulir');
-            $table->enum('tipe', ['FR AI 03', 'FR AI 06', 'FR AI 07'])->comment('Tipe formulir: FR AI 03, FR AI 06 (untuk asesi), FR AI 07 (untuk asesor)');
+            $table->enum('tipe', ['FR IA 03', 'FR IA 06', 'FR IA 07'])->comment('Tipe formulir: FR IA 03, FR IA 06 (untuk asesi), FR IA 07 (untuk asesor)');
             $table->enum('target', ['asesi', 'asesor'])->comment('Target penggunaan: asesi atau asesor');
             $table->string('file_path')->comment('Path file yang diupload');
             $table->string('original_filename')->comment('Nama file asli');

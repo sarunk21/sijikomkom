@@ -20,7 +20,7 @@ return new class extends Migration
             // Penilaian per formulir
             $table->json('formulir_status')->nullable(); // Status setiap formulir {bank_soal_id: {is_checked, is_valid}}
 
-            // Penilaian FR AI 07 (wajib diisi asesor)
+            // Penilaian FR IA 07 (wajib diisi asesor)
             $table->boolean('fr_ai_07_completed')->default(false);
             $table->json('fr_ai_07_data')->nullable();
 

@@ -57,11 +57,11 @@ class DashboardController extends Controller
         $passRate = $totalSelesai > 0 ? round(($totalLulus / $totalSelesai) * 100, 1) : 0;
 
         // ==========================================
-        // 3. TREND ANALYSIS (6 Bulan Terakhir)
+        // 3. TREND ANALYSIS (12 Bulan Terakhir)
         // ==========================================
 
         $trenPendaftaran = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = Pendaftaran::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)

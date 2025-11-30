@@ -45,9 +45,9 @@ class BankSoal extends Model
     public function getTipeTextAttribute()
     {
         $tipeMap = [
-            'FR AI 03' => 'FR AI 03 - Formulir Asesmen Mandiri',
-            'FR AI 06' => 'FR AI 06 - Formulir Asesmen Praktik',
-            'FR AI 07' => 'FR AI 07 - Ceklis Observasi Asesor'
+            'FR IA 03' => 'FR IA 03 - Formulir Asesmen Mandiri',
+            'FR IA 06' => 'FR IA 06 - Formulir Asesmen Praktik',
+            'FR IA 07' => 'FR IA 07 - Ceklis Observasi Asesor'
         ];
 
         return $tipeMap[$this->tipe] ?? $this->tipe;

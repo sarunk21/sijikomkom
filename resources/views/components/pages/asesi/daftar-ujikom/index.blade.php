@@ -89,8 +89,9 @@
                     @endif
                     <input type="file" id="photo_ktp" name="photo_ktp"
                         class="form-control @error('photo_ktp') is-invalid @enderror"
+                        accept="image/jpeg,image/png,image/jpg,.pdf"
                         {{ auth()->user()->photo_ktp ? '' : 'required' }}>
-                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
+                    <small class="form-text text-muted">Format: JPG, PNG, PDF | Maksimal 2MB</small>
                     @error('photo_ktp')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -114,8 +115,9 @@
                     @endif
                     <input type="file" id="photo_sertifikat" name="photo_sertifikat"
                         class="form-control @error('photo_sertifikat') is-invalid @enderror"
+                        accept="image/jpeg,image/png,image/jpg,.pdf"
                         {{ auth()->user()->photo_sertifikat ? '' : 'required' }}>
-                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
+                    <small class="form-text text-muted">Format: JPG, PNG, PDF | Maksimal 2MB</small>
                     @error('photo_sertifikat')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -139,8 +141,9 @@
                     @endif
                     <input type="file" id="photo_ktmkhs" name="photo_ktmkhs"
                         class="form-control @error('photo_ktmkhs') is-invalid @enderror"
+                        accept="image/jpeg,image/png,image/jpg,.pdf"
                         {{ auth()->user()->photo_ktmkhs ? '' : 'required' }}>
-                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
+                    <small class="form-text text-muted">Format: JPG, PNG, PDF | Maksimal 2MB</small>
                     @error('photo_ktmkhs')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -164,8 +167,9 @@
                     @endif
                     <input type="file" id="photo_administatif" name="photo_administatif"
                         class="form-control @error('photo_administatif') is-invalid @enderror"
+                        accept="image/jpeg,image/png,image/jpg,.pdf"
                         {{ auth()->user()->photo_administatif ? '' : 'required' }}>
-                    <small class="form-text text-muted">Upload file baru untuk mengganti file sebelumnya</small>
+                    <small class="form-text text-muted">Format: JPG, PNG, PDF | Maksimal 2MB</small>
                     @error('photo_administatif')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

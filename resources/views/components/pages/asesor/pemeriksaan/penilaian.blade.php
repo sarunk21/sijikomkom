@@ -104,21 +104,21 @@
                         <div class="card border-success">
                             <div class="card-body">
                                 <h6 class="font-weight-bold text-success">
-                                    <i class="fas fa-file-alt mr-2"></i>FR AI 07
+                                    <i class="fas fa-file-alt mr-2"></i>FR IA 07
                                 </h6>
                                 <p class="mb-0">
                                     <i class="fas fa-check-circle text-success mr-2"></i>
-                                    FR AI 07 sudah diisi dan lengkap
+                                    FR IA 07 sudah diisi dan lengkap
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Ringkasan FR AI 07 -->
+                <!-- Ringkasan FR IA 07 -->
                 @if ($penilaian->fr_ai_07_data)
                     <h5 class="mb-3">
-                        <i class="fas fa-file-signature mr-2"></i>Ringkasan FR AI 07
+                        <i class="fas fa-file-signature mr-2"></i>Ringkasan FR IA 07
                     </h5>
                     <div class="card mb-4 border-info">
                         <div class="card-body">

@@ -76,20 +76,20 @@ trait MenuTrait
                 'url' => 'admin.bank-soal.index',
                 'key' => 'bank-soal'
             ],
-        [
-            'title' => 'Testing Tools',
-            'url' => 'admin.testing',
-            'key' => 'testing'
-        ],
-        [
-            'title' => 'Template Master',
-            'url' => 'admin.template-master.index',
-            'key' => 'template-master'
-        ],
+            [
+                'title' => 'Template Master',
+                'url' => 'admin.template-master.index',
+                'key' => 'template-master'
+            ],
             [
                 'title' => 'Profile',
                 'url' => 'profile.index',
                 'key' => 'profile'
+            ],
+            [
+                'title' => 'Testing Tools',
+                'url' => 'admin.testing',
+                'key' => 'testing'
             ]
         ];
 

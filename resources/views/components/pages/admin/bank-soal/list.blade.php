@@ -50,9 +50,9 @@
                         <label for="tipe" class="form-label">Filter Tipe</label>
                         <select name="tipe" id="tipe" class="form-control">
                             <option value="">Semua Tipe</option>
-                            <option value="FR AI 03" {{ request('tipe') == 'FR AI 03' ? 'selected' : '' }}>FR AI 03</option>
-                            <option value="FR AI 06" {{ request('tipe') == 'FR AI 06' ? 'selected' : '' }}>FR AI 06</option>
-                            <option value="FR AI 07" {{ request('tipe') == 'FR AI 07' ? 'selected' : '' }}>FR AI 07</option>
+                            <option value="FR IA 03" {{ request('tipe') == 'FR IA 03' ? 'selected' : '' }}>FR IA 03</option>
+                            <option value="FR IA 06" {{ request('tipe') == 'FR IA 06' ? 'selected' : '' }}>FR IA 06</option>
+                            <option value="FR IA 07" {{ request('tipe') == 'FR IA 07' ? 'selected' : '' }}>FR IA 07</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -86,7 +86,6 @@
                             <th>Tipe</th>
                             <th>Target</th>
                             <th>Skema</th>
-                            <th>File</th>
                             <th>Status</th>
                             <th>Tanggal Dibuat</th>
                             <th class="text-center" style="width: 150px;">Aksi</th>
@@ -104,9 +103,9 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if($bankSoal->tipe == 'FR AI 03')
+                                    @if($bankSoal->tipe == 'FR IA 03')
                                         <span class="badge badge-primary">{{ $bankSoal->tipe }}</span>
-                                    @elseif($bankSoal->tipe == 'FR AI 06')
+                                    @elseif($bankSoal->tipe == 'FR IA 06')
                                         <span class="badge badge-info">{{ $bankSoal->tipe }}</span>
                                     @else
                                         <span class="badge badge-warning">{{ $bankSoal->tipe }}</span>
@@ -126,9 +125,6 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <small class="text-muted">{{ $bankSoal->original_filename }}</small>
-                                </td>
-                                <td>
                                     @if($bankSoal->is_active)
                                         <span class="badge badge-success">Aktif</span>
                                     @else
@@ -142,22 +138,6 @@
                                             class="btn btn-light btn-icon btn-sm border shadow-sm" title="Edit">
                                             <i class="fas fa-edit text-warning"></i>
                                         </a>
-                                        <a href="{{ route('admin.bank-soal.download', $bankSoal->id) }}"
-                                            class="btn btn-light btn-icon btn-sm border shadow-sm" title="Download">
-                                            <i class="fas fa-download text-info"></i>
-                                        </a>
-                                        <form action="{{ route('admin.bank-soal.toggle-status', $bankSoal->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-light btn-icon btn-sm border shadow-sm"
-                                                title="{{ $bankSoal->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
-                                                onclick="return confirm('{{ $bankSoal->is_active ? 'Nonaktifkan' : 'Aktifkan' }} bank soal ini?')">
-                                                @if($bankSoal->is_active)
-                                                    <i class="fas fa-toggle-on text-success"></i>
-                                                @else
-                                                    <i class="fas fa-toggle-off text-muted"></i>
-                                                @endif
-                                            </button>
-                                        </form>
                                         <form action="{{ route('admin.bank-soal.destroy', $bankSoal->id) }}" method="POST" class="d-inline"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus bank soal ini?')">
                                             @csrf

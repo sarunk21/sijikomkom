@@ -26,9 +26,9 @@
                     </ul>
                     <p class="mb-2 small"><strong>Informasi Tipe:</strong></p>
                     <ul class="small mb-2" style="line-height: 1.8;">
-                        <li><strong>FR AI 03</strong> - Formulir Asesmen Mandiri (untuk asesi)</li>
-                        <li><strong>FR AI 06</strong> - Formulir Asesmen Praktik (untuk asesi)</li>
-                        <li><strong>FR AI 07</strong> - Ceklis Observasi Asesor (untuk asesor)</li>
+                        <li><strong>FR IA 03</strong> - Formulir Asesmen Mandiri (untuk asesi)</li>
+                        <li><strong>FR IA 06</strong> - Formulir Asesmen Praktik (untuk asesi)</li>
+                        <li><strong>FR IA 07</strong> - Ceklis Observasi Asesor (untuk asesor)</li>
                     </ul>
                     <p class="mb-0 small">Upload file dalam format <strong>PDF, DOC, atau DOCX</strong> maksimal 10MB</p>
                 </div>
@@ -359,9 +359,9 @@
 
                         <h6 class="font-weight-bold mt-3">Perbedaan Tipe:</h6>
                         <ul class="small pl-3">
-                            <li class="mb-2"><strong>FR AI 03:</strong> Asesmen awal / mandiri</li>
-                            <li class="mb-2"><strong>FR AI 06:</strong> Praktik / uji kompetensi</li>
-                            <li class="mb-2"><strong>FR AI 07:</strong> Observasi oleh asesor</li>
+                            <li class="mb-2"><strong>FR IA 03:</strong> Asesmen awal / mandiri</li>
+                            <li class="mb-2"><strong>FR IA 06:</strong> Praktik / uji kompetensi</li>
+                            <li class="mb-2"><strong>FR IA 07:</strong> Observasi oleh asesor</li>
                         </ul>
                     </div>
                 </div>
@@ -406,9 +406,9 @@
             const tipe = $(this).val();
             const targetSelect = $('#target');
 
-            if (tipe === 'FR AI 07') {
+            if (tipe === 'FR IA 07') {
                 targetSelect.val('asesor');
-            } else if (tipe === 'FR AI 03' || tipe === 'FR AI 06') {
+            } else if (tipe === 'FR IA 03' || tipe === 'FR IA 06') {
                 targetSelect.val('asesi');
             }
         });

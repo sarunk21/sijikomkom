@@ -30,8 +30,8 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 03',
                 'target' => 'asesi',
-                'file_path' => 'bank-soal/system-analyst-fr-ai-03.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ai-03.docx',
+                'file_path' => 'bank-soal/system-analyst-fr-ia-03.docx', // TODO: Upload file manual
+                'original_filename' => 'system-analyst-fr-ia-03.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
                 'variables' => [
@@ -105,8 +105,8 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 06',
                 'target' => 'asesi',
-                'file_path' => 'bank-soal/system-analyst-fr-ai-06.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ai-06.docx',
+                'file_path' => 'bank-soal/system-analyst-fr-ia-06.docx', // TODO: Upload file manual
+                'original_filename' => 'system-analyst-fr-ia-06.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
                 'variables' => [
@@ -157,7 +157,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_4',
                         'role' => 'asesi',
                         'type' => 'textarea',
-                        'label' => 'Berikut langkah dalam menyusun high-level yang sesuIA dengan standar yaitu dengan mengidentifikasi tujuan dari dokumen, kemudian mendeskripsikan system setelah itu lakukan persyaratan kebutuhan fungsional dan nonfungsional kemudian buat diagram alur kerja (work flow)',
+                        'label' => 'Berikut langkah dalam menyusun high-level yang sesuai dengan standar yaitu dengan mengidentifikasi tujuan dari dokumen, kemudian mendeskripsikan system setelah itu lakukan persyaratan kebutuhan fungsional dan nonfungsional kemudian buat diagram alur kerja (work flow)',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -184,7 +184,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_7',
                         'role' => 'asesi',
                         'type' => 'textarea',
-                        'label' => 'Langkah dalam identifikasi kelengkapan berkas / dokumen SKPL yaitu dengan membuat daftar elemen kebutuhan yang diperlukan terlebih dahulu, kemudian melakukan pemeriksaan dengan memeriksa daftar checklist. Setelah itu hasilnya lakukan review oleh pemangku kepentingan. Kemudian buat dokumen sesuIA dengan template yang ada dan pastikan melakukan penomoran dengan nomer identifikasi untuk setiap kebutuhan yang ada.',
+                        'label' => 'Langkah dalam identifikasi kelengkapan berkas / dokumen SKPL yaitu dengan membuat daftar elemen kebutuhan yang diperlukan terlebih dahulu, kemudian melakukan pemeriksaan dengan memeriksa daftar checklist. Setelah itu hasilnya lakukan review oleh pemangku kepentingan. Kemudian buat dokumen sesuai dengan template yang ada dan pastikan melakukan penomoran dengan nomer identifikasi untuk setiap kebutuhan yang ada.',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -193,7 +193,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_8',
                         'role' => 'asesi',
                         'type' => 'textarea',
-                        'label' => 'Yang pertama harus paham tentang kebutuhan bisnis dan pengguna, kemudian memilih metode pengujian sesuIA dengan uji fungsional, uji integritas dan uji system. Lakukan identifikasi pengguna kemudian dari hasil tersebut dirangcang prototype dan melakukan uji scenario.',
+                        'label' => 'Yang pertama harus paham tentang kebutuhan bisnis dan pengguna, kemudian memilih metode pengujian sesuai dengan uji fungsional, uji integritas dan uji system. Lakukan identifikasi pengguna kemudian dari hasil tersebut dirangcang prototype dan melakukan uji scenario.',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -231,8 +231,8 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 07',
                 'target' => 'asesor',
-                'file_path' => 'bank-soal/system-analyst-fr-ai-07.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ai-07.docx',
+                'file_path' => 'bank-soal/system-analyst-fr-ia-07.docx', // TODO: Upload file manual
+                'original_filename' => 'system-analyst-fr-ia-07.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 07 - Ceklis observasi asesor',
                 'variables' => [
@@ -268,7 +268,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_2',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana melakukan elisitasi kebutuhan perangkat lunak yang sesuIA dengan kebutuhan stakeholder [ DPL2 ] TMS',
+                        'label' => 'Bagaimana melakukan elisitasi kebutuhan perangkat lunak yang sesuai dengan kebutuhan stakeholder [ DPL2 ] TMS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -277,7 +277,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_3',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Tindakan apa yang akan dilakukan pada saat wawancara ketika anda dihadapkan pada keterbatasan waktu wawancara untuk menemukan kebutuhan perangkat lunak yang sesuIA [DPL3] CMS',
+                        'label' => 'Tindakan apa yang akan dilakukan pada saat wawancara ketika anda dihadapkan pada keterbatasan waktu wawancara untuk menemukan kebutuhan perangkat lunak yang sesuai [DPL3] CMS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -286,7 +286,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_4',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana Langkah-langkah mengklasifikasikan kebutuhan perangkat lunak berdasarkan kategori fungsional atau non-fungsional, yang sesuIA dengan kebutuhan [ DPL4 ] JRES',
+                        'label' => 'Bagaimana Langkah-langkah mengklasifikasikan kebutuhan perangkat lunak berdasarkan kategori fungsional atau non-fungsional, yang sesuai dengan kebutuhan [ DPL4 ] JRES',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -304,7 +304,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_6',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana Langkah-langkah dalam menyusun dokumen high-level system yang berhubungan antara sistem/perangkat lunak dengan pengguna sesuIA dengan standar pengembangan perangkat lunak [DPL 6] JRES',
+                        'label' => 'Bagaimana Langkah-langkah dalam menyusun dokumen high-level system yang berhubungan antara sistem/perangkat lunak dengan pengguna sesuai dengan standar pengembangan perangkat lunak [DPL 6] JRES',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -313,7 +313,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_7',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana melakukan mengidentifikasi spesifikasi Kebutuhan sistem sesuIA dengan standar pengembangan perangkat lunak [ DPL 7 ] TMS',
+                        'label' => 'Bagaimana melakukan mengidentifikasi spesifikasi Kebutuhan sistem sesuai dengan standar pengembangan perangkat lunak [ DPL 7 ] TMS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -322,7 +322,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_8',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana tahapan mengidentifikasikan template/standard spesifikasi kebutuhan perangkat lunak sesuIA dengan standar pengembangan perangkat lunak [ DPL 8 ] JRES',
+                        'label' => 'Bagaimana tahapan mengidentifikasikan template/standard spesifikasi kebutuhan perangkat lunak sesuai dengan standar pengembangan perangkat lunak [ DPL 8 ] JRES',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -331,7 +331,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_9',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Jelaskan bagaimana mengidentifikasi kelengkapan berkas/dokumen spesifikasi kebutuhan perangkat lunak sesuIA dengan standar pengembangan perangkat lunak [ DPL 9 ] TRs',
+                        'label' => 'Jelaskan bagaimana mengidentifikasi kelengkapan berkas/dokumen spesifikasi kebutuhan perangkat lunak sesuai dengan standar pengembangan perangkat lunak [ DPL 9 ] TRs',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -349,7 +349,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_11',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Jelaskan bagaimana menerapkan architectural style perangkat lunak sesuIA dengan standar pengembangan perangkat lunak [ DPL 11 ] TrS',
+                        'label' => 'Jelaskan bagaimana menerapkan architectural style perangkat lunak sesuai dengan standar pengembangan perangkat lunak [ DPL 11 ] TrS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -358,7 +358,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_12',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Apabila pada saat memodelkan system perangkat lunak terdapat kebutuhan merubah model system, Langkah apa yang akan kalian lakukan agar kebutuhan user dapat terakomodir dengan baik sesuIA dengan standar pengembangan perangkat lunak [ DPL 12 ] CMS',
+                        'label' => 'Apabila pada saat memodelkan system perangkat lunak terdapat kebutuhan merubah model system, Langkah apa yang akan kalian lakukan agar kebutuhan user dapat terakomodir dengan baik sesuai dengan standar pengembangan perangkat lunak [ DPL 12 ] CMS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'
@@ -367,7 +367,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'name' => 'pertanyaan_13',
                         'role' => 'asesor',
                         'type' => 'textarea',
-                        'label' => 'Bagaimana anda memastikan bahwa mekanisme interaksi yang tepat dalam UI sesuIA dengan kebutuhan user [ DPL 13 ] TMS',
+                        'label' => 'Bagaimana anda memastikan bahwa mekanisme interaksi yang tepat dalam UI sesuai dengan kebutuhan user [ DPL 13 ] TMS',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'

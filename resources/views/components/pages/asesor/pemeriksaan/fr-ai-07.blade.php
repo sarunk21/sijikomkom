@@ -1,19 +1,19 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'FR AI 07 - ' . $asesi->name)
-@section('page-title', 'FR AI 07 - ' . $asesi->name)
+@section('title', 'FR IA 07 - ' . $asesi->name)
+@section('page-title', 'FR IA 07 - ' . $asesi->name)
 
 @section('content')
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
-                    <i class="fas fa-file-alt mr-2"></i>FR AI 07 - Penilaian Asesor
+                    <i class="fas fa-file-alt mr-2"></i>FR IA 07 - Penilaian Asesor
                 </h5>
             </div>
             <div class="card-body">
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle mr-2"></i>
-                    <strong>FR AI 07</strong> adalah formulir penilaian asesor yang WAJIB diisi sebelum memberikan penilaian Belum Kompeten (BK) atau Kompeten (K).
+                    <strong>FR IA 07</strong> adalah formulir penilaian asesor yang WAJIB diisi sebelum memberikan penilaian Belum Kompeten (BK) atau Kompeten (K).
                 </div>
 
                 <div class="row mb-4">
@@ -55,7 +55,7 @@
 
                 <hr class="my-4">
 
-                <form method="POST" action="{{ route('asesor.pemeriksaan.save-fr-ai-07', [$jadwal->id, $asesi->id]) }}">
+                <form method="POST" action="{{ route('asesor.pemeriksaan.save-fr-ia-07', [$jadwal->id, $asesi->id]) }}">
                     @csrf
 
                     <!-- Unit Kompetensi -->
@@ -188,7 +188,7 @@
                             <i class="fas fa-arrow-left mr-1"></i>Kembali
                         </a>
                         <button type="submit" class="btn btn-success btn-lg">
-                            <i class="fas fa-save mr-1"></i>Simpan FR AI 07
+                            <i class="fas fa-save mr-1"></i>Simpan FR IA 07
                         </button>
                     </div>
                 </form>
@@ -196,7 +196,7 @@
                 @if ($penilaian->fr_ai_07_completed)
                     <div class="alert alert-success mt-3">
                         <i class="fas fa-check-circle mr-2"></i>
-                        FR AI 07 sudah diisi dan tersimpan. Anda dapat mengeditnya kapan saja sebelum memberikan penilaian BK/K.
+                        FR IA 07 sudah diisi dan tersimpan. Anda dapat mengeditnya kapan saja sebelum memberikan penilaian BK/K.
                     </div>
                 @endif
             </div>

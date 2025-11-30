@@ -75,11 +75,11 @@ class DashboardController extends Controller
         $avgVerificationTime = $avgVerificationTime ? round($avgVerificationTime, 1) : 0;
 
         // ==========================================
-        // 3. TREND ANALYSIS (6 Bulan Terakhir)
+        // 3. TREND ANALYSIS (12 Bulan Terakhir)
         // ==========================================
 
         $trenPendaftaran = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = Pendaftaran::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
@@ -187,7 +187,7 @@ class DashboardController extends Controller
         // ==========================================
 
         $verifikasiTrend = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $diverifikasi = Pendaftaran::whereMonth('updated_at', $bulan->month)
                 ->whereYear('updated_at', $bulan->year)

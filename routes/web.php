@@ -222,9 +222,9 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir', [PemeriksaanController::class, 'formulirList'])->name('asesor.pemeriksaan.formulir-list');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'review'])->name('asesor.pemeriksaan.review');
     Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/review', [PemeriksaanController::class, 'saveReview'])->name('asesor.pemeriksaan.save-review');
-    // FR AI 07 sekarang sudah masuk ke Bank Soal (tidak perlu route terpisah lagi)
-    // Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'frAi07'])->name('asesor.pemeriksaan.fr-ai-07');
-    // Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ai-07', [PemeriksaanController::class, 'saveFrAi07'])->name('asesor.pemeriksaan.save-fr-ai-07');
+    // FR IA 07 sekarang sudah masuk ke Bank Soal (tidak perlu route terpisah lagi)
+    // Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ia-07', [PemeriksaanController::class, 'frAi07'])->name('asesor.pemeriksaan.fr-ia-07');
+    // Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/fr-ia-07', [PemeriksaanController::class, 'saveFrAi07'])->name('asesor.pemeriksaan.save-fr-ia-07');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'penilaian'])->name('asesor.pemeriksaan.penilaian');
     Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'savePenilaian'])->name('asesor.pemeriksaan.save-penilaian');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/generate', [PemeriksaanController::class, 'generateTemplate'])->name('asesor.pemeriksaan.generate-template');

@@ -190,6 +190,33 @@
         </div>
     </div>
 
+    {{-- Modal Image Preview --}}
+    <div class="modal fade" id="modalImagePreview" tabindex="-1" aria-labelledby="modalImagePreviewLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalImagePreviewLabel">
+                        <i class="fas fa-image mr-2"></i><span id="preview-label">Preview Dokumen</span>
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <img id="preview-image" src="" alt="Preview" class="img-fluid rounded shadow" style="max-height: 70vh;">
+                </div>
+                <div class="modal-footer">
+                    <a id="preview-download" href="" download class="btn btn-info">
+                        <i class="fas fa-download mr-1"></i> Download
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Modal Details --}}
     <div class="modal fade" id="modalDetails" tabindex="-1" aria-labelledby="modalDetailsLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -470,21 +497,42 @@
                                 var fileUrl = value.startsWith('http') ? value : '/storage/' + value;
                                 var label = userFileLabels[key];
 
-                                // Determine icon based on file type
+                                // Determine icon and file type based on extension
                                 var icon = 'fa-file';
-                                if (key.includes('ktp')) icon = 'fa-id-card';
-                                else if (key.includes('sertifikat') || key.includes('rekomendasi')) icon = 'fa-file-certificate';
-                                else if (key.includes('ktm') || key.includes('khs')) icon = 'fa-id-badge';
-                                else if (key.includes('administratif')) icon = 'fa-file-alt';
+                                var isPdf = value.toLowerCase().endsWith('.pdf');
+                                var fileType = isPdf ? 'PDF' : 'Image';
+                                var iconColor = isPdf ? 'text-danger' : 'text-info';
+
+                                if (key.includes('ktp')) icon = isPdf ? 'fa-file-pdf' : 'fa-id-card';
+                                else if (key.includes('sertifikat') || key.includes('rekomendasi')) icon = isPdf ? 'fa-file-pdf' : 'fa-file-certificate';
+                                else if (key.includes('ktm') || key.includes('khs')) icon = isPdf ? 'fa-file-pdf' : 'fa-id-badge';
+                                else if (key.includes('administratif')) icon = isPdf ? 'fa-file-pdf' : 'fa-file-alt';
 
                                 filesHtml += '<div class="col-md-6 col-lg-3 mb-3">';
                                 filesHtml += '  <div class="card h-100 border">';
                                 filesHtml += '    <div class="card-body text-center p-3">';
-                                filesHtml += '      <i class="fas ' + icon + ' fa-3x text-info mb-3"></i>';
-                                filesHtml += '      <h6 class="font-weight-bold mb-3" style="font-size: 0.85rem;">' + label + '</h6>';
-                                filesHtml += '      <a href="' + fileUrl + '" target="_blank" class="btn btn-info btn-sm btn-block">';
-                                filesHtml += '        <i class="fas fa-eye mr-1"></i> Lihat Dokumen';
-                                filesHtml += '      </a>';
+                                filesHtml += '      <i class="fas ' + icon + ' fa-3x ' + iconColor + ' mb-3"></i>';
+                                filesHtml += '      <h6 class="font-weight-bold mb-2" style="font-size: 0.85rem;">' + label + '</h6>';
+                                filesHtml += '      <span class="badge badge-' + (isPdf ? 'danger' : 'primary') + ' mb-3">' + fileType + '</span>';
+
+                                if (isPdf) {
+                                    // For PDF files, open in new tab
+                                    filesHtml += '      <a href="' + fileUrl + '" target="_blank" class="btn btn-danger btn-sm btn-block mb-2">';
+                                    filesHtml += '        <i class="fas fa-file-pdf mr-1"></i> Buka PDF';
+                                    filesHtml += '      </a>';
+                                    filesHtml += '      <a href="' + fileUrl + '" download class="btn btn-outline-danger btn-sm btn-block">';
+                                    filesHtml += '        <i class="fas fa-download mr-1"></i> Download';
+                                    filesHtml += '      </a>';
+                                } else {
+                                    // For images, show preview with modal
+                                    filesHtml += '      <button type="button" class="btn btn-info btn-sm btn-block mb-2 preview-image-btn" data-image="' + fileUrl + '" data-label="' + label + '">';
+                                    filesHtml += '        <i class="fas fa-eye mr-1"></i> Preview';
+                                    filesHtml += '      </button>';
+                                    filesHtml += '      <a href="' + fileUrl + '" target="_blank" class="btn btn-outline-info btn-sm btn-block">';
+                                    filesHtml += '        <i class="fas fa-external-link-alt mr-1"></i> Buka Tab Baru';
+                                    filesHtml += '      </a>';
+                                }
+
                                 filesHtml += '    </div>';
                                 filesHtml += '  </div>';
                                 filesHtml += '</div>';
@@ -584,6 +632,24 @@
                       '#detail-skema, #detail-tuk, #detail-tanggal, #detail-status, #detail-created').text('-');
                     $('#detail-keterangan').text('-');
                     $('#detail-files').html('');
+                });
+
+                // Handle image preview button (using event delegation for dynamically created buttons)
+                $(document).on('click', '.preview-image-btn', function() {
+                    var imageUrl = $(this).data('image');
+                    var label = $(this).data('label');
+
+                    $('#preview-image').attr('src', imageUrl);
+                    $('#preview-download').attr('href', imageUrl);
+                    $('#preview-label').text(label);
+                    $('#modalImagePreview').modal('show');
+                });
+
+                // Reset preview modal when closed
+                $('#modalImagePreview').on('hidden.bs.modal', function () {
+                    $('#preview-image').attr('src', '');
+                    $('#preview-download').attr('href', '');
+                    $('#preview-label').text('Preview Dokumen');
                 });
             });
         </script>

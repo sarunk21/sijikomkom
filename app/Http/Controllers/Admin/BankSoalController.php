@@ -57,9 +57,9 @@ class BankSoalController extends Controller
         $skemas = Skema::orderBy('nama', 'asc')->get();
 
         $tipeOptions = [
-            'FR AI 03' => 'FR AI 03 - Formulir Asesmen Mandiri',
-            'FR AI 06' => 'FR AI 06 - Formulir Asesmen Praktik',
-            'FR AI 07' => 'FR AI 07 - Ceklis Observasi Asesor'
+            'FR IA 03' => 'FR IA 03 - Formulir Asesmen Mandiri',
+            'FR IA 06' => 'FR IA 06 - Formulir Asesmen Praktik',
+            'FR IA 07' => 'FR IA 07 - Ceklis Observasi Asesor'
         ];
 
         $targetOptions = [
@@ -147,7 +147,7 @@ class BankSoalController extends Controller
         $request->validate([
             'skema_id' => 'required|exists:skema,id',
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
+            'tipe' => 'required|in:FR IA 03,FR IA 06,FR IA 07',
             'target' => 'required|in:asesi,asesor',
             'file' => 'required|file|mimes:pdf,doc,docx|max:10240', // max 10MB
             'keterangan' => 'nullable|string',
@@ -242,9 +242,9 @@ class BankSoalController extends Controller
         $skemas = Skema::orderBy('nama', 'asc')->get();
 
         $tipeOptions = [
-            'FR AI 03' => 'FR AI 03 - Formulir Asesmen Mandiri',
-            'FR AI 06' => 'FR AI 06 - Formulir Asesmen Praktik',
-            'FR AI 07' => 'FR AI 07 - Ceklis Observasi Asesor'
+            'FR IA 03' => 'FR IA 03 - Formulir Asesmen Mandiri',
+            'FR IA 06' => 'FR IA 06 - Formulir Asesmen Praktik',
+            'FR IA 07' => 'FR IA 07 - Ceklis Observasi Asesor'
         ];
 
         $targetOptions = [
@@ -339,7 +339,7 @@ class BankSoalController extends Controller
         $rules = [
             'skema_id' => 'required|exists:skema,id',
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|in:FR AI 03,FR AI 06,FR AI 07',
+            'tipe' => 'required|in:FR IA 03,FR IA 06,FR IA 07',
             'target' => 'required|in:asesi,asesor',
             'keterangan' => 'nullable|string',
             'variables' => 'nullable|string', // JSON string dari JavaScript
@@ -392,7 +392,7 @@ class BankSoalController extends Controller
                     'file_size' => $file->getSize(),
                     'mime_type' => $file->getMimeType()
                 ]);
-                
+
                 // Check if file is valid
                 if (!$file->isValid()) {
                     throw new \Exception('File upload error: ' . $file->getErrorMessage());
@@ -425,7 +425,7 @@ class BankSoalController extends Controller
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
-                
+
                 return redirect()->back()
                     ->with('error', 'Gagal upload file: ' . $e->getMessage() . '. Pastikan ukuran file < 10MB dan format PDF/DOC/DOCX.')
                     ->withInput();

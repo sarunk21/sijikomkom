@@ -172,19 +172,39 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($penilaian->hasil_akhir !== 'belum_dinilai')
-                                                {{-- Sudah dinilai BK/K, hanya bisa lihat --}}
-                                                <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
-                                                    class="btn btn-sm btn-secondary mb-1">
-                                                    <i class="fas fa-eye mr-1"></i>Lihat Review
-                                                </a>
+                                            @php
+                                                // Cek apakah formulir bisa direview
+                                                $canReview = false;
+                                                if ($bankSoal->target === 'asesor') {
+                                                    // Formulir asesor selalu bisa direview
+                                                    $canReview = true;
+                                                } elseif ($bankSoal->target === 'asesi') {
+                                                    // Formulir asesi hanya bisa direview jika asesi sudah submit
+                                                    $canReview = ($asesiStatus === 'submitted' || $asesiStatus === 'reviewed');
+                                                }
+                                            @endphp
+
+                                            @if ($canReview)
+                                                @if ($penilaian->hasil_akhir !== 'belum_dinilai')
+                                                    {{-- Sudah dinilai BK/K, hanya bisa lihat --}}
+                                                    <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
+                                                        class="btn btn-sm btn-secondary mb-1">
+                                                        <i class="fas fa-eye mr-1"></i>Lihat Review
+                                                    </a>
+                                                @else
+                                                    {{-- Belum dinilai, masih bisa edit --}}
+                                                    <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
+                                                        class="btn btn-sm btn-primary mb-1">
+                                                        <i class="fas fa-clipboard-check mr-1"></i>
+                                                        {{ $asesorCompleted ? 'Edit Review' : 'Review' }}
+                                                    </a>
+                                                @endif
                                             @else
-                                                {{-- Belum dinilai, masih bisa edit --}}
-                                                <a href="{{ route('asesor.pemeriksaan.review', [$jadwal->id, $asesi->id, $bankSoal->id]) }}"
-                                                    class="btn btn-sm btn-primary mb-1">
-                                                    <i class="fas fa-clipboard-check mr-1"></i>
-                                                    {{ $asesorCompleted ? 'Edit Review' : 'Review' }}
-                                                </a>
+                                                {{-- Tidak bisa direview karena asesi belum submit --}}
+                                                <button class="btn btn-sm btn-secondary mb-1" disabled
+                                                    title="Menunggu asesi submit formulir">
+                                                    <i class="fas fa-lock mr-1"></i>Terkunci
+                                                </button>
                                             @endif
 
                                             @if ($response && $response->is_asesor_completed && $bankSoal->file_path)

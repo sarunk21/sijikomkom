@@ -51,9 +51,9 @@ class DashboardController extends Controller
             $query->when($tukId, $tukFilter);
         })->count();
 
-        // Tren Jadwal Ujikom (6 bulan terakhir)
+        // Tren Jadwal Ujikom (12 bulan terakhir)
         $trenJadwal = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = Jadwal::when($tukId, $tukFilter)
                 ->whereMonth('tanggal_ujian', $bulan->month)

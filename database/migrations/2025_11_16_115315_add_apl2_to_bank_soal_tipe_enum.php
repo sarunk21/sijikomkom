@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         // Modify enum to add APL2
-        DB::statement("ALTER TABLE bank_soal MODIFY COLUMN tipe ENUM('FR AI 03', 'FR AI 06', 'FR AI 07', 'APL2') NOT NULL");
+        DB::statement("ALTER TABLE bank_soal MODIFY COLUMN tipe ENUM('FR IA 03', 'FR IA 06', 'FR IA 07', 'APL2') NOT NULL");
 
         // Also make file_path and original_filename nullable for APL2
         DB::statement("ALTER TABLE bank_soal MODIFY COLUMN file_path VARCHAR(255) NULL");
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         // Remove APL2 from enum
-        DB::statement("ALTER TABLE bank_soal MODIFY COLUMN tipe ENUM('FR AI 03', 'FR AI 06', 'FR AI 07') NOT NULL");
+        DB::statement("ALTER TABLE bank_soal MODIFY COLUMN tipe ENUM('FR IA 03', 'FR IA 06', 'FR IA 07') NOT NULL");
 
         // Revert file_path and original_filename to NOT NULL
         DB::statement("ALTER TABLE bank_soal MODIFY COLUMN file_path VARCHAR(255) NOT NULL");

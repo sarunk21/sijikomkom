@@ -428,7 +428,7 @@
         <div class="card shadow h-100">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-chart-line mr-2"></i>Tren Pendaftaran (6 Bulan Terakhir)
+                    <i class="fas fa-chart-line mr-2"></i>Tren Pendaftaran (12 Bulan Terakhir)
                 </h6>
                 <span class="badge badge-{{ $growthRate >= 0 ? 'success' : 'danger' }} badge-custom">
                     {{ $growthRate >= 0 ? '+' : '' }}{{ $growthRate }}% Growth

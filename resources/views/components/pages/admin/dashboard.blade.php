@@ -201,7 +201,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-area mr-2"></i>Trend Pendaftaran (6 Bulan Terakhir)
+                        <i class="fas fa-chart-area mr-2"></i>Trend Pendaftaran (12 Bulan Terakhir)
                     </h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
@@ -210,7 +210,7 @@
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <div class="dropdown-header">Penjelasan:</div>
                             <a class="dropdown-item" href="#">
-                                <small>Chart ini menampilkan trend jumlah pendaftaran dalam 6 bulan terakhir untuk melihat pola seasonality dan pertumbuhan</small>
+                                <small>Chart ini menampilkan trend jumlah pendaftaran dalam 12 bulan terakhir untuk melihat pola seasonality dan pertumbuhan</small>
                             </a>
                         </div>
                     </div>

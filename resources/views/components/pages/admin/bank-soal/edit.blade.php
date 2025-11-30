@@ -26,9 +26,9 @@
                     </ul>
                     <p class="mb-2 small"><strong>Informasi Tipe:</strong></p>
                     <ul class="small mb-2" style="line-height: 1.8;">
-                        <li><strong>FR AI 03</strong> - Formulir Asesmen Mandiri (untuk asesi)</li>
-                        <li><strong>FR AI 06</strong> - Formulir Asesmen Praktik (untuk asesi)</li>
-                        <li><strong>FR AI 07</strong> - Ceklis Observasi Asesor (untuk asesor)</li>
+                        <li><strong>FR IA 03</strong> - Formulir Asesmen Mandiri (untuk asesi)</li>
+                        <li><strong>FR IA 06</strong> - Formulir Asesmen Praktik (untuk asesi)</li>
+                        <li><strong>FR IA 07</strong> - Ceklis Observasi Asesor (untuk asesor)</li>
                     </ul>
                     <p class="mb-0 small">Upload file dalam format <strong>PDF, DOC, atau DOCX</strong> maksimal 10MB</p>
                 </div>
@@ -529,9 +529,9 @@
             const tipe = $(this).val();
             const targetSelect = $('#target');
 
-            if (tipe === 'FR AI 07') {
+            if (tipe === 'FR IA 07') {
                 targetSelect.val('asesor');
-            } else if (tipe === 'FR AI 03' || tipe === 'FR AI 06') {
+            } else if (tipe === 'FR IA 03' || tipe === 'FR IA 06') {
                 targetSelect.val('asesi');
             }
         });
@@ -835,7 +835,7 @@
             const file = input.files[0];
             const fileSize = file.size;
             const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
-            
+
             if (fileSize > 10 * 1024 * 1024) { // 10MB
                 fileSizeInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ukuran file: ' + fileSizeMB + ' MB (Terlalu besar! Maksimal 10MB)';
                 fileSizeInfo.className = 'text-danger d-block mt-1';

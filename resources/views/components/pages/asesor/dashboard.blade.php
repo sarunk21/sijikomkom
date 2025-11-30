@@ -173,12 +173,12 @@
 
     {{-- Row 3: Charts --}}
     <div class="row">
-        <!-- Trend Penilaian (6 Bulan) -->
+        <!-- Trend Penilaian (12 Bulan) -->
         <div class="col-xl-8 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-area mr-2"></i>Trend Penilaian (6 Bulan Terakhir)
+                        <i class="fas fa-chart-area mr-2"></i>Trend Penilaian (12 Bulan Terakhir)
                     </h6>
                     <span class="badge badge-primary">Kompeten vs Tidak Kompeten</span>
                 </div>
@@ -188,7 +188,7 @@
                     </div>
                     <div class="mt-3 text-sm text-muted">
                         <i class="fas fa-info-circle mr-1"></i>
-                        <strong>Cara Baca:</strong> Grafik menampilkan jumlah asesi yang dinilai kompeten (hijau) dan tidak kompeten (merah) per bulan dalam 6 bulan terakhir.
+                        <strong>Cara Baca:</strong> Grafik menampilkan jumlah asesi yang dinilai kompeten (hijau) dan tidak kompeten (merah) per bulan dalam 12 bulan terakhir.
                     </div>
                 </div>
             </div>
@@ -248,7 +248,7 @@
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-tasks mr-2"></i>Analisis Beban Kerja (6 Bulan)
+                        <i class="fas fa-tasks mr-2"></i>Analisis Beban Kerja (12 Bulan)
                     </h6>
                 </div>
                 <div class="card-body">

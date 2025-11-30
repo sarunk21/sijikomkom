@@ -97,15 +97,25 @@ class FrAk05Controller extends Controller
 
         // Get jadwal with relationships dan verifikasi skema asesor
         $jadwal = $this->getJadwalForAsesor($jadwalId);
+        
+        // Get asesor yang login
+        $asesor = Auth::user();
+
+        // Get asesi IDs yang ditugaskan ke asesor ini
+        $asesiDitugaskan = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+            ->where('asesor_id', $asesor->id)
+            ->pluck('asesi_id');
 
         // Get all assessed asesi for this jadwal using AsesiPenilaian (sistem baru)
+        // Hanya untuk asesi yang ditugaskan ke asesor ini
         $asesiPenilaianList = AsesiPenilaian::with('asesi')
             ->where('jadwal_id', $jadwalId)
+            ->whereIn('user_id', $asesiDitugaskan)
             ->where('hasil_akhir', '!=', 'belum_dinilai')
             ->get();
 
         // Check if all asesi have been assessed
-        $totalAsesi = PendaftaranUjikom::where('jadwal_id', $jadwalId)->count();
+        $totalAsesi = $asesiDitugaskan->count();
         $assessedAsesi = $asesiPenilaianList->count();
 
         if ($totalAsesi != $assessedAsesi) {
@@ -222,8 +232,17 @@ class FrAk05Controller extends Controller
             }
 
             // Get all assessed asesi for this jadwal using AsesiPenilaian (sistem baru)
+            // Hanya untuk asesi yang ditugaskan ke asesor ini
+            $asesor = Auth::user();
+            
+            // Get asesi IDs yang ditugaskan ke asesor ini
+            $asesiDitugaskan = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+                ->where('asesor_id', $asesor->id)
+                ->pluck('asesi_id');
+            
             $asesiPenilaianList = AsesiPenilaian::with('asesi')
                 ->where('jadwal_id', $jadwalId)
+                ->whereIn('user_id', $asesiDitugaskan)
                 ->where('hasil_akhir', '!=', 'belum_dinilai')
                 ->get();
 
@@ -250,8 +269,7 @@ class FrAk05Controller extends Controller
             $kompeten = $asesiList->where('status', 5)->count();
             $tidakKompeten = $asesiList->where('status', 4)->count();
 
-            // Get asesor and skema data
-            $asesor = Auth::user();
+            // Get skema and TUK data
             $skema = $jadwal->skema;
             $tuk = $jadwal->tuk;
 

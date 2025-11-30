@@ -75,12 +75,13 @@ class DaftarUjikomController extends Controller
         $user = User::where('id', Auth::user()->id)->first();
 
         // Dynamic validation rules based on existing files
+        // Accept both images (jpeg, png, jpg) and PDF files
         $rules = [
             'jadwal_id' => 'required|exists:jadwal,id',
-            'photo_ktp' => ($user->photo_ktp ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_sertifikat' => ($user->photo_sertifikat ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_ktmkhs' => ($user->photo_ktmkhs ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
-            'photo_administatif' => ($user->photo_administatif ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_ktp' => ($user->photo_ktp ? 'nullable' : 'required') . '|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'photo_sertifikat' => ($user->photo_sertifikat ? 'nullable' : 'required') . '|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'photo_ktmkhs' => ($user->photo_ktmkhs ? 'nullable' : 'required') . '|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'photo_administatif' => ($user->photo_administatif ? 'nullable' : 'required') . '|file|mimes:jpeg,png,jpg,pdf|max:2048',
         ];
 
         $request->validate($rules);

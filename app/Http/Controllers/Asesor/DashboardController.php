@@ -96,9 +96,9 @@ class DashboardController extends Controller
 
         // ========== ANALYTICS DATA ==========
 
-        // Trend Penilaian (6 bulan terakhir) - kompeten vs tidak kompeten
+        // Trend Penilaian (12 bulan terakhir) - kompeten vs tidak kompeten
         $trendPenilaian = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
 
             $kompeten = Report::whereHas('pendaftaran.pendaftaranUjikom', function($query) use ($user) {
@@ -142,7 +142,7 @@ class DashboardController extends Controller
 
         // Workload Analysis (beban kerja per bulan)
         $workloadAnalysis = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = PendaftaranUjikom::where('asesor_id', $user->id)
                 ->whereMonth('created_at', $bulan->month)

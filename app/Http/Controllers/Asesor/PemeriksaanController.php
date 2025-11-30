@@ -26,7 +26,7 @@ class PemeriksaanController extends Controller
     private function getJadwalForAsesor($jadwalId)
     {
         $asesor = Auth::user();
-        
+
         // Cek apakah asesor ditugaskan di jadwal ini
         $hasPendaftaran = DB::table('pendaftaran_ujikom')
             ->where('jadwal_id', $jadwalId)
@@ -234,7 +234,7 @@ class PemeriksaanController extends Controller
         $penilaian = AsesiPenilaian::where('jadwal_id', $jadwalId)
             ->where('user_id', $asesiId)
             ->first();
-        
+
         if ($penilaian && $penilaian->hasil_akhir !== 'belum_dinilai') {
             return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
                 ->with('error', 'Tidak dapat mengubah review. Penilaian sudah finalisasi (sudah dinilai BK/K).');
@@ -274,8 +274,8 @@ class PemeriksaanController extends Controller
     }
 
     /**
-     * Form FR AI 07 (Penilaian Asesor)
-     * DEPRECATED: FR AI 07 sekarang sudah masuk ke Bank Soal (Analis Program)
+     * Form FR IA 07 (Penilaian Asesor)
+     * DEPRECATED: FR IA 07 sekarang sudah masuk ke Bank Soal (Analis Program)
      */
     // public function frAi07($jadwalId, $asesiId)
     // {
@@ -289,7 +289,7 @@ class PemeriksaanController extends Controller
     //         ->where('user_id', $asesiId)
     //         ->firstOrFail();
 
-    //     return view('components.pages.asesor.pemeriksaan.fr-ai-07', compact(
+    //     return view('components.pages.asesor.pemeriksaan.fr-ia-07', compact(
     //         'lists',
     //         'activeMenu',
     //         'jadwal',
@@ -299,8 +299,8 @@ class PemeriksaanController extends Controller
     // }
 
     /**
-     * Save FR AI 07
-     * DEPRECATED: FR AI 07 sekarang sudah masuk ke Bank Soal (Analis Program)
+     * Save FR IA 07
+     * DEPRECATED: FR IA 07 sekarang sudah masuk ke Bank Soal (Analis Program)
      */
     // public function saveFrAi07(Request $request, $jadwalId, $asesiId)
     // {
@@ -314,7 +314,7 @@ class PemeriksaanController extends Controller
     //     ]);
 
     //     return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
-    //         ->with('success', 'FR AI 07 berhasil disimpan');
+    //         ->with('success', 'FR IA 07 berhasil disimpan');
     // }
 
     /**
@@ -341,7 +341,7 @@ class PemeriksaanController extends Controller
         // Check if can give hasil akhir
         if (!$penilaian->canGiveHasilAkhir()) {
             return redirect()->route('asesor.pemeriksaan.formulir-list', [$jadwalId, $asesiId])
-                ->with('error', 'Belum bisa memberikan penilaian. Pastikan semua formulir sudah diperiksa dan FR AI 07 sudah diisi.');
+                ->with('error', 'Belum bisa memberikan penilaian. Pastikan semua formulir sudah diperiksa dan FR IA 07 sudah diisi.');
         }
 
         return view('components.pages.asesor.pemeriksaan.penilaian', compact(
@@ -392,7 +392,7 @@ class PemeriksaanController extends Controller
         if ($pendaftaranUjikom) {
             $status = $request->hasil_akhir === 'kompeten' ? 5 : 4;
             $keterangan = $request->hasil_akhir === 'kompeten' ? 'Kompeten' : 'Tidak Kompeten';
-            
+
             $pendaftaranUjikom->update([
                 'status' => $status,
                 'keterangan' => $keterangan,
@@ -461,7 +461,7 @@ class PemeriksaanController extends Controller
             'data_keys' => array_keys($data),
             'validations' => $response->asesor_validations ?? [],
         ]);
-        
+
         \Log::info('Data values for replacement', [
             'asesor.name' => $data['asesor.name'] ?? 'NOT SET',
             'asesor_name' => $data['asesor_name'] ?? 'NOT SET',
@@ -483,13 +483,13 @@ class PemeriksaanController extends Controller
         // PHPWord's getVariables() mungkin tidak detect semua variable jika ada special chars
         // Jadi kita loop semua data yang kita punya
         $signatureFields = ['ttd_digital_asesi', 'ttd_digital_asesor', 'ttd_asesi', 'ttd_asesor'];
-        
+
         foreach ($templateVariables as $templateVar) {
             // Skip signature fields
             if (in_array($templateVar, $signatureFields)) {
                 continue;
             }
-            
+
             // Check if we have this variable in our data
             if (isset($data[$templateVar])) {
                 $value = $data[$templateVar];
@@ -510,16 +510,16 @@ class PemeriksaanController extends Controller
                 }
             }
         }
-        
+
         // Also try to replace all data keys (in case getVariables missed some)
         foreach ($data as $key => $value) {
             // Skip signature fields
             if (in_array($key, $signatureFields)) {
                 continue;
             }
-            
+
             $stringValue = is_array($value) ? json_encode($value) : (string)$value;
-            
+
             try {
                 $templateProcessor->setValue($key, $stringValue);
             } catch (\Exception $e) {
@@ -567,7 +567,7 @@ class PemeriksaanController extends Controller
     private function prepareTemplateData($jadwal, $asesi, $response, $bankSoal)
     {
         $data = [];
-        
+
         // Get current asesor data
         $asesor = Auth::user();
 
@@ -610,60 +610,60 @@ class PemeriksaanController extends Controller
                 }
             }
         }
-        
+
         // Explicit mapping for common asesor fields
         $asesorName = $asesor->name ?? '';
         $asesorEmail = $asesor->email ?? '';
         $asesorNoReg = $asesor->asesor->no_reg ?? '';
-        
+
         $data['asesor.name'] = $asesorName;
         $data['asesor_name'] = $asesorName;
         $data['asesorname'] = $asesorName;
         $data['nama_asesor'] = $asesorName;
-        
+
         $data['asesor.email'] = $asesorEmail;
         $data['asesor_email'] = $asesorEmail;
         $data['asesoremail'] = $asesorEmail;
         $data['email_asesor'] = $asesorEmail;
-        
+
         $data['asesor.no_reg'] = $asesorNoReg;
         $data['asesor_no_reg'] = $asesorNoReg;
         $data['asesornoReg'] = $asesorNoReg;
         $data['no_reg_asesor'] = $asesorNoReg;
-        
+
         // Mapping untuk asesi juga
         $data['user.name'] = $asesi->name ?? '';
         $data['user_name'] = $asesi->name ?? '';
         $data['username'] = $asesi->name ?? '';
         $data['nama_asesi'] = $asesi->name ?? '';
         $data['asesi_name'] = $asesi->name ?? '';
-        
+
         $data['user.email'] = $asesi->email ?? '';
         $data['user_email'] = $asesi->email ?? '';
         $data['useremail'] = $asesi->email ?? '';
         $data['email_asesi'] = $asesi->email ?? '';
         $data['asesi_email'] = $asesi->email ?? '';
-        
+
         // Mapping untuk skema
         $skemaNama = $jadwal->skema->nama ?? '';
         $skemaKode = $jadwal->skema->kode ?? '';
         $skemaNomor = $jadwal->skema->nomor ?? '';
-        
+
         $data['skema.nama'] = $skemaNama;
         $data['skema_nama'] = $skemaNama;
         $data['skemanama'] = $skemaNama;
         $data['nama_skema'] = $skemaNama;
-        
+
         $data['skema.kode'] = $skemaKode;
         $data['skema_kode'] = $skemaKode;
         $data['skemakode'] = $skemaKode;
         $data['kode_skema'] = $skemaKode;
-        
+
         $data['skema.nomor'] = $skemaNomor;
         $data['skema_nomor'] = $skemaNomor;
         $data['skemanomor'] = $skemaNomor;
         $data['nomor_skema'] = $skemaNomor;
-        
+
         // Mapping untuk jadwal
         $data['jadwal.tanggal_ujian'] = $jadwal->tanggal_ujian ?? '';
         $data['jadwal_tanggal_ujian'] = $jadwal->tanggal_ujian ?? '';
@@ -710,18 +710,18 @@ class PemeriksaanController extends Controller
         // Get signature data from responses
         $asesiResponses = $response->asesi_responses ?? [];
         $asesorResponses = $response->asesor_responses ?? [];
-        
+
         \Log::info('Checking signatures', [
             'asesi_response_keys' => array_keys($asesiResponses),
             'asesor_response_keys' => array_keys($asesorResponses),
         ]);
-        
+
         // Try to insert TTD Asesi
-        $ttdAsesi = $asesiResponses['ttd_digital_asesi'] ?? 
-                    $asesiResponses['ttd_asesi'] ?? 
-                    $asesorResponses['ttd_digital_asesi'] ?? 
+        $ttdAsesi = $asesiResponses['ttd_digital_asesi'] ??
+                    $asesiResponses['ttd_asesi'] ??
+                    $asesorResponses['ttd_digital_asesi'] ??
                     $asesorResponses['ttd_asesi'] ?? null;
-        
+
         if ($ttdAsesi && str_starts_with($ttdAsesi, 'data:image')) {
             \Log::info('Found TTD Asesi, inserting...');
             $this->insertSignature($templateProcessor, 'ttd_digital_asesi', $ttdAsesi);
@@ -729,13 +729,13 @@ class PemeriksaanController extends Controller
         } else {
             \Log::warning('TTD Asesi not found or invalid format');
         }
-        
-        // Try to insert TTD Asesor  
-        $ttdAsesor = $asesorResponses['ttd_digital_asesor'] ?? 
-                     $asesorResponses['ttd_asesor'] ?? 
-                     $asesiResponses['ttd_digital_asesor'] ?? 
+
+        // Try to insert TTD Asesor
+        $ttdAsesor = $asesorResponses['ttd_digital_asesor'] ??
+                     $asesorResponses['ttd_asesor'] ??
+                     $asesiResponses['ttd_digital_asesor'] ??
                      $asesiResponses['ttd_asesor'] ?? null;
-        
+
         if ($ttdAsesor && str_starts_with($ttdAsesor, 'data:image')) {
             \Log::info('Found TTD Asesor, inserting...');
             $this->insertSignature($templateProcessor, 'ttd_digital_asesor', $ttdAsesor);
@@ -750,10 +750,10 @@ class PemeriksaanController extends Controller
                 'asesi_response_keys' => array_keys($asesiResponses),
             ]);
         }
-        
+
         \Log::info('Signature insertion completed for FR template');
     }
-    
+
     /**
      * Helper: Insert single signature into template
      */
@@ -766,37 +766,37 @@ class PemeriksaanController extends Controller
                 \Log::warning("Invalid base64 image format for {$placeholder}");
                 return;
             }
-            
+
             $encodedImage = $imageData[1];
             $decodedImage = base64_decode($encodedImage);
-            
+
             if ($decodedImage === false) {
                 \Log::warning("Failed to decode base64 image for {$placeholder}");
                 return;
             }
-            
+
             // Create temp file
             $tempPath = storage_path('app/temp/' . uniqid('sig_') . '.png');
-            
+
             // Ensure directory exists
             $tempDir = dirname($tempPath);
             if (!file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
-            
+
             file_put_contents($tempPath, $decodedImage);
-            
+
             // Try multiple placeholder formats
             $placeholders = [
                 $placeholder,
                 '${' . $placeholder . '}',
             ];
-            
+
             foreach ($placeholders as $ph) {
                 try {
                     // Remove ${} if present
                     $cleanPlaceholder = str_replace(['${', '}'], '', $ph);
-                    
+
                     $templateProcessor->setImageValue(
                         $cleanPlaceholder,
                         [
@@ -806,20 +806,20 @@ class PemeriksaanController extends Controller
                             'ratio' => true
                         ]
                     );
-                    
+
                     \Log::info("Successfully inserted signature image for placeholder: {$cleanPlaceholder}");
-                    
+
                     // Don't break - try all placeholders in case template has multiple
                 } catch (\Exception $e) {
                     \Log::debug("Failed to insert signature with placeholder {$ph}: " . $e->getMessage());
                 }
             }
-            
+
             // Clean up temp file
             if (file_exists($tempPath)) {
                 @unlink($tempPath);
             }
-            
+
         } catch (\Exception $e) {
             \Log::error("Error inserting signature {$placeholder}: " . $e->getMessage());
         }

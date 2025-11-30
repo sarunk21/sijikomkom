@@ -86,7 +86,7 @@
                                             @endif
 
                                             <!-- Validasi -->
-                                            @if (in_array($field['role'] ?? 'asesi', ['asesi', 'both']))
+                                            @if (in_array($field['role'] ?? 'asesi', ['asesi', 'both']) && $field['type'] !== 'signature_pad')
                                                 <div class="mt-2">
                                                     <label class="font-weight-bold text-primary">Validasi:</label>
                                                     <div class="btn-group btn-group-toggle d-block" data-toggle="buttons">

@@ -73,9 +73,9 @@ class DashboardController extends Controller
             ? round((($pendaftaranBulanIni - $pendaftaranBulanLalu) / $pendaftaranBulanLalu) * 100, 1)
             : ($pendaftaranBulanIni > 0 ? 100 : 0);
 
-        // Trend Pendaftaran (12 bulan terakhir)
+        // Trend Pendaftaran (6 bulan terakhir)
         $trendPendaftaran = [];
-        for ($i = 11; $i >= 0; $i--) {
+        for ($i = 5; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = Pendaftaran::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
@@ -90,9 +90,9 @@ class DashboardController extends Controller
         // 3. PERFORMANCE ANALYTICS
         // ==========================================
 
-        // Pass Rate Trend (6 bulan terakhir)
+        // Pass Rate Trend (12 bulan terakhir)
         $passRateTrend = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $kompeten = Report::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
@@ -153,7 +153,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Skema Growth (6 bulan terakhir untuk top 3 skema)
+        // Skema Growth (12 bulan terakhir untuk top 3 skema)
         $topSkemaIds = $distribusiSkema->take(3)->pluck('nama')->toArray();
         $skemaGrowthTrend = [];
 
@@ -162,7 +162,7 @@ class DashboardController extends Controller
             $skema = Skema::where('nama', $skemaNama)->first();
 
             if ($skema) {
-                for ($i = 5; $i >= 0; $i--) {
+                for ($i = 11; $i >= 0; $i--) {
                     $bulan = now()->subMonths($i);
                     $count = Pendaftaran::where('skema_id', $skema->id)
                         ->whereMonth('created_at', $bulan->month)
