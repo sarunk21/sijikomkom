@@ -363,7 +363,7 @@
             <div class="card shadow mb-4 border-left-info">
                 <div class="card-header py-3 bg-light">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-lightbulb mr-2"></i>AI-Powered Insights & Recommendations
+                        <i class="fas fa-lightbulb mr-2"></i>Insights & Recommendations
                     </h6>
                 </div>
                 <div class="card-body">

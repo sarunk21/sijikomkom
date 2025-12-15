@@ -150,7 +150,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="alert alert-light border-left-primary shadow-sm" style="border-left: 4px solid #4e73df;">
-            <h5 class="mb-3"><i class="fas fa-lightbulb text-warning mr-2"></i>AI-Powered Insights</h5>
+            <h5 class="mb-3"><i class="fas fa-lightbulb text-warning mr-2"></i>Insights</h5>
 
             <div class="row">
                 <div class="col-md-4 mb-3">
@@ -300,29 +300,6 @@
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-award fa-3x text-white-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Avg Verification Time -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card gradient-card gradient-teal shadow h-100 py-3">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <div class="text-xs font-weight-bold text-white-50 text-uppercase mb-2">
-                            Rata-rata Verifikasi
-                        </div>
-                        <div class="metric-value text-white">{{ $avgVerificationTime }}</div>
-                        <div class="text-xs text-white-50 mt-2">
-                            <i class="fas fa-stopwatch mr-1"></i>
-                            Hari untuk proses
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-business-time fa-3x text-white-50"></i>
                     </div>
                 </div>
             </div>

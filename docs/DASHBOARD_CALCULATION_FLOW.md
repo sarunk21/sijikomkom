@@ -623,28 +623,6 @@ $totalJadwalSelesai = PendaftaranUjikom::where('asesor_id', $user->id)
     ->distinct('jadwal_id')
     ->count('jadwal_id');
 ```
-- **Perhitungan**: COUNT distinct jadwal_id dengan status selesai
-
-#### Rata-rata Asesi per Jadwal
-```php
-$avgAsesiPerJadwal = $totalJadwalSelesai > 0
-    ? round($totalAsesiDinilai / $totalJadwalSelesai, 1)
-    : 0;
-```
-- **Formula**: `Total Asesi Dinilai / Total Jadwal Selesai`
-
-#### Avg Waktu Penilaian
-```php
-$avgWaktuPenilaian = \DB::table('report')
-    ->join('pendaftaran', 'report.pendaftaran_id', '=', 'pendaftaran.id')
-    ->join('pendaftaran_ujikom', 'pendaftaran.id', '=', 'pendaftaran_ujikom.pendaftaran_id')
-    ->where('pendaftaran_ujikom.asesor_id', $user->id)
-    ->whereNotNull('report.updated_at')
-    ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, pendaftaran_ujikom.created_at, report.updated_at)) as avg_hours')
-    ->value('avg_hours');
-```
-- **Perhitungan**: Average dari selisih waktu antara created_at pendaftaran_ujikom dan updated_at report
-- **Satuan**: Jam (hours)
 
 ### 3.2 Analytics Data
 
@@ -981,7 +959,7 @@ for ($i = 5; $i >= 0; $i--) {
 ```
 - **Basis Waktu**: updated_at (waktu verifikasi)
 
-### 4.9 AI Insights (Rule-Based)
+### 4.9 Insights (Rule-Based)
 
 **Verifikasi Workload Analysis**:
 - Menunggu > 20: "PERHATIAN: Perlu ditindaklanjuti segera"
