@@ -9,7 +9,7 @@
     <div class="row">
 
         <!-- Total Pendaftaran Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -27,7 +27,7 @@
         </div>
 
         <!-- Total Skema Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Pass Rate Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -71,30 +71,12 @@
                 </div>
             </div>
         </div>
-
-        <!-- Total Asesor Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Asesor</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalAsesor }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Row 2: Secondary KPIs -->
     <div class="row">
         <!-- Total Jadwal -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -111,7 +93,7 @@
         </div>
 
         <!-- Total TUK -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -127,68 +109,25 @@
             </div>
         </div>
 
-        <!-- Utilisasi Kapasitas -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Utilisasi Kapasitas</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $utilisasiKapasitas }}%</div>
-                            <div class="progress progress-sm mt-2">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ $utilisasiKapasitas }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Growth Rate -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-{{ $growthRate >= 0 ? 'success' : 'danger' }} shadow h-100 py-2">
+        <!-- Total Asesor Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-{{ $growthRate >= 0 ? 'success' : 'danger' }} text-uppercase mb-1">Growth Rate (MoM)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $growthRate >= 0 ? '+' : '' }}{{ $growthRate }}%</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Asesor</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalAsesor }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- AI Insights -->
-    @if(count($insights) > 0)
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-lightbulb mr-2"></i>Executive Insights</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @foreach($insights as $insight)
-                        <div class="col-md-6 mb-3">
-                            <div class="alert alert-{{ $insight['type'] }} mb-0">
-                                <strong><i class="fas {{ $insight['icon'] }} mr-2"></i>{{ $insight['title'] }}</strong><br>
-                                {{ $insight['message'] }}
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 
     <!-- Content Row -->
     <div class="row">
@@ -248,24 +187,6 @@
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="workloadAsesorChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Content Row -->
-    <div class="row">
-
-        <!-- Tren Peminat Skema Chart -->
-        <div class="col-xl-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Distribusi Beban Kerja Asesor</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="trenPeminatSkemaChart"></canvas>
                     </div>
                 </div>
             </div>

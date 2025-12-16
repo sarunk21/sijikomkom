@@ -97,7 +97,7 @@
                                 <td>{{ $item->pendaftaran->tuk->nama }}</td>
                                 <td class="text-center">
                                     {{-- Button Download Sertifikat --}}
-                                    <a href="{{ asset('storage/sertifikat/' . $item->sertifikat) }}" target="_blank"
+                                    <a href="{{ asset('storage/' . $item->sertifikat) }}" target="_blank"
                                         class="btn btn-light btn-icon btn-sm border shadow-sm" title="Download Sertifikat">
                                         <i class="fas fa-download"></i>
                                     </a>

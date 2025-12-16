@@ -17,6 +17,7 @@ class PembayaranJasaController extends Controller
     {
         $lists = $this->getMenuListAsesor('pembayaran-jasa');
         $pembayaranJasa = PembayaranAsesor::with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->where('asesor_id', auth()->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
         return view('components.pages.asesor.pembayaran-jasa.list', compact('lists', 'pembayaranJasa'));

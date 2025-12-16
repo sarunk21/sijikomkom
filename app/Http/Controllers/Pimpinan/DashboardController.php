@@ -73,9 +73,9 @@ class DashboardController extends Controller
             ? round((($pendaftaranBulanIni - $pendaftaranBulanLalu) / $pendaftaranBulanLalu) * 100, 1)
             : ($pendaftaranBulanIni > 0 ? 100 : 0);
 
-        // Trend Pendaftaran (6 bulan terakhir)
+        // Trend Pendaftaran (12 bulan terakhir)
         $trendPendaftaran = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $bulan = now()->subMonths($i);
             $count = Pendaftaran::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)

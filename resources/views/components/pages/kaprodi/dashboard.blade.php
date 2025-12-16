@@ -146,46 +146,6 @@
 }
 </style>
 
-<!-- AI Insights Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="alert alert-light border-left-primary shadow-sm" style="border-left: 4px solid #4e73df;">
-            <h5 class="mb-3"><i class="fas fa-lightbulb text-warning mr-2"></i>Insights</h5>
-
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="insight-card {{
-                        strpos($insights['verifikasi'], 'PERHATIAN') !== false ? 'insight-danger' :
-                        (strpos($insights['verifikasi'], '✅') !== false ? 'insight-success' : 'insight-warning')
-                    }} p-3 h-100">
-                        <h6 class="font-weight-bold mb-2">Status Verifikasi</h6>
-                        <p class="mb-0 small">{{ $insights['verifikasi'] }}</p>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="insight-card {{
-                        strpos($insights['performance'], '⚠️') !== false ? 'insight-warning' : 'insight-success'
-                    }} p-3 h-100">
-                        <h6 class="font-weight-bold mb-2">Performa Verifikasi</h6>
-                        <p class="mb-0 small">{{ $insights['performance'] }}</p>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="insight-card {{
-                        strpos($insights['action'], '🔴') !== false ? 'insight-danger' :
-                        (strpos($insights['action'], '✅') !== false ? 'insight-success' : 'insight-warning')
-                    }} p-3 h-100">
-                        <h6 class="font-weight-bold mb-2">Rekomendasi</h6>
-                        <p class="mb-0 small">{{ $insights['action'] }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- KPI Cards Row 1 -->
 <div class="row mb-4">
     <!-- Total Pendaftaran -->
