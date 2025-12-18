@@ -82,7 +82,6 @@
                 <table id="bankSoalTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama Bank Soal</th>
                             <th>Tipe</th>
                             <th>Target</th>
                             <th>Skema</th>
@@ -94,14 +93,6 @@
                     <tbody>
                         @forelse ($bankSoals as $bankSoal)
                             <tr>
-                                <td>
-                                    <div>
-                                        <strong>{{ $bankSoal->nama }}</strong>
-                                        @if($bankSoal->keterangan)
-                                            <br><small class="text-muted">{{ Str::limit($bankSoal->keterangan, 50) }}</small>
-                                        @endif
-                                    </div>
-                                </td>
                                 <td>
                                     @if($bankSoal->tipe == 'FR IA 03')
                                         <span class="badge badge-primary">{{ $bankSoal->tipe }}</span>
@@ -151,7 +142,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted">Tidak ada data bank soal</td>
+                                <td colspan="7" class="text-center text-muted">Tidak ada data bank soal</td>
                             </tr>
                         @endforelse
                     </tbody>

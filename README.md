@@ -1,61 +1,237 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/img/logo.png" width="140" alt="LSP UPNVJ Logo">
 </p>
 
-## About Laravel
+<p align="center">
+  <b>Sistem Informasi Uji Kompetensi & Sertifikasi – LSP UPNVJ</b><br>
+  Aplikasi manajemen sertifikasi, ujian kompetensi, dan pelaporan multi–role berbasis Laravel.
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Gambaran Umum Proyek
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Aplikasi ini digunakan untuk mengelola seluruh proses sertifikasi di lingkungan LSP UPNVJ, mulai dari:
 
-## Learning Laravel
+- **Pendaftaran Uji Kompetensi (Ujikom)** oleh Asesi (mahasiswa/asesi)
+- **Manajemen Skema, TUK, Jadwal, Bank Soal, dan Template Dokumen** oleh Admin
+- **Proses penilaian & verifikasi** oleh Asesor
+- **Monitoring & verifikasi pendaftaran** oleh Kaprodi
+- **Monitoring kinerja & laporan IKU** oleh Pimpinan
+- **Konfirmasi jadwal & monitoring pelaksanaan** oleh Kepala TUK
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Aplikasi dibangun dengan **Laravel** dan memanfaatkan:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- Blade component untuk tampilan modular
+- Eloquent ORM untuk akses database
+- Chart.js untuk visualisasi dashboard
+- PhpSpreadsheet untuk export laporan ke Excel
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Fitur Utama
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Manajemen Skema & TUK**
+  - CRUD Skema Sertifikasi
+  - CRUD Tempat Uji Kompetensi (TUK)
 
-### Premium Partners
+- **Pendaftaran & Ujikom**
+  - Pendaftaran ujikom oleh Asesi
+  - Verifikasi berjenjang oleh Kaprodi & Admin
+  - Penjadwalan ujian & asignasi asesor
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+- **Bank Soal & Template Master**
+  - Bank soal per skema & tipe formulir (APL, AK, dsb.)
+  - Template Master dokumen sertifikasi (Word / PDF)
+  - Validasi kombinasi unik (Skema, Tipe, Target/Formulir)
 
-## Contributing
+- **Dashboard Multi–Role**
+  - Admin, Asesi, Asesor, Kaprodi, Pimpinan, dan TUK memiliki dashboard masing‑masing
+  - Grafik Bar & Line untuk tren pendaftaran, workload asesor, top skema, dll.
+  - Pie chart untuk segmentasi jenis kelamin, status pendaftaran, dan metrik lain yang cocok
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Laporan & Export Excel**
+  - Report Hasil Ujikom (Kaprodi)
+  - Report Pimpinan + laporan detail kompeten/tidak kompeten
+  - Laporan IKU dengan filter tanggal & skema
+  - Export Excel di setiap laporan (mengikuti filter yang sedang aktif)
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Teknologi & Prasyarat
 
-## Security Vulnerabilities
+- **PHP** >= 8.1
+- **Composer**
+- **MySQL/MariaDB**
+- **Node.js & NPM/Yarn** (untuk asset build, jika diperlukan)
+- **Extensions PHP** standar Laravel (mbstring, openssl, pdo, tokenizer, xml, ctype, json, gd, dll.)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## Cara Menjalankan Proyek (Local Development)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 1. Clone Repository
+
+```bash
+git clone <url-repo-ini>
+cd sijikomkom
+```
+
+### 2. Install Dependency PHP
+
+```bash
+composer install
+```
+
+Jika menggunakan `sail` atau environment khusus, sesuaikan dengan setup lokal Anda.
+
+### 3. Salin & Konfigurasi File Environment
+
+```bash
+cp .env.example .env
+```
+
+Ubah konfigurasi dasar di `.env`:
+
+- **Database**
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sijikomkom
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+- **App URL (penting untuk storage dan asset)**
+
+```env
+APP_URL=http://127.0.0.1:8000
+```
+
+### 4. Generate APP_KEY
+
+```bash
+php artisan key:generate
+```
+
+### 5. Jalankan Migrasi & Seeder
+
+```bash
+php artisan migrate --seed
+```
+
+Seeder akan mengisi data awal seperti:
+
+- Role pengguna (admin, asesi, asesor, kaprodi, pimpinan, tuk)
+- Skema contoh, jadwal ujikom contoh, dan data sistem lainnya (tergantung seeder yang tersedia)
+
+> Jika ada seeder khusus (misal `SystemAnalystBankSoalSeeder`), jalankan manual:
+>
+> ```bash
+> php artisan db:seed --class=SystemAnalystBankSoalSeeder
+> ```
+
+### 6. Link Storage (Jika ada upload file)
+
+```bash
+php artisan storage:link
+```
+
+### 7. Jalankan Server
+
+```bash
+php artisan serve
+```
+
+Akses aplikasi di browser:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## Akun & Role Default (Contoh)
+
+> **Catatan:** Sesuaikan dengan isi seeder di project Anda.
+
+Beberapa role yang digunakan:
+
+- **Admin**
+- **Asesi**
+- **Asesor**
+- **Kaprodi**
+- **Pimpinan**
+- **Kepala TUK**
+
+Jika di seeder sudah disiapkan user default, biasanya menggunakan pola:
+
+- Email: `admin@example.com`, `kaprodi@example.com`, dsb.
+- Password: `password` atau yang diatur di seeder.
+
+Periksa isi folder `database/seeders` untuk detail terbaru akun default.
+
+---
+
+## Struktur Folder Penting
+
+- `app/Http/Controllers`
+  - `Admin/` – Manajemen skema, TUK, bank soal, template, dll.
+  - `Asesi/` – Pendaftaran ujikom, sertifikasi, upload dokumen.
+  - `Asesor/` – Review APL, penilaian, hasil ujikom.
+  - `Kaprodi/` – Dashboard kaprodi, verifikasi pendaftaran, report hasil ujikom.
+  - `Pimpinan/` – Dashboard pimpinan, report pimpinan, laporan IKU.
+  - `Tuk/` – Dashboard TUK & konfirmasi jadwal.
+
+- `resources/views/components/pages`
+  - Folder per role (`admin`, `asesi`, `asesor`, `kaprodi`, `pimpinan`, `tuk`)
+  - Setiap halaman menggunakan komponen Blade terstruktur.
+
+- `app/Traits/MenuTrait.php`
+  - Menyusun struktur sidebar/menu untuk setiap role.
+
+- `app/Services` / `app/Console/Commands`
+  - Service khusus & command artisan untuk pengelolaan background task (jika ada).
+
+---
+
+## Testing (Opsional)
+
+Jika Anda menambahkan test, jalankan dengan:
+
+```bash
+php artisan test
+```
+
+Atau dengan PHPUnit langsung:
+
+```bash
+./vendor/bin/phpunit
+```
+
+---
+
+## Style & Kontribusi Kode
+
+- Ikuti **coding style Laravel** (PSR-12).
+- Gunakan **Form Request** & validasi sisi server untuk setiap form penting.
+- Manfaatkan **Blade component** dan partial view untuk menghindari duplikasi.
+- Untuk fitur baru:
+  - Tambah route di `routes/web.php` dengan prefix & middleware yang sesuai role.
+  - Tambah controller di namespace role yang tepat.
+  - Tambah tampilan di `resources/views/components/pages/{role}`.
+
+Jika bekerja secara tim, sebaiknya gunakan:
+
+- Branch per fitur (`feature/nama-fitur`)
+- Pull Request dengan deskripsi singkat perubahan
+
+---
+
+## Lisensi
+
+Proyek ini dibangun di atas framework **Laravel** yang berlisensi [MIT](https://opensource.org/licenses/MIT).  
+Lisensi spesifik aplikasi ini mengikuti kebijakan internal LSP UPNVJ (atur sesuai kebutuhan organisasi).
+

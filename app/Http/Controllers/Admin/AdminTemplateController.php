@@ -125,7 +125,7 @@ class AdminTemplateController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_template' => 'required|string|max:255',
+            'nama_template' => 'nullable|string|max:255',
             'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
@@ -142,7 +142,30 @@ class AdminTemplateController extends Controller
             // Dynamic field configurations
             'field_configurations' => 'nullable|string',
             'field_mappings' => 'nullable|string',
+        ], [
+            'tipe_template.required' => 'Tipe Template wajib dipilih.',
+            'tipe_template.in' => 'Tipe Template yang dipilih tidak valid.',
+            'skema_id.required' => 'Skema wajib dipilih.',
+            'skema_id.exists' => 'Skema yang dipilih tidak ditemukan.',
+            'file_template.required' => 'File Template wajib diupload.',
+            'file_template.file' => 'File yang diupload tidak valid.',
+            'file_template.mimes' => 'File Template harus berformat .docx.',
+            'file_template.max' => 'Ukuran file Template maksimal 10MB.',
+            'ttd_digital.file' => 'File TTD Digital yang diupload tidak valid.',
+            'ttd_digital.mimes' => 'File TTD Digital harus berformat PNG, JPG, atau JPEG.',
+            'ttd_digital.max' => 'Ukuran file TTD Digital maksimal 2MB.',
+            'variables.required' => 'Variables wajib diisi.',
+            'variables.string' => 'Variables harus berupa string.',
         ]);
+
+        // Validasi: Tipe Template dan Skema hanya ada 1
+        $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
+            ->where('skema_id', $request->skema_id)
+            ->first();
+
+        if ($existingTemplate) {
+            return redirect()->back()->withInput()->with('error', 'Template dengan kombinasi Tipe Template dan Skema yang sama sudah ada. Silakan edit template yang sudah ada atau pilih kombinasi yang berbeda.');
+        }
 
         try {
             // Parse variables dari JSON
@@ -162,15 +185,6 @@ class AdminTemplateController extends Controller
                 $ttdFile = $request->file('ttd_digital');
                 $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->nama_template) . '.' . $ttdFile->getClientOriginalExtension();
                 $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
-            }
-
-            // Cek apakah sudah ada template dengan tipe dan skema yang sama
-            $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
-                ->where('skema_id', $request->skema_id)
-                ->first();
-
-            if ($existingTemplate) {
-                return redirect()->back()->withInput()->with('error', 'Template dengan tipe dan skema yang sama sudah ada. Silakan edit template yang sudah ada atau pilih tipe/skema yang berbeda.');
             }
 
             // Parse APL2 config jika ada
@@ -199,9 +213,19 @@ class AdminTemplateController extends Controller
                 }
             }
 
+            // Generate nama_template default jika tidak ada
+            $skema = Skema::find($request->skema_id);
+            $tipeLabels = [
+                'APL1' => 'APL 1 (Asesmen Mandiri)',
+                'APL2' => 'APL 2 (Portofolio)',
+                'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
+            ];
+            $tipeLabel = $tipeLabels[$request->tipe_template] ?? $request->tipe_template;
+            $namaTemplate = $request->nama_template ?? ($skema ? $skema->nama . ' - ' . $tipeLabel : $tipeLabel);
+
             // Buat template master
             $template = TemplateMaster::create([
-                'nama_template' => $request->nama_template,
+                'nama_template' => $namaTemplate,
                 'tipe_template' => $request->tipe_template,
                 'skema_id' => $request->skema_id,
                 'deskripsi' => $request->deskripsi,
@@ -331,7 +355,7 @@ class AdminTemplateController extends Controller
         $template = TemplateMaster::findOrFail($id);
 
         $request->validate([
-            'nama_template' => 'required|string|max:255',
+            'nama_template' => 'nullable|string|max:255',
             'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
@@ -339,7 +363,30 @@ class AdminTemplateController extends Controller
             'ttd_digital' => 'nullable|file|mimes:png,jpg,jpeg|max:2048',
             'variables' => 'required|string', // JSON string dari JavaScript
             'is_active' => 'boolean',
+        ], [
+            'tipe_template.required' => 'Tipe Template wajib dipilih.',
+            'tipe_template.in' => 'Tipe Template yang dipilih tidak valid.',
+            'skema_id.required' => 'Skema wajib dipilih.',
+            'skema_id.exists' => 'Skema yang dipilih tidak ditemukan.',
+            'file_template.file' => 'File Template yang diupload tidak valid.',
+            'file_template.mimes' => 'File Template harus berformat .docx.',
+            'file_template.max' => 'Ukuran file Template maksimal 10MB.',
+            'ttd_digital.file' => 'File TTD Digital yang diupload tidak valid.',
+            'ttd_digital.mimes' => 'File TTD Digital harus berformat PNG, JPG, atau JPEG.',
+            'ttd_digital.max' => 'Ukuran file TTD Digital maksimal 2MB.',
+            'variables.required' => 'Variables wajib diisi.',
+            'variables.string' => 'Variables harus berupa string.',
         ]);
+
+        // Validasi: Tipe Template dan Skema hanya ada 1
+        $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
+            ->where('skema_id', $request->skema_id)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingTemplate) {
+            return redirect()->back()->withInput()->with('error', 'Template dengan kombinasi Tipe Template dan Skema yang sama sudah ada. Silakan edit template yang sudah ada atau pilih kombinasi yang berbeda.');
+        }
 
         try {
             // Parse variables dari JSON
@@ -395,19 +442,19 @@ class AdminTemplateController extends Controller
                 $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
             }
 
-            // Cek apakah sudah ada template lain dengan tipe dan skema yang sama
-            $existingTemplate = TemplateMaster::where('tipe_template', $request->tipe_template)
-                ->where('skema_id', $request->skema_id)
-                ->where('id', '!=', $id)
-                ->first();
-
-            if ($existingTemplate) {
-                return redirect()->back()->withInput()->with('error', 'Template dengan tipe dan skema yang sama sudah ada.');
-            }
+            // Generate nama_template default jika tidak ada
+            $skema = Skema::find($request->skema_id);
+            $tipeLabels = [
+                'APL1' => 'APL 1 (Asesmen Mandiri)',
+                'APL2' => 'APL 2 (Portofolio)',
+                'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
+            ];
+            $tipeLabel = $tipeLabels[$request->tipe_template] ?? $request->tipe_template;
+            $namaTemplate = $request->nama_template ?? ($skema ? $skema->nama . ' - ' . $tipeLabel : $tipeLabel);
 
             // Update template
             $template->update([
-                'nama_template' => $request->nama_template,
+                'nama_template' => $namaTemplate,
                 'tipe_template' => $request->tipe_template,
                 'skema_id' => $request->skema_id,
                 'deskripsi' => $request->deskripsi,

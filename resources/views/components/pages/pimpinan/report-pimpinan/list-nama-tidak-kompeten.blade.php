@@ -6,6 +6,12 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Daftar Asesi Tidak Kompeten</h6>
+                <a href="{{ route('pimpinan.report-pimpinan.list-nama-tidak-kompeten.export-excel', request()->route('id')) }}" class="btn btn-success">
+                    <i class="fas fa-file-excel mr-1"></i> Export Excel
+                </a>
+            </div>
             <div class="table-responsive">
                 <table id="reportTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">

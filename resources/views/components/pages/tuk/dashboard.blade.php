@@ -294,17 +294,22 @@ const trenChart = new Chart(trenCtx, {
     }
 });
 
-// Chart untuk distribusi skema (hanya jika ada data)
+// Chart untuk distribusi skema (hanya jika ada data) - Bar untuk data yang banyak
 @if($distribusiSkema->count() > 0)
 const distribusiCtx = document.getElementById('distribusiSkemaChart').getContext('2d');
+const distribusiKeys = Object.keys(distribusiData);
+const distribusiValues = Object.values(distribusiData);
+const useBarChart = distribusiKeys.length > 3 || distribusiValues.some(v => v > 10);
+
 const distribusiChart = new Chart(distribusiCtx, {
-    type: 'doughnut',
+    type: useBarChart ? 'bar' : 'doughnut',
     data: {
-        labels: Object.keys(distribusiData),
+        labels: distribusiKeys,
         datasets: [{
-            data: Object.values(distribusiData),
+            label: useBarChart ? 'Jumlah' : '',
+            data: distribusiValues,
             backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#6f42c1', '#e83e8c', '#f6c23e'],
-            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#5a32a3', '#d63384', '#dda20a'],
+            borderColor: useBarChart ? ['#2e59d9', '#17a673', '#2c9faf', '#5a32a3', '#d63384', '#dda20a'] : undefined,
             borderWidth: 2
         }]
     },
@@ -315,7 +320,19 @@ const distribusiChart = new Chart(distribusiCtx, {
             legend: {
                 display: false
             }
-        }
+        },
+        ...(useBarChart ? {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        } : {})
     }
 });
 @endif

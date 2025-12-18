@@ -233,16 +233,8 @@
                 </div>
                 <div class="card-body">
                     @if($distribusiSkema->count() > 0)
-                        <div class="chart-pie pt-4 pb-2">
+                        <div class="chart-bar pt-4 pb-2">
                             <canvas id="skemaChart"></canvas>
-                        </div>
-                        <div class="mt-4 text-center small">
-                            @foreach($distribusiSkema as $nama => $jumlah)
-                                <span class="mr-2 mb-2 d-inline-block">
-                                    <i class="fas fa-circle text-{{ ['primary', 'success', 'info', 'warning', 'danger'][$loop->index % 5] }}"></i>
-                                    {{ $nama }}
-                                </span>
-                            @endforeach
                         </div>
                     @else
                         <div class="text-center py-5">
@@ -739,19 +731,19 @@ new Chart(trendCtx, {
     }
 });
 
-// Skema Pie Chart
+// Skema Bar Chart
 @if($distribusiSkema->count() > 0)
 const skemaCtx = document.getElementById('skemaChart').getContext('2d');
 new Chart(skemaCtx, {
-    type: 'doughnut',
+    type: 'bar',
     data: {
         labels: Object.keys(skemaData),
         datasets: [{
+            label: 'Jumlah Pendaftaran',
             data: Object.values(skemaData),
             backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
-            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
-            borderWidth: 3,
-            borderColor: '#fff'
+            borderColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+            borderWidth: 2
         }]
     },
     options: {
@@ -761,11 +753,19 @@ new Chart(skemaCtx, {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        let percentage = Math.round((context.parsed / total) * 100);
-                        return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                        return context.label + ': ' + context.parsed.y;
                     }
                 }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+                grid: { display: false }
             }
         }
     }

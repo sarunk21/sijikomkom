@@ -413,19 +413,26 @@
             }
         });
 
-        // Performance Pie Chart
+        // Performance Chart - Bar untuk data yang banyak
         const pieCtx = document.getElementById('performancePieChart').getContext('2d');
+        const kompeten = {{ $performanceSummary['total_kompeten'] }};
+        const tidakKompeten = {{ $performanceSummary['total_tidak_kompeten'] }};
+        const total = kompeten + tidakKompeten;
+        const useBarChart = total > 10;
+        
         new Chart(pieCtx, {
-            type: 'doughnut',
+            type: useBarChart ? 'bar' : 'doughnut',
             data: {
                 labels: ['Kompeten', 'Tidak Kompeten'],
                 datasets: [{
-                    data: [{{ $performanceSummary['total_kompeten'] }}, {{ $performanceSummary['total_tidak_kompeten'] }}],
+                    label: useBarChart ? 'Jumlah' : '',
+                    data: [kompeten, tidakKompeten],
                     backgroundColor: [
                         'rgba(17, 153, 142, 0.8)',
                         'rgba(245, 87, 108, 0.8)'
                     ],
-                    borderWidth: 0
+                    borderColor: useBarChart ? ['rgba(17, 153, 142, 1)', 'rgba(245, 87, 108, 1)'] : undefined,
+                    borderWidth: useBarChart ? 2 : 0
                 }]
             },
             options: {
@@ -433,9 +440,22 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
+                        display: !useBarChart,
                         position: 'bottom',
                     }
-                }
+                },
+                ...(useBarChart ? {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                } : {})
             }
         });
 

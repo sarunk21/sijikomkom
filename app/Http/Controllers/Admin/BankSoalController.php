@@ -146,9 +146,28 @@ class BankSoalController extends Controller
     {
         $request->validate([
             'skema_id' => 'required|exists:skema,id',
-            'nama' => 'required|string|max:255',
+            'nama' => 'nullable|string|max:255',
             'tipe' => 'required|in:FR IA 03,FR IA 06,FR IA 07',
             'target' => 'required|in:asesi,asesor',
+        ], [
+            'skema_id.required' => 'Skema Sertifikasi wajib dipilih.',
+            'tipe.required' => 'Tipe Formulir wajib dipilih.',
+            'target.required' => 'Target Pengguna wajib dipilih.',
+        ]);
+
+        // Validasi: Skema Sertifikasi, Tipe Formulir, dan Target Pengguna hanya ada 1
+        $existing = BankSoal::where('skema_id', $request->skema_id)
+            ->where('tipe', $request->tipe)
+            ->where('target', $request->target)
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Bank soal dengan kombinasi Skema Sertifikasi, Tipe Formulir, dan Target Pengguna yang sama sudah ada. Silakan edit bank soal yang sudah ada atau pilih kombinasi yang berbeda.');
+        }
+
+        $request->validate([
             'file' => 'required|file|mimes:pdf,doc,docx|max:10240', // max 10MB
             'keterangan' => 'nullable|string',
             'variables' => 'nullable|string', // JSON string dari JavaScript
@@ -197,10 +216,14 @@ class BankSoalController extends Controller
             $filteredCustomVars = array_filter($customVars, fn($var) => !empty($var['name']) && !empty($var['label']));
             $customVariables = !empty($filteredCustomVars) ? array_values($filteredCustomVars) : null;
 
+            // Generate nama default jika tidak ada
+            $skema = Skema::find($request->skema_id);
+            $nama = $request->nama ?? ($skema ? $skema->nama . ' - ' . $request->tipe . ' - ' . ucfirst($request->target) : $request->tipe . ' - ' . ucfirst($request->target));
+
             // Create bank soal record
             BankSoal::create([
                 'skema_id' => $request->skema_id,
-                'nama' => $request->nama,
+                'nama' => $nama,
                 'tipe' => $request->tipe,
                 'target' => $request->target,
                 'file_path' => $filename,
@@ -338,9 +361,32 @@ class BankSoalController extends Controller
         // Build validation rules
         $rules = [
             'skema_id' => 'required|exists:skema,id',
-            'nama' => 'required|string|max:255',
+            'nama' => 'nullable|string|max:255',
             'tipe' => 'required|in:FR IA 03,FR IA 06,FR IA 07',
             'target' => 'required|in:asesi,asesor',
+            'keterangan' => 'nullable|string',
+        ];
+
+        $messages = [
+            'skema_id.required' => 'Skema Sertifikasi wajib dipilih.',
+            'tipe.required' => 'Tipe Formulir wajib dipilih.',
+            'target.required' => 'Target Pengguna wajib dipilih.',
+        ];
+
+        // Validasi: Skema Sertifikasi, Tipe Formulir, dan Target Pengguna hanya ada 1
+        $existing = BankSoal::where('skema_id', $request->skema_id)
+            ->where('tipe', $request->tipe)
+            ->where('target', $request->target)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Bank soal dengan kombinasi Skema Sertifikasi, Tipe Formulir, dan Target Pengguna yang sama sudah ada. Silakan edit bank soal yang sudah ada atau pilih kombinasi yang berbeda.');
+        }
+
+        $rules = array_merge($rules, [
             'keterangan' => 'nullable|string',
             'variables' => 'nullable|string', // JSON string dari JavaScript
             'custom_variables' => 'nullable|array',
@@ -352,18 +398,18 @@ class BankSoalController extends Controller
             'custom_variables.*.role' => 'nullable|string|in:asesi,asesor,both',
             'field_configurations' => 'nullable|string',
             'field_mappings' => 'nullable|string',
-        ];
+        ]);
 
         // Only validate file if it exists
         if ($request->hasFile('file')) {
             $rules['file'] = 'file|mimes:pdf,doc,docx|max:10240'; // max 10MB
         }
 
-        $messages = [
+        $messages = array_merge($messages, [
             'file.max' => 'Ukuran file terlalu besar. Maksimal 10MB.',
             'file.mimes' => 'Format file tidak valid. Hanya menerima PDF, DOC, atau DOCX.',
             'file.file' => 'File yang diupload tidak valid.',
-        ];
+        ]);
 
         try {
             $request->validate($rules, $messages);
@@ -457,7 +503,10 @@ class BankSoalController extends Controller
 
         // Update other fields
         $bankSoal->skema_id = $request->skema_id;
-        $bankSoal->nama = $request->nama;
+        // Generate nama default jika tidak ada
+        $skema = Skema::find($request->skema_id);
+        $nama = $request->nama ?? ($skema ? $skema->nama . ' - ' . $request->tipe . ' - ' . ucfirst($request->target) : $request->tipe . ' - ' . ucfirst($request->target));
+        $bankSoal->nama = $nama;
         $bankSoal->tipe = $request->tipe;
         $bankSoal->target = $request->target;
         $bankSoal->keterangan = $request->keterangan;

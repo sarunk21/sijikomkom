@@ -152,7 +152,9 @@ class DashboardController extends Controller
 
         $workloadAsesor = DB::table('pendaftaran_ujikom')
             ->join('users', 'pendaftaran_ujikom.asesor_id', '=', 'users.id')
-            ->select('users.name as nama', DB::raw('COUNT(pendaftaran_ujikom.id) as total'))
+            ->select('users.name as nama', 
+                     DB::raw('COUNT(DISTINCT pendaftaran_ujikom.id) as total'),
+                     DB::raw('COUNT(DISTINCT pendaftaran_ujikom.asesi_id) as total_asesi'))
             ->groupBy('users.id', 'users.name')
             ->orderBy('total', 'desc')
             ->limit(10)
@@ -160,7 +162,8 @@ class DashboardController extends Controller
             ->map(function($item) {
                 return [
                     'nama' => $item->nama,
-                    'total' => $item->total
+                    'total' => $item->total,
+                    'total_asesi' => $item->total_asesi
                 ];
             });
 

@@ -30,8 +30,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 03',
                 'target' => 'asesi',
-                'file_path' => 'bank-soal/system-analyst-fr-ia-03.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ia-03.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
                 'variables' => [
@@ -105,8 +103,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 06',
                 'target' => 'asesi',
-                'file_path' => 'bank-soal/system-analyst-fr-ia-06.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ia-06.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
                 'variables' => [
@@ -231,8 +227,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
             [
                 'nama' => 'System Analyst FR IA 07',
                 'target' => 'asesor',
-                'file_path' => 'bank-soal/system-analyst-fr-ia-07.docx', // TODO: Upload file manual
-                'original_filename' => 'system-analyst-fr-ia-07.docx',
                 'is_active' => true,
                 'keterangan' => 'FR IA 07 - Ceklis observasi asesor',
                 'variables' => [
@@ -368,15 +362,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
                         'role' => 'asesor',
                         'type' => 'textarea',
                         'label' => 'Bagaimana anda memastikan bahwa mekanisme interaksi yang tepat dalam UI sesuai dengan kebutuhan user [ DPL 13 ] TMS',
-                        'mapping' => null,
-                        'options' => null,
-                        'required' => '1'
-                    ],
-                    [
-                        'name' => 'ttd_digital_asesi',
-                        'role' => 'asesi',
-                        'type' => 'signature_pad',
-                        'label' => 'Tanda Tangan Asesi',
                         'mapping' => null,
                         'options' => null,
                         'required' => '1'

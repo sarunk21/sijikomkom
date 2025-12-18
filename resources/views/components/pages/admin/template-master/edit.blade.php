@@ -57,19 +57,34 @@
                         <h6 class="m-0 font-weight-bold text-primary">Edit Template Master</h6>
                     </div>
                     <div class="card-body">
+                        <!-- Alert Messages -->
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                <strong>Terjadi kesalahan:</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
                         <form action="{{ route('admin.template-master.update', $template->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
-
-                            <!-- Nama Template -->
-                            <div class="mb-3">
-                                <label for="nama_template" class="form-label">Nama Template <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('nama_template') is-invalid @enderror"
-                                    id="nama_template" name="nama_template" value="{{ old('nama_template', $template->nama_template) }}" required>
-                                @error('nama_template')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
 
                             <!-- Tipe Template -->
                             <div class="mb-3">
@@ -141,6 +156,11 @@
                             <!-- Variables Section with Tabs -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">Variables Template <span class="text-danger">*</span></label>
+                                @error('variables')
+                                    <div class="text-danger small mb-2">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
                                 <p class="small text-muted mb-3">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Pilih field dari database atau buat variable custom. Gunakan format <code>${variable}</code> dalam file .docx

@@ -234,7 +234,10 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
     Route::get('/', [KaprodiDashboardController::class, 'index'])->name('dashboard.kaprodi');
     Route::resource('report-hasil-uji', ReportHasilUjiController::class)->names('kaprodi.report-hasil-uji');
     Route::get('report-hasil-uji/list-nama-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaKompeten'])->name('kaprodi.report-hasil-uji.list-nama-kompeten');
+    Route::get('report-hasil-uji/list-nama-kompeten/{id}/export-excel', [ReportHasilUjiController::class, 'exportNamaKompetenExcel'])->name('kaprodi.report-hasil-uji.list-nama-kompeten.export-excel');
     Route::get('report-hasil-uji/list-nama-tidak-kompeten/{id}', [ReportHasilUjiController::class, 'listNamaTidakKompeten'])->name('kaprodi.report-hasil-uji.list-nama-tidak-kompeten');
+    Route::get('report-hasil-uji/list-nama-tidak-kompeten/{id}/export-excel', [ReportHasilUjiController::class, 'exportNamaTidakKompetenExcel'])->name('kaprodi.report-hasil-uji.list-nama-tidak-kompeten.export-excel');
+    Route::get('report-hasil-uji/export-excel', [ReportHasilUjiController::class, 'exportExcel'])->name('kaprodi.report-hasil-uji.export-excel');
     Route::resource('verifikasi-pendaftaran', VerifikasiPendaftaranController::class)->names('kaprodi.verifikasi-pendaftaran');
     Route::resource('profil-kaprodi', ProfilKaprodiController::class)->names('kaprodi.profil-kaprodi');
 
@@ -259,8 +262,12 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
 Route::group(['prefix' => 'pimpinan', 'middleware' => 'user.type'], function () {
     Route::get('/', [PimpinanDashboardController::class, 'index'])->name('dashboard.pimpinan');
     Route::get('report-pimpinan/list-nama-kompeten/{id}', [ReportPimpinanController::class, 'listNamaKompeten'])->name('pimpinan.report-pimpinan.list-nama-kompeten');
+    Route::get('report-pimpinan/list-nama-kompeten/{id}/export-excel', [ReportPimpinanController::class, 'exportNamaKompetenExcel'])->name('pimpinan.report-pimpinan.list-nama-kompeten.export-excel');
     Route::get('report-pimpinan/list-nama-tidak-kompeten/{id}', [ReportPimpinanController::class, 'listNamaTidakKompeten'])->name('pimpinan.report-pimpinan.list-nama-tidak-kompeten');
+    Route::get('report-pimpinan/list-nama-tidak-kompeten/{id}/export-excel', [ReportPimpinanController::class, 'exportNamaTidakKompetenExcel'])->name('pimpinan.report-pimpinan.list-nama-tidak-kompeten.export-excel');
+    Route::get('report-pimpinan/export-excel', [ReportPimpinanController::class, 'exportExcel'])->name('pimpinan.report-pimpinan.export-excel');
     Route::resource('report-pimpinan', ReportPimpinanController::class)->names('pimpinan.report-pimpinan');
+    Route::get('laporan-iku/export-excel', [LaporanIKUController::class, 'exportExcel'])->name('pimpinan.laporan-iku.export-excel');
     Route::resource('laporan-iku', LaporanIKUController::class)->names('pimpinan.laporan-iku');
     Route::resource('profil-pimpinan', ProfilPimpinanController::class)->names('pimpinan.profil-pimpinan');
 

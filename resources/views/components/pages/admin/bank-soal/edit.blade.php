@@ -99,17 +99,6 @@
                                 <small class="text-muted">Pilih skema yang sesuai dengan bank soal ini</small>
                             </div>
 
-                            <!-- Nama Bank Soal -->
-                            <div class="mb-3">
-                                <label for="nama" class="form-label">Nama Bank Soal <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('nama') is-invalid @enderror"
-                                    id="nama" name="nama" value="{{ old('nama', $bankSoal->nama) }}"
-                                    placeholder="Contoh: Soal Praktik Instalasi Jaringan" required>
-                                @error('nama')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <!-- Tipe Formulir -->
                             <div class="mb-3">
                                 <label for="tipe" class="form-label">Tipe Formulir <span class="text-danger">*</span></label>

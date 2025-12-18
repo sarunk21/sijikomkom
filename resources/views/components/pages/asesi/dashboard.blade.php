@@ -392,14 +392,19 @@
 // Data dari controller
 const statusData = @json($statusPendaftaran);
 
-// Chart untuk status pendaftaran
+// Chart untuk status pendaftaran - Bar untuk data yang banyak
 const statusCtx = document.getElementById('statusPendaftaranChart').getContext('2d');
+const statusKeys = Object.keys(statusData);
+const statusValues = Object.values(statusData);
+const useBarChart = statusKeys.length > 3 || statusValues.some(v => v > 10);
+
 const statusChart = new Chart(statusCtx, {
-    type: 'doughnut',
+    type: useBarChart ? 'bar' : 'doughnut',
     data: {
-        labels: Object.keys(statusData),
+        labels: statusKeys,
         datasets: [{
-            data: Object.values(statusData),
+            label: useBarChart ? 'Jumlah' : '',
+            data: statusValues,
             backgroundColor: [
                 '#1cc88a', // success
                 '#f6c23e', // warning
@@ -408,16 +413,16 @@ const statusChart = new Chart(statusCtx, {
                 '#6f42c1', // secondary
                 '#4e73df'  // primary
             ],
-            hoverBackgroundColor: [
+            borderColor: useBarChart ? [
                 '#17a673',
                 '#f4b619',
                 '#d52a1a',
                 '#2c9faf',
                 '#5a32a3',
                 '#2e59d9'
-            ],
-            borderWidth: 2,
-            borderColor: '#fff'
+            ] : undefined,
+            borderWidth: useBarChart ? 2 : 2,
+            borderColor: useBarChart ? undefined : '#fff'
         }]
     },
     options: {
@@ -446,7 +451,20 @@ const statusChart = new Chart(statusCtx, {
                 }
             }
         },
-        cutout: '70%'
+        ...(useBarChart ? {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        } : {
+            cutout: '70%'
+        })
     }
 });
 

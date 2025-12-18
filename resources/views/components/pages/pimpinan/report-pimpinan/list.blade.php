@@ -59,6 +59,9 @@
                         <a href="{{ route('pimpinan.report-pimpinan.index') }}" class="btn btn-secondary">
                             <i class="fas fa-redo mr-1"></i> Reset Filter
                         </a>
+                        <a href="{{ route('pimpinan.report-pimpinan.export-excel', request()->query()) }}" class="btn btn-success">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel
+                        </a>
                     </div>
                 </div>
             </form>

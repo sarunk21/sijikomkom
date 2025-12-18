@@ -384,7 +384,7 @@
         <div class="card shadow h-100">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-chart-pie mr-2"></i>Distribusi Skema (Top 5)
+                    <i class="fas fa-chart-bar mr-2"></i>Distribusi Skema (Top 5)
                 </h6>
             </div>
             <div class="card-body">
@@ -510,6 +510,7 @@
                                     <th>#</th>
                                     <th>Nama Asesor</th>
                                     <th class="text-center">Jumlah Ujikom</th>
+                                    <th class="text-center">Banyak Asesi yang Diaseses</th>
                                     <th>Workload</th>
                                 </tr>
                             </thead>
@@ -520,6 +521,9 @@
                                     <td class="font-weight-bold">{{ $asesor['nama'] }}</td>
                                     <td class="text-center">
                                         <span class="badge badge-primary badge-custom">{{ $asesor['total'] }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success badge-custom">{{ $asesor['total_asesi'] ?? 0 }}</span>
                                     </td>
                                     <td>
                                         <div class="progress" style="height: 8px;">
@@ -617,10 +621,11 @@ if (trenCtx) {
 const distribusiCtx = document.getElementById('distribusiSkemaChart');
 if (distribusiCtx && Object.keys(distribusiSkema).length > 0) {
     new Chart(distribusiCtx, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
             labels: Object.keys(distribusiSkema),
             datasets: [{
+                label: 'Jumlah Pendaftaran',
                 data: Object.values(distribusiSkema),
                 backgroundColor: [
                     '#4e73df',
@@ -629,25 +634,34 @@ if (distribusiCtx && Object.keys(distribusiSkema).length > 0) {
                     '#f6c23e',
                     '#e74a3b'
                 ],
-                borderWidth: 3,
-                borderColor: '#fff'
+                borderColor: [
+                    '#2e59d9',
+                    '#17a673',
+                    '#2c9faf',
+                    '#dda20a',
+                    '#be2617'
+                ],
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        font: { size: 11 },
-                        usePointStyle: true
-                    }
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: 'rgba(0,0,0,0.8)',
                     padding: 12
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
                 }
             }
         }
@@ -711,7 +725,7 @@ if (verifikasiCtx) {
     });
 }
 
-// Chart 4: Segmentasi Jenis Kelamin
+// Chart 4: Segmentasi Jenis Kelamin - Pie Chart (karena hanya 2 klasifikasi)
 const segmentasiCtx = document.getElementById('segmentasiChart');
 if (segmentasiCtx && Object.keys(segmentasiJenisKelamin).length > 0) {
     new Chart(segmentasiCtx, {

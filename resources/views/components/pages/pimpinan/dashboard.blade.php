@@ -153,7 +153,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Top 5 Skema Terpopuler</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
+                    <div class="chart-bar pt-4 pb-2">
                         <canvas id="statistikKeberhasilanChart"></canvas>
                     </div>
                 </div>
@@ -233,24 +233,40 @@
         }
     });
 
-    // Chart 2: Distribusi Skema (Top 5)
+    // Chart 2: Distribusi Skema (Top 5) - Bar Chart
     const distribusiCtx = document.getElementById('statistikKeberhasilanChart');
     new Chart(distribusiCtx, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
             labels: distribusiSkemaData.map(item => item.nama),
             datasets: [{
+                label: 'Jumlah Pendaftaran',
                 data: distribusiSkemaData.map(item => item.total),
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                borderColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
         }
     });
 
-    // Chart 3: Segmentasi Gender
+    // Chart 3: Segmentasi Gender - Pie Chart (karena hanya 2 klasifikasi)
     const segmentasiCtx = document.getElementById('segmentasiDemografiChart');
     new Chart(segmentasiCtx, {
         type: 'pie',

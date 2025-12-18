@@ -59,6 +59,9 @@
                         <a href="{{ route('kaprodi.report-hasil-uji.index') }}" class="btn btn-secondary">
                             <i class="fas fa-redo mr-1"></i> Reset Filter
                         </a>
+                        <a href="{{ route('kaprodi.report-hasil-uji.export-excel', request()->query()) }}" class="btn btn-success">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel
+                        </a>
                     </div>
                 </div>
             </form>

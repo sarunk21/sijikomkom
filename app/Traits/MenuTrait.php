@@ -41,11 +41,6 @@ trait MenuTrait
                         'title' => 'Pembayaran Asesi',
                         'url' => 'admin.pembayaran-asesi.index',
                         'key' => 'pembayaran-asesi'
-                    ],
-                    [
-                        'title' => 'Pembayaran Asesor',
-                        'url' => 'admin.pembayaran-asesor.index',
-                        'key' => 'pembayaran-asesor'
                     ]
                 ]
             ],
@@ -194,11 +189,6 @@ trait MenuTrait
                 'title' => 'Review & Verifikasi',
                 'url' => 'asesor.review.index',
                 'key' => 'review'
-            ],
-            [
-                'title' => 'Pembayaran Jasa',
-                'url' => 'asesor.pembayaran-jasa.index',
-                'key' => 'pembayaran-jasa'
             ],
             [
                 'title' => 'Hasil Ujikom',

@@ -36,7 +36,6 @@
                 <table id="templateTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nama Template</th>
                             <th>Tipe Template</th>
                             <th>Skema</th>
                             <th>Variables</th>
@@ -48,14 +47,6 @@
                     <tbody>
                         @foreach ($templates as $template)
                             <tr>
-                                <td>
-                                    <div>
-                                        <strong>{{ $template->nama_template }}</strong>
-                                        @if($template->deskripsi)
-                                            <br><small class="text-muted">{{ Str::limit($template->deskripsi, 50) }}</small>
-                                        @endif
-                                    </div>
-                                </td>
                                 <td>
                                     <span class="badge badge-info">{{ $template->tipe_template_label }}</span>
                                 </td>
