@@ -17,15 +17,31 @@ class DashboardController extends Controller
 {
     use MenuTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+
+        // Filter parameters
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $skemaId = $request->input('skema_id');
 
         // ========== KPI METRICS ==========
 
         // Total Asesi yang Dinilai (lifetime)
         $totalAsesiDinilai = PendaftaranUjikom::where('asesor_id', $user->id)
             ->where('status', 5) // Status 5 = Kompeten (selesai dinilai)
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('updated_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('updated_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->whereHas('pendaftaran', function($sq) use ($skemaId) {
+                    $sq->where('skema_id', $skemaId);
+                });
+            })
             ->count();
 
         // Total Asesi Bulan Ini
@@ -48,11 +64,32 @@ class DashboardController extends Controller
         // Tingkat Kelulusan (Pass Rate) - persentase asesi yang kompeten
         $totalKompeten = Report::whereHas('pendaftaran.pendaftaranUjikom', function($query) use ($user) {
             $query->where('asesor_id', $user->id);
-        })->where('status', 1)->count();
+        })
+        ->where('status', 1)
+        ->when($startDate, function($q) use ($startDate) {
+            return $q->whereDate('created_at', '>=', $startDate);
+        })
+        ->when($endDate, function($q) use ($endDate) {
+            return $q->whereDate('created_at', '<=', $endDate);
+        })
+        ->when($skemaId, function($q) use ($skemaId) {
+            return $q->where('skema_id', $skemaId);
+        })
+        ->count();
 
         $totalReport = Report::whereHas('pendaftaran.pendaftaranUjikom', function($query) use ($user) {
             $query->where('asesor_id', $user->id);
-        })->count();
+        })
+        ->when($startDate, function($q) use ($startDate) {
+            return $q->whereDate('created_at', '>=', $startDate);
+        })
+        ->when($endDate, function($q) use ($endDate) {
+            return $q->whereDate('created_at', '<=', $endDate);
+        })
+        ->when($skemaId, function($q) use ($skemaId) {
+            return $q->where('skema_id', $skemaId);
+        })
+        ->count();
 
         $tingkatKelulusan = $totalReport > 0 ? round(($totalKompeten / $totalReport) * 100) : 0;
 
@@ -107,6 +144,9 @@ class DashboardController extends Controller
             ->where('status', 1)
             ->whereMonth('created_at', $bulan->month)
             ->whereYear('created_at', $bulan->year)
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
             ->count();
 
             $tidakKompeten = Report::whereHas('pendaftaran.pendaftaranUjikom', function($query) use ($user) {
@@ -115,6 +155,9 @@ class DashboardController extends Controller
             ->where('status', 0)
             ->whereMonth('created_at', $bulan->month)
             ->whereYear('created_at', $bulan->year)
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
             ->count();
 
             $trendPenilaian[] = [
@@ -134,6 +177,15 @@ class DashboardController extends Controller
             ->join('skema', 'pendaftaran.skema_id', '=', 'skema.id')
             ->where('pendaftaran_ujikom.asesor_id', $user->id)
             ->where('pendaftaran_ujikom.status', 5) // Status 5 = Kompeten (selesai dinilai)
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('pendaftaran_ujikom.updated_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('pendaftaran_ujikom.updated_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('pendaftaran.skema_id', $skemaId);
+            })
             ->select('skema.nama', \DB::raw('COUNT(*) as jumlah'))
             ->groupBy('skema.nama')
             ->orderByDesc('jumlah')
@@ -147,6 +199,11 @@ class DashboardController extends Controller
             $count = PendaftaranUjikom::where('asesor_id', $user->id)
                 ->whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->whereHas('pendaftaran', function($sq) use ($skemaId) {
+                        $sq->where('skema_id', $skemaId);
+                    });
+                })
                 ->count();
             $workloadAnalysis[] = [
                 'bulan' => $bulan->format('M'),
@@ -205,6 +262,11 @@ class DashboardController extends Controller
 
         $lists = $this->getMenuListAsesor('dashboard');
 
+        // Get skema yang dikuasai asesor untuk filter dropdown
+        $skemas = \App\Models\Skema::whereHas('asesors', function($query) use ($user) {
+            $query->where('asesor_id', $user->id);
+        })->orderBy('nama', 'asc')->get();
+
         return view('components.pages.asesor.dashboard', compact(
             'lists',
             'totalAsesiDinilai',
@@ -221,7 +283,12 @@ class DashboardController extends Controller
             'workloadAnalysis',
             'performanceSummary',
             'pendingConfirmations',
-            'upcomingJadwal'
+            'upcomingJadwal',
+            // Filter data
+            'skemas',
+            'startDate',
+            'endDate',
+            'skemaId'
         ));
     }
 

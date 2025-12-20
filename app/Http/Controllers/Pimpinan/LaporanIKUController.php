@@ -48,7 +48,7 @@ class LaporanIKUController extends Controller
     }
 
     /**
-     * Export Laporan IKU ke Excel dengan filter yang sama seperti index.
+     * Export Laporan IKU 2 ke Excel dengan filter yang sama seperti index.
      */
     public function exportExcel(Request $request)
     {
@@ -137,7 +137,7 @@ class LaporanIKUController extends Controller
                 mkdir($tempDir, 0755, true);
             }
             $tempPath = $tempDir . '/' . $filename;
-            
+
             $writer->save($tempPath);
 
             // Return download response
@@ -145,7 +145,7 @@ class LaporanIKUController extends Controller
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ])->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            \Log::error('Export Excel Laporan IKU Error: ' . $e->getMessage());
+            \Log::error('Export Excel Laporan IKU 2 Error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
         }

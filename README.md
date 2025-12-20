@@ -53,7 +53,7 @@ Aplikasi dibangun dengan **Laravel** dan memanfaatkan:
 - **Laporan & Export Excel**
   - Report Hasil Ujikom (Kaprodi)
   - Report Pimpinan + laporan detail kompeten/tidak kompeten
-  - Laporan IKU dengan filter tanggal & skema
+  - Laporan IKU 2 dengan filter tanggal & skema
   - Export Excel di setiap laporan (mengikuti filter yang sedang aktif)
 
 ---

@@ -5,6 +5,68 @@
 
 @section('content')
 
+    <!-- Filter Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter"></i> Filter Dashboard
+            </h6>
+            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#filterCollapse" 
+                    aria-expanded="true" aria-controls="filterCollapse">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body">
+                <form method="GET" action="{{ route('dashboard.asesi') }}" id="filterForm">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="start_date">Tanggal Mulai</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ $startDate ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="end_date">Tanggal Akhir</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ $endDate ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="skema_id">Skema Sertifikasi</label>
+                                <select class="form-control" id="skema_id" name="skema_id">
+                                    <option value="">-- Semua Skema --</option>
+                                    @foreach($skemas as $skema)
+                                        <option value="{{ $skema->id }}" 
+                                                {{ ($skemaId ?? '') == $skema->id ? 'selected' : '' }}>
+                                            {{ $skema->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="d-flex">
+                                    <button type="submit" class="btn btn-primary btn-block mr-1">
+                                        <i class="fas fa-search"></i> Filter
+                                    </button>
+                                    <a href="{{ route('dashboard.asesi') }}" class="btn btn-secondary">
+                                        <i class="fas fa-redo"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {{-- Hero Section --}}
     <div class="row mb-4">
         <div class="col-12">

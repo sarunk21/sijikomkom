@@ -204,8 +204,9 @@ class ReportHasilUjiController extends Controller
                 'skema' => $report->skema->nama,
                 'nama' => $report->user->name,
                 'nim' => $report->user->nim,
+                'asesor' => $report->pendaftaran->pendaftaranUjikom->asesor->name,
             ];
-        });
+        })->sortByDesc('tanggal_ujian');
 
         return view('components.pages.kaprodi.report-hasil-uji.list-nama-kompeten', compact('lists', 'reports'));
     }
@@ -220,8 +221,9 @@ class ReportHasilUjiController extends Controller
                 'skema' => $report->skema->nama,
                 'nama' => $report->user->name,
                 'nim' => $report->user->nim,
+                'asesor' => $report->pendaftaran->pendaftaranUjikom->asesor->name,
             ];
-        });
+        })->sortByDesc('tanggal_ujian');
 
         return view('components.pages.kaprodi.report-hasil-uji.list-nama-tidak-kompeten', compact('lists', 'reports'));
     }

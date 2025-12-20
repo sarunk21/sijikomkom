@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Laporan IKU')
-@section('page-title', 'Laporan IKU')
+@section('title', 'Laporan IKU 2')
+@section('page-title', 'Laporan IKU 2')
 
 @section('content')
     {{-- Filter Card --}}
@@ -59,7 +59,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table id="pendaftaranTable" class="table table-striped table-hover align-middle w-100">
+                <table id="reportTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="thead-light">
                         <tr>
                             <th>NIM</th>
@@ -102,10 +102,10 @@
         <!-- DataTables sudah dimuat global dari layout -->
         <script>
             $(document).ready(function() {
-                $('#pendaftaranTable').DataTable({
+                $('#reportTable').DataTable({
                     responsive: true,
                     language: {
-                        searchPlaceholder: "Cari Laporan IKU...",
+                        searchPlaceholder: "Cari Laporan IKU 2...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",

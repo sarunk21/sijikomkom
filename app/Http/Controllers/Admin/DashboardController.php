@@ -11,25 +11,50 @@ use App\Models\Skema;
 use App\Models\Report;
 use App\Models\PendaftaranUjikom;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     use MenuTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         $lists = $this->getMenuListAdmin('dashboard');
+        
+        // Filter parameters
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $skemaId = $request->input('skema_id');
 
         // ==========================================
         // 1. KEY PERFORMANCE INDICATORS (KPIs)
         // ==========================================
 
         // Total Pendaftaran
-        $totalPendaftaran = Pendaftaran::count();
+        $totalPendaftaran = Pendaftaran::when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
+            ->count();
 
         // Total Asesi (unique users)
-        $totalAsesi = Pendaftaran::distinct('user_id')->count('user_id');
+        $totalAsesi = Pendaftaran::when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
+            ->distinct('user_id')
+            ->count('user_id');
 
         // Total Skema Sertifikasi
         $totalSkema = Skema::count();
@@ -48,10 +73,30 @@ class DashboardController extends Controller
         // ==========================================
 
         // Total yang sudah selesai ujian (status 6 = Selesai)
-        $totalSelesai = Pendaftaran::where('status', 6)->count();
+        $totalSelesai = Pendaftaran::where('status', 6)
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
+            ->count();
 
         // Total Lulus/Kompeten (dari report dengan status 1)
-        $totalLulus = Report::where('status', 1)->count();
+        $totalLulus = Report::where('status', 1)
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
+            ->count();
 
         // Tingkat Keberhasilan (Pass Rate)
         $passRate = $totalSelesai > 0 ? round(($totalLulus / $totalSelesai) * 100, 1) : 0;
@@ -65,6 +110,9 @@ class DashboardController extends Controller
             $bulan = now()->subMonths($i);
             $count = Pendaftaran::whereMonth('created_at', $bulan->month)
                 ->whereYear('created_at', $bulan->year)
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
                 ->count();
             $trenPendaftaran[] = [
                 'bulan' => $bulan->format('M Y'),
@@ -78,6 +126,15 @@ class DashboardController extends Controller
 
         $distribusiSkema = Pendaftaran::select('skema_id', DB::raw('count(*) as total'))
             ->with('skema')
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
             ->groupBy('skema_id')
             ->orderBy('total', 'desc')
             ->take(5)
@@ -109,10 +166,49 @@ class DashboardController extends Controller
         // ==========================================
 
         $funnelData = [
-            'pendaftaran' => Pendaftaran::count(),
-            'diverifikasi' => Pendaftaran::whereIn('status', [3, 4, 5, 6])->count(), // Status >= Diverifikasi
-            'ujian_selesai' => Pendaftaran::where('status', 6)->count(),
-            'lulus' => Report::where('status', 1)->count(),
+            'pendaftaran' => Pendaftaran::when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'diverifikasi' => Pendaftaran::whereIn('status', [3, 4, 5, 6])
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'ujian_selesai' => Pendaftaran::where('status', 6)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'lulus' => Report::where('status', 1)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
         ];
 
         // Conversion Rate: (Lulus / Total Pendaftaran) * 100
@@ -129,6 +225,15 @@ class DashboardController extends Controller
                 DB::raw('COUNT(*) as total_ujian'),
                 DB::raw('SUM(CASE WHEN report.status = 1 THEN 1 ELSE 0 END) as total_lulus'))
             ->with('skema')
+            ->when($startDate, function($q) use ($startDate) {
+                return $q->whereDate('report.created_at', '>=', $startDate);
+            })
+            ->when($endDate, function($q) use ($endDate) {
+                return $q->whereDate('report.created_at', '<=', $endDate);
+            })
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('report.skema_id', $skemaId);
+            })
             ->groupBy('report.skema_id')
             ->havingRaw('COUNT(*) >= 5') // Minimal 5 ujian untuk valid
             ->get()
@@ -152,13 +257,83 @@ class DashboardController extends Controller
         // ==========================================
 
         $statusStats = [
-            'menunggu_verifikasi' => Pendaftaran::where('status', 1)->count(),
-            'ditolak' => Pendaftaran::where('status', 2)->count(),
-            'diverifikasi' => Pendaftaran::where('status', 3)->count(),
-            'menunggu_ujian' => Pendaftaran::where('status', 4)->count(),
-            'ujian_berlangsung' => Pendaftaran::where('status', 5)->count(),
-            'selesai' => Pendaftaran::where('status', 6)->count(),
-            'asesor_tidak_hadir' => Pendaftaran::where('status', 7)->count(),
+            'menunggu_verifikasi' => Pendaftaran::where('status', 1)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'ditolak' => Pendaftaran::where('status', 2)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'diverifikasi' => Pendaftaran::where('status', 3)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'menunggu_ujian' => Pendaftaran::where('status', 4)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'ujian_berlangsung' => Pendaftaran::where('status', 5)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'selesai' => Pendaftaran::where('status', 6)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'asesor_tidak_hadir' => Pendaftaran::where('status', 7)
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
         ];
 
         // ==========================================
@@ -167,10 +342,16 @@ class DashboardController extends Controller
 
         $bulanIni = Pendaftaran::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
             ->count();
 
         $bulanLalu = Pendaftaran::whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
+            ->when($skemaId, function($q) use ($skemaId) {
+                return $q->where('skema_id', $skemaId);
+            })
             ->count();
 
         $growthRate = $bulanLalu > 0
@@ -188,6 +369,9 @@ class DashboardController extends Controller
             'statusStats' => $statusStats,
             'conversionRate' => $conversionRate,
         ]);
+
+        // Get all skema for filter dropdown
+        $skemas = Skema::orderBy('nama', 'asc')->get();
 
         return view('components.pages.admin.dashboard', compact(
             'lists',
@@ -211,7 +395,12 @@ class DashboardController extends Controller
             'topSkema',
             'statusStats',
             'growthRate',
-            'insights'
+            'insights',
+            // Filter data
+            'skemas',
+            'startDate',
+            'endDate',
+            'skemaId'
         ));
     }
 

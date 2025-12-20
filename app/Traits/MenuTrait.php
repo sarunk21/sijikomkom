@@ -285,7 +285,7 @@ trait MenuTrait
                 'key' => 'report-pimpinan'
             ],
             [
-                'title' => 'Laporan IKU',
+                'title' => 'Laporan IKU 2',
                 'url' => 'pimpinan.laporan-iku.index',
                 'key' => 'laporan-iku'
             ],

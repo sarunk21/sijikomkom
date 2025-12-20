@@ -19,6 +19,7 @@
                             <th>Skema</th>
                             <th>Nama</th>
                             <th>NIM</th>
+                            <th>Asesor</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,6 +28,7 @@
                                 <td>{{ $item['skema'] }}</td>
                                 <td>{{ $item['nama'] }}</td>
                                 <td>{{ $item['nim'] }}</td>
+                                <td>{{ $item['asesor'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>
