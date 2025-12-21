@@ -299,6 +299,7 @@
             $(document).ready(function() {
                 $('#jadwalTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Jadwal...",
                         search: "",

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\UploadSertifikatAdminController;
 use App\Http\Controllers\Admin\TestingController;
 use App\Http\Controllers\Admin\AdminTemplateController;
 use App\Http\Controllers\Admin\BankSoalController;
+use App\Http\Controllers\Admin\KelayankanController;
 
 use App\Http\Controllers\Asesi\DaftarUjikomController;
 use App\Http\Controllers\Asesi\CustomDataController;
@@ -38,6 +39,7 @@ use App\Http\Controllers\Asesor\HasilUjikomController;
 use App\Http\Controllers\Asesor\ProfilAsesorController;
 use App\Http\Controllers\Asesor\ReviewController;
 use App\Http\Controllers\Asesor\PemeriksaanController;
+use App\Http\Controllers\Asesor\VerifikasiKelayankanController;
 
 use App\Http\Controllers\Kaprodi\ReportHasilUjiController;
 use App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController;
@@ -148,6 +150,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::post('testing/upload-sertifikat', [TestingController::class, 'uploadSertifikat'])->name('admin.testing.upload-sertifikat');
     Route::post('testing/fix-stuck-payments', [TestingController::class, 'fixStuckPayments'])->name('admin.testing.fix-stuck-payments');
     Route::post('testing/fix-stuck-distributions', [TestingController::class, 'fixStuckDistributions'])->name('admin.testing.fix-stuck-distributions');
+    Route::post('testing/auto-approve-kelayakan', [TestingController::class, 'autoApproveKelayakan'])->name('admin.testing.auto-approve-kelayakan');
+    Route::post('testing/auto-verify-pembayaran', [TestingController::class, 'autoVerifyPembayaran'])->name('admin.testing.auto-verify-pembayaran');
+
+    // Kelayakan routes
+    Route::get('kelayakan', [KelayankanController::class, 'index'])->name('admin.kelayakan.index');
+    Route::post('kelayakan/{id}/approve', [KelayankanController::class, 'approve'])->name('admin.kelayakan.approve');
+    Route::post('kelayakan/{id}/reject', [KelayankanController::class, 'reject'])->name('admin.kelayakan.reject');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -228,6 +237,11 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'penilaian'])->name('asesor.pemeriksaan.penilaian');
     Route::post('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/penilaian', [PemeriksaanController::class, 'savePenilaian'])->name('asesor.pemeriksaan.save-penilaian');
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/generate', [PemeriksaanController::class, 'generateTemplate'])->name('asesor.pemeriksaan.generate-template');
+
+    // Verifikasi Kelayakan routes
+    Route::get('verifikasi-kelayakan', [VerifikasiKelayankanController::class, 'index'])->name('asesor.verifikasi-kelayakan.index');
+    Route::get('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'show'])->name('asesor.verifikasi-kelayakan.show');
+    Route::post('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'store'])->name('asesor.verifikasi-kelayakan.store');
 });
 
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {

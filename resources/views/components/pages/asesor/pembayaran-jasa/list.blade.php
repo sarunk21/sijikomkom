@@ -64,6 +64,7 @@
             $(document).ready(function() {
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Pembayaran Jasa...",
                         search: "",

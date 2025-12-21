@@ -12,7 +12,6 @@ class TemplateMaster extends Model
     protected $table = 'template_master';
 
     protected $fillable = [
-        'nama_template',
         'tipe_template',
         'skema_id',
         'deskripsi',

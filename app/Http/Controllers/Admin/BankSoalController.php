@@ -216,14 +216,9 @@ class BankSoalController extends Controller
             $filteredCustomVars = array_filter($customVars, fn($var) => !empty($var['name']) && !empty($var['label']));
             $customVariables = !empty($filteredCustomVars) ? array_values($filteredCustomVars) : null;
 
-            // Generate nama default jika tidak ada
-            $skema = Skema::find($request->skema_id);
-            $nama = $request->nama ?? ($skema ? $skema->nama . ' - ' . $request->tipe . ' - ' . ucfirst($request->target) : $request->tipe . ' - ' . ucfirst($request->target));
-
             // Create bank soal record
             BankSoal::create([
                 'skema_id' => $request->skema_id,
-                'nama' => $nama,
                 'tipe' => $request->tipe,
                 'target' => $request->target,
                 'file_path' => $filename,
@@ -503,10 +498,6 @@ class BankSoalController extends Controller
 
         // Update other fields
         $bankSoal->skema_id = $request->skema_id;
-        // Generate nama default jika tidak ada
-        $skema = Skema::find($request->skema_id);
-        $nama = $request->nama ?? ($skema ? $skema->nama . ' - ' . $request->tipe . ' - ' . ucfirst($request->target) : $request->tipe . ' - ' . ucfirst($request->target));
-        $bankSoal->nama = $nama;
         $bankSoal->tipe = $request->tipe;
         $bankSoal->target = $request->target;
         $bankSoal->keterangan = $request->keterangan;

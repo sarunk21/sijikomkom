@@ -101,6 +101,7 @@
             $(document).ready(function() {
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Informasi Pembayaran...",
                         search: "",

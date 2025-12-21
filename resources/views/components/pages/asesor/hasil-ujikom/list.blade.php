@@ -115,6 +115,7 @@
             $(document).ready(function() {
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Hasil Ujian Kompetensi...",
                         search: "",

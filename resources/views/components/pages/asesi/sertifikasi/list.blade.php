@@ -93,6 +93,7 @@
             $(document).ready(function() {
                 $('#sertifikasiTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Sertifikasi...",
                         search: "",

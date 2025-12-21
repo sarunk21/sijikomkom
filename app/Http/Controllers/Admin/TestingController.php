@@ -42,6 +42,11 @@ class TestingController extends Controller
 
         $pendaftaranVerifikasi = Pendaftaran::whereIn('status', [1, 3])->count();
         $pendaftaranMenungguDistribusi = Pendaftaran::where('status', 4)->count();
+        $pendaftaranMenungguVerifAsesor = Pendaftaran::where('status', 5)->count();
+        $pendaftaranMenungguApprovalKelayakan = Pendaftaran::where('status', 6)->count();
+        $pendaftaranTidakLulus = Pendaftaran::where('status', 7)->count();
+        $pendaftaranMenungguPembayaran = Pendaftaran::where('status', 8)->count();
+        $pendaftaranMenungguUjian = Pendaftaran::where('status', 9)->count();
 
         $pendaftaranUjikomMenunggu = PendaftaranUjikom::where('status', 6)->count();
         $pendaftaranUjikomBerlangsung = PendaftaranUjikom::where('status', 2)->count();
@@ -50,11 +55,11 @@ class TestingController extends Controller
         $pembayaranAsesorMenunggu = PembayaranAsesor::where('status', 1)->count();
         $sertifikatAktif = Sertif::where('status', 'aktif')->count();
 
-        // Count stuck distributions (status 7 = Asesor Tidak Dapat Hadir)
-        $pendaftaranStuckDistribution = Pendaftaran::where('status', 7)->count();
+        // Count stuck distributions (status 12 = Asesor Tidak Dapat Hadir)
+        $pendaftaranStuckDistribution = Pendaftaran::where('status', 12)->count();
 
-        // Untuk backward compatibility, status 8 = Sudah Sertifikat (jika ada)
-        $pendaftaranSudahSertifikat = Pendaftaran::where('status', 8)->count();
+        // Untuk backward compatibility
+        $pendaftaranSudahSertifikat = 0;
 
         return view('components.pages.admin.testing.index', compact(
             'lists',
@@ -63,6 +68,11 @@ class TestingController extends Controller
             'jadwalSelesai',
             'pendaftaranVerifikasi',
             'pendaftaranMenungguDistribusi',
+            'pendaftaranMenungguVerifAsesor',
+            'pendaftaranMenungguApprovalKelayakan',
+            'pendaftaranTidakLulus',
+            'pendaftaranMenungguPembayaran',
+            'pendaftaranMenungguUjian',
             'pendaftaranUjikomMenunggu',
             'pendaftaranUjikomBerlangsung',
             'pendaftaranUjikomSelesai',
@@ -79,7 +89,7 @@ class TestingController extends Controller
     public function triggerDistribusi()
     {
         try {
-            // Ambil pendaftaran dengan status 4 (Menunggu Ujian)
+            // Ambil pendaftaran dengan status 4 (Menunggu Distribusi Asesor)
             $pendaftaran = Pendaftaran::where('status', 4)
                 ->with(['jadwal', 'user'])
                 ->get();
@@ -133,6 +143,9 @@ class TestingController extends Controller
                         'asesor_id' => $asesorId,
                         'status' => 6, // Menunggu Konfirmasi Asesor
                     ]);
+
+                    // Update status pendaftaran ke 5 (Menunggu Verifikasi Asesor)
+                    $pendaftar->update(['status' => 5]);
 
                     // Track jadwal untuk asesor
                     if (!isset($asesorWithJadwal[$asesorId])) {
@@ -210,7 +223,7 @@ class TestingController extends Controller
     public function updateStatusPendaftaran()
     {
         try {
-            // Update semua pendaftaran dengan status 1 atau 3 menjadi status 4 (Menunggu Ujian)
+            // Update semua pendaftaran dengan status 1 atau 3 menjadi status 4 (Menunggu Distribusi Asesor)
             $updated = Pendaftaran::whereIn('status', [1, 3])
                 ->update(['status' => 4]);
 
@@ -218,9 +231,98 @@ class TestingController extends Controller
                 return redirect()->back()->with('info', 'Tidak ada pendaftaran yang perlu diupdate.');
             }
 
-            return redirect()->back()->with('success', "Berhasil! {$updated} pendaftaran diupdate ke status 'Menunggu Ujian'.");
+            return redirect()->back()->with('success', "Berhasil! {$updated} pendaftaran diupdate ke status 'Menunggu Distribusi Asesor'.");
         } catch (\Exception $e) {
             Log::error('Error saat update status pendaftaran: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AUTO APPROVE verifikasi kelayakan untuk testing
+     */
+    public function autoApproveKelayakan()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Ambil pendaftaran dengan status 5 (Menunggu Verifikasi Asesor)
+            $pendaftaranList = Pendaftaran::where('status', 5)->get();
+
+            if ($pendaftaranList->isEmpty()) {
+                return redirect()->back()->with('info', 'Tidak ada pendaftaran yang menunggu verifikasi asesor.');
+            }
+
+            $updated = 0;
+            foreach ($pendaftaranList as $pendaftaran) {
+                // Auto approve oleh asesor - set ke status 6
+                $pendaftaran->update(['status' => 6]);
+                
+                // Simpan verifikasi kelayakan otomatis
+                $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftaran->id)->first();
+                if ($pendaftaranUjikom) {
+                    \App\Models\KelayankanVerifikasi::create([
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'asesor_id' => $pendaftaranUjikom->asesor_id,
+                        'status' => 1, // Layak
+                        'catatan' => 'Auto approved untuk testing',
+                        'verified_at' => now(),
+                    ]);
+                }
+                $updated++;
+            }
+
+            // Auto approve oleh admin - update ke status 8 (Menunggu Pembayaran)
+            $pendaftaranApproval = Pendaftaran::where('status', 6)->get();
+            foreach ($pendaftaranApproval as $pendaftaran) {
+                $pendaftaran->update([
+                    'status' => 8,
+                    'kelayakan_status' => 1,
+                    'kelayakan_verified_at' => now(),
+                ]);
+
+                // Buat pembayaran
+                Pembayaran::create([
+                    'user_id' => $pendaftaran->user_id,
+                    'jadwal_id' => $pendaftaran->jadwal_id,
+                    'status' => 1, // Belum Bayar
+                    'keterangan' => 'Pembayaran Ujikom - Auto Created',
+                ]);
+                $updated++;
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', "Berhasil auto approve {$updated} verifikasi kelayakan dan membuat pembayaran!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error auto approve kelayakan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AUTO VERIFY pembayaran untuk testing
+     */
+    public function autoVerifyPembayaran()
+    {
+        try {
+            // Update pembayaran dengan status 1 (Belum Bayar) menjadi status 4 (Dikonfirmasi)
+            $updated = Pembayaran::where('status', 1)->update([
+                'status' => 4,
+                'keterangan' => 'Auto verified untuk testing'
+            ]);
+
+            // Update pendaftaran dari status 8 ke status 9 (Menunggu Ujian)
+            $updatedPendaftaran = Pendaftaran::where('status', 8)->update(['status' => 9]);
+
+            if ($updated === 0) {
+                return redirect()->back()->with('info', 'Tidak ada pembayaran yang perlu diverifikasi.');
+            }
+
+            return redirect()->back()->with('success', "Berhasil! {$updated} pembayaran diverifikasi dan {$updatedPendaftaran} pendaftaran siap untuk ujian.");
+        } catch (\Exception $e) {
+            Log::error('Error auto verify pembayaran: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

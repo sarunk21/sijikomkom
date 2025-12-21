@@ -127,6 +127,7 @@
             $(document).ready(function() {
                 $('#reportTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Report Hasil Ujikom...",
                         search: "",

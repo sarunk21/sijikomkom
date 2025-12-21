@@ -142,6 +142,7 @@
             $(document).ready(function() {
                 $('#skemaTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Pembayaran Asesor...",
                         search: "",

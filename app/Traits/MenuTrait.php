@@ -33,21 +33,19 @@ trait MenuTrait
                 'key' => 'user'
             ],
             [
-                'title' => 'Pembayaran',
-                'url' => null,
-                'key' => 'pembayaran',
-                'children' => [
-                    [
-                        'title' => 'Pembayaran Asesi',
-                        'url' => 'admin.pembayaran-asesi.index',
-                        'key' => 'pembayaran-asesi'
-                    ]
-                ]
+                'title' => 'Pembayaran Asesi',
+                'url' => 'admin.pembayaran-asesi.index',
+                'key' => 'pembayaran-asesi'
             ],
             [
                 'title' => 'Pendaftaran',
                 'url' => 'admin.pendaftaran.index',
                 'key' => 'pendaftaran'
+            ],
+            [
+                'title' => 'Approval Kelayakan',
+                'url' => 'admin.kelayakan.index',
+                'key' => 'kelayakan'
             ],
             [
                 'title' => 'Report Hasil Ujikom',
@@ -189,6 +187,11 @@ trait MenuTrait
                 'title' => 'Review & Verifikasi',
                 'url' => 'asesor.review.index',
                 'key' => 'review'
+            ],
+            [
+                'title' => 'Verifikasi Kelayakan',
+                'url' => 'asesor.verifikasi-kelayakan.index',
+                'key' => 'verifikasi-kelayakan'
             ],
             [
                 'title' => 'Hasil Ujikom',

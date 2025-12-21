@@ -164,6 +164,7 @@
             $(document).ready(function() {
                 $('#userTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari User...",
                         search: "",

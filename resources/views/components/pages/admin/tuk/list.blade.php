@@ -80,6 +80,7 @@
             $(document).ready(function() {
                 $('#tukTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari TUK...",
                         search: "",

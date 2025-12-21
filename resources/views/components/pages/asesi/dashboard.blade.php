@@ -534,7 +534,7 @@ const statusChart = new Chart(statusCtx, {
 $(document).ready(function() {
     $('#aktivitasTable').DataTable({
         "pageLength": 10,
-        "ordering": true,
+        "ordering": false,
         "searching": true,
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"

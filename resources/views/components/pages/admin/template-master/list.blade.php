@@ -131,6 +131,7 @@
             $(document).ready(function() {
                 $('#templateTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Template...",
                         search: "",

@@ -124,7 +124,7 @@
             $(document).ready(function() {
                 $('#pendaftaranTable').DataTable({
                     responsive: true,
-                    order: [[1, 'desc']], // Sort by column index 1 (Tanggal Pendaftaran) descending
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Pendaftaran...",
                         search: "",

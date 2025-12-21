@@ -79,6 +79,7 @@
             $(document).ready(function() {
                 $('#ujikomTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Ujian Kompetensi...",
                         search: "",

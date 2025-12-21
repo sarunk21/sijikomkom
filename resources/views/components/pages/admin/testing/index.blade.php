@@ -66,7 +66,43 @@
         </div>
     </div>
 
-    <!-- Row 2: Sertifikat Stats -->
+    <!-- Row 2: NEW FLOW Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-purple shadow-sm" style="border-left-color: #6f42c1 !important;">
+                <div class="card-body py-2">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6f42c1;">Verif Asesor ⭐</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendaftaranMenungguVerifAsesor ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-purple shadow-sm" style="border-left-color: #6f42c1 !important;">
+                <div class="card-body py-2">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6f42c1;">Approval Kelayakan ⭐</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendaftaranMenungguApprovalKelayakan ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-purple shadow-sm" style="border-left-color: #6f42c1 !important;">
+                <div class="card-body py-2">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6f42c1;">Menunggu Bayar ⭐</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendaftaranMenungguPembayaran ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-danger shadow-sm">
+                <div class="card-body py-2">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Tidak Lulus</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendaftaranTidakLulus ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Sertifikat Stats -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="card border-left-purple shadow-sm">
@@ -140,7 +176,7 @@
                     <div class="card border-primary h-100">
                         <div class="card-body">
                             <h6 class="text-primary"><span class="badge badge-primary">1</span> Loloskan Verifikasi</h6>
-                            <p class="small text-muted mb-2">Update pendaftaran status 1 & 3 → 4 (Menunggu Ujian)</p>
+                            <p class="small text-muted mb-2">Update pendaftaran status 1 & 3 → 4 (Menunggu Distribusi)</p>
                             <form action="{{ route('admin.testing.update-status-pendaftaran') }}" method="POST" onsubmit="return confirm('Loloskan verifikasi?')">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-sm btn-block">
@@ -167,11 +203,43 @@
                     </div>
                 </div>
 
-                <!-- Step 3 -->
+                <!-- Step 3: NEW - Auto Approve Kelayakan -->
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card border-purple h-100" style="border-color: #6f42c1 !important;">
+                        <div class="card-body">
+                            <h6 style="color: #6f42c1;"><span class="badge" style="background-color: #6f42c1;">3</span> Auto Approve Kelayakan ⭐</h6>
+                            <p class="small text-muted mb-2">Status 5→6→8 + Buat Pembayaran (NEW FLOW)</p>
+                            <form action="{{ route('admin.testing.auto-approve-kelayakan') }}" method="POST" onsubmit="return confirm('Auto approve kelayakan?')">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-block" style="background-color: #6f42c1; color: white;">
+                                    <i class="fas fa-clipboard-check"></i> Approve
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: NEW - Auto Verify Pembayaran -->
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card border-purple h-100" style="border-color: #6f42c1 !important;">
+                        <div class="card-body">
+                            <h6 style="color: #6f42c1;"><span class="badge" style="background-color: #6f42c1;">4</span> Auto Verify Pembayaran ⭐</h6>
+                            <p class="small text-muted mb-2">Pembayaran status 1→4, Pendaftaran 8→9 (NEW)</p>
+                            <form action="{{ route('admin.testing.auto-verify-pembayaran') }}" method="POST" onsubmit="return confirm('Auto verify pembayaran?')">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-block" style="background-color: #6f42c1; color: white;">
+                                    <i class="fas fa-money-check-alt"></i> Verify
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card border-warning h-100">
                         <div class="card-body">
-                            <h6 class="text-warning"><span class="badge badge-warning">3</span> Mulai Jadwal</h6>
+                            <h6 class="text-warning"><span class="badge badge-warning">5</span> Mulai Jadwal</h6>
                             <p class="small text-muted mb-2">Jadwal aktif → Status 3 (Ujian Berlangsung)</p>
                             <form action="{{ route('admin.testing.start-jadwal') }}" method="POST" onsubmit="return confirm('Mulai jadwal?')">
                                 @csrf
@@ -183,11 +251,11 @@
                     </div>
                 </div>
 
-                <!-- Step 4 -->
+                <!-- Step 6 -->
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card border-info h-100">
                         <div class="card-body">
-                            <h6 class="text-info"><span class="badge badge-info">4</span> Mulai Ujikom</h6>
+                            <h6 class="text-info"><span class="badge badge-info">6</span> Mulai Ujikom</h6>
                             <p class="small text-muted mb-2">PendaftaranUjikom → Status 2 (Ujikom Berlangsung)</p>
                             <form action="{{ route('admin.testing.simulasi-ujikom') }}" method="POST" onsubmit="return confirm('Mulai ujikom?')">
                                 @csrf
@@ -199,11 +267,11 @@
                     </div>
                 </div>
 
-                <!-- Step 5 -->
+                <!-- Step 7 -->
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card border-secondary h-100">
                         <div class="card-body">
-                            <h6 class="text-secondary"><span class="badge badge-secondary">5</span> Selesai Ujikom</h6>
+                            <h6 class="text-secondary"><span class="badge badge-secondary">7</span> Selesai Ujikom</h6>
                             <p class="small text-muted mb-2">PendaftaranUjikom → Status 3 (Ujikom Selesai)</p>
                             <form action="{{ route('admin.testing.selesaikan-ujikom') }}" method="POST" onsubmit="return confirm('Selesaikan ujikom?')">
                                 @csrf
@@ -215,11 +283,11 @@
                     </div>
                 </div>
 
-                <!-- Step 6 -->
+                <!-- Step 8 -->
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card border-dark h-100">
                         <div class="card-body">
-                            <h6 class="text-dark"><span class="badge badge-dark">6</span> Selesai Jadwal</h6>
+                            <h6 class="text-dark"><span class="badge badge-dark">8</span> Selesai Jadwal</h6>
                             <p class="small text-muted mb-2">Jadwal → Status 4 (Selesai)</p>
                             <form action="{{ route('admin.testing.selesaikan-jadwal') }}" method="POST" onsubmit="return confirm('Selesaikan jadwal?')">
                                 @csrf
@@ -231,11 +299,11 @@
                     </div>
                 </div>
 
-                <!-- Step 7 -->
+                <!-- Step 9 -->
                 <div class="col-md-6 mb-3">
                     <div class="card border-danger h-100">
                         <div class="card-body">
-                            <h6 class="text-danger"><span class="badge badge-danger">7</span> Trigger Pembayaran Asesor</h6>
+                            <h6 class="text-danger"><span class="badge badge-danger">9</span> Trigger Pembayaran Asesor</h6>
                             <p class="small text-muted mb-2">Buat record PembayaranAsesor untuk jadwal yang sudah selesai</p>
                             <form action="{{ route('admin.testing.trigger-pembayaran-asesor') }}" method="POST" onsubmit="return confirm('Trigger pembayaran asesor?')">
                                 @csrf

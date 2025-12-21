@@ -60,6 +60,7 @@
             $(document).ready(function() {
                 $('#skemaTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Bank Soal...",
                         search: "",

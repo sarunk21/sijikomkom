@@ -170,7 +170,7 @@
         $('#bankSoalTable').DataTable({
             responsive: true,
             pageLength: 25,
-            order: [[6, 'desc']], // Sort by tanggal dibuat
+            ordering: false,
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
             }

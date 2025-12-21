@@ -243,7 +243,7 @@
                 @if($jadwalList->count() > 0)
                     $('#jadwalTable').DataTable({
                         responsive: true,
-                        order: [[2, 'desc']], // Sort by date descending
+                        ordering: false,
                         language: {
                             searchPlaceholder: "Cari jadwal...",
                             search: "",

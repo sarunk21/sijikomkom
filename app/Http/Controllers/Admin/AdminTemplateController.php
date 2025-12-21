@@ -125,7 +125,6 @@ class AdminTemplateController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_template' => 'nullable|string|max:255',
             'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
@@ -176,14 +175,14 @@ class AdminTemplateController extends Controller
 
             // Upload template file
             $templateFile = $request->file('file_template');
-            $templateFileName = 'template_' . time() . '_' . Str::slug($request->nama_template) . '.docx';
+            $templateFileName = 'template_' . time() . '_' . Str::slug($request->tipe_template) . '.docx';
             $templatePath = $templateFile->storeAs('templates', $templateFileName, 'public');
 
             // Upload TTD file jika ada
             $ttdPath = null;
             if ($request->hasFile('ttd_digital')) {
                 $ttdFile = $request->file('ttd_digital');
-                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->nama_template) . '.' . $ttdFile->getClientOriginalExtension();
+                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->tipe_template) . '.' . $ttdFile->getClientOriginalExtension();
                 $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
             }
 
@@ -213,19 +212,8 @@ class AdminTemplateController extends Controller
                 }
             }
 
-            // Generate nama_template default jika tidak ada
-            $skema = Skema::find($request->skema_id);
-            $tipeLabels = [
-                'APL1' => 'APL 1 (Asesmen Mandiri)',
-                'APL2' => 'APL 2 (Portofolio)',
-                'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
-            ];
-            $tipeLabel = $tipeLabels[$request->tipe_template] ?? $request->tipe_template;
-            $namaTemplate = $request->nama_template ?? ($skema ? $skema->nama . ' - ' . $tipeLabel : $tipeLabel);
-
             // Buat template master
             $template = TemplateMaster::create([
-                'nama_template' => $namaTemplate,
                 'tipe_template' => $request->tipe_template,
                 'skema_id' => $request->skema_id,
                 'deskripsi' => $request->deskripsi,
@@ -355,7 +343,6 @@ class AdminTemplateController extends Controller
         $template = TemplateMaster::findOrFail($id);
 
         $request->validate([
-            'nama_template' => 'nullable|string|max:255',
             'tipe_template' => 'required|string|in:APL1,APL2,FR_AK_05',
             'skema_id' => 'required|exists:skema,id',
             'deskripsi' => 'nullable|string',
@@ -438,23 +425,12 @@ class AdminTemplateController extends Controller
                 }
 
                 $ttdFile = $request->file('ttd_digital');
-                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->nama_template) . '.' . $ttdFile->getClientOriginalExtension();
+                $ttdFileName = 'ttd_' . time() . '_' . Str::slug($request->tipe_template) . '.' . $ttdFile->getClientOriginalExtension();
                 $ttdPath = $ttdFile->storeAs('ttd', $ttdFileName, 'public');
             }
 
-            // Generate nama_template default jika tidak ada
-            $skema = Skema::find($request->skema_id);
-            $tipeLabels = [
-                'APL1' => 'APL 1 (Asesmen Mandiri)',
-                'APL2' => 'APL 2 (Portofolio)',
-                'FR_AK_05' => 'FR AK 05 (Form Asesmen Asesor)',
-            ];
-            $tipeLabel = $tipeLabels[$request->tipe_template] ?? $request->tipe_template;
-            $namaTemplate = $request->nama_template ?? ($skema ? $skema->nama . ' - ' . $tipeLabel : $tipeLabel);
-
             // Update template
             $template->update([
-                'nama_template' => $namaTemplate,
                 'tipe_template' => $request->tipe_template,
                 'skema_id' => $request->skema_id,
                 'deskripsi' => $request->deskripsi,
@@ -523,7 +499,8 @@ class AdminTemplateController extends Controller
             return redirect()->back()->with('error', 'File template tidak ditemukan.');
         }
 
-        return response()->download($filePath, $template->nama_template . '.docx');
+        $filename = $template->skema->nama . ' - ' . $template->tipe_template_label . '.docx';
+        return response()->download($filePath, $filename);
     }
 
     /**

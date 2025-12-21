@@ -98,6 +98,7 @@
             $(document).ready(function() {
                 $('#asesiTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari Asesi...",
                         search: "",

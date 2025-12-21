@@ -14,7 +14,6 @@ class BankSoal extends Model
 
     protected $fillable = [
         'skema_id',
-        'nama',
         'tipe',
         'target',
         'file_path',

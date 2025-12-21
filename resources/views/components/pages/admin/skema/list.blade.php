@@ -88,6 +88,7 @@
             $(document).ready(function() {
                 $('#skemaTable').DataTable({
                     responsive: true,
+                    ordering: false,
                     language: {
                         searchPlaceholder: "Cari skema...",
                         search: "",
