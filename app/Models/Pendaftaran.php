@@ -26,12 +26,10 @@ class Pendaftaran extends Model
     ];
 
     protected $statusPendaftaran = [
-        1 => 'Menunggu Verifikasi Kaprodi',
-        2 => 'Tidak Lolos Verifikasi Kaprodi',
-        3 => 'Menunggu Verifikasi Admin',
-        4 => 'Menunggu Distribusi Asesor',
-        5 => 'Menunggu Verifikasi Asesor',
-        6 => 'Menunggu Approval Kelayakan',
+        1 => 'Menunggu Distribusi Asesor',
+        2 => 'Tidak Lolos Verifikasi Dokumen',
+        5 => 'Menunggu Verifikasi Dokumen',
+        6 => 'Menunggu Verifikasi Kelayakan',
         7 => 'Tidak Lolos Kelayakan',
         8 => 'Menunggu Pembayaran',
         9 => 'Menunggu Ujian',

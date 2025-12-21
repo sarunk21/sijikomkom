@@ -24,26 +24,19 @@
 
     <!-- Registration Info Card -->
     @if($registrationInfo['has_previous_registration'])
-        <div class="card border-left-warning shadow mb-4">
+        <div class="card border-left-info shadow mb-4">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            <i class="fas fa-info-circle"></i> Informasi Pendaftaran Kedua
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <i class="fas fa-info-circle"></i> Informasi Pendaftaran
                         </div>
                         <div class="h6 mb-0 text-gray-800">
-                            @if($registrationInfo['last_payment'])
-                                Status Pembayaran Terakhir: <strong>{{ $registrationInfo['last_payment']->status_text }}</strong>
-                                @if($registrationInfo['last_payment']->keterangan)
-                                    <br><small class="text-muted">{{ $registrationInfo['last_payment']->keterangan }}</small>
-                                @endif
-                            @else
-                                Anda sudah pernah mendaftar sebelumnya
-                            @endif
+                            Anda sudah pernah mendaftar sebelumnya. Pastikan untuk melengkapi formulir APL setelah mendaftar.
                         </div>
                     </div>
                     <div class="col-auto">
-                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        <i class="fas fa-info-circle fa-2x text-info"></i>
                     </div>
                 </div>
             </div>
@@ -176,26 +169,23 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('asesi.daftar-ujikom.index') }}" class="btn btn-outline-danger mr-2">Batalkan</a>
-                    <button type="submit" class="btn btn-orange">Simpan</button>
+                    <a href="{{ route('dashboard.asesi') }}" class="btn btn-outline-danger mr-2">Batalkan</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-2"></i>Daftar Sekarang
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Include Payment Confirmation Modal --}}
-    @include('components.modals.payment-confirmation-modal')
-
-    {{-- Scripts --}}
-    @push('scripts')
-        <!-- DataTables sudah dimuat global dari layout -->
-        <script>
-            $(document).ready(function() {
-                // Tampilkan modal jika ini pendaftaran kedua
-                @if($isSecondRegistration)
-                    $('#paymentConfirmationModal').modal('show');
-                @endif
-            });
-        </script>
-    @endpush
+    {{-- Info Box --}}
+    <div class="alert alert-info mt-3">
+        <h5><i class="fas fa-info-circle mr-2"></i>Langkah Selanjutnya</h5>
+        <ol class="mb-0">
+            <li>Setelah mendaftar, Anda akan diarahkan untuk <strong>melengkapi formulir APL</strong></li>
+            <li>Pendaftaran akan diverifikasi oleh <strong>Kaprodi → Admin → Asesor</strong></li>
+            <li>Setelah kelayakan disetujui, Anda akan mendapat notifikasi untuk <strong>melakukan pembayaran</strong></li>
+            <li>Upload bukti pembayaran dan tunggu konfirmasi untuk mulai ujikom</li>
+        </ol>
+    </div>
 @endsection

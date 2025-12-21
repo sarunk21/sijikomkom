@@ -149,5 +149,141 @@ class KelayankanController extends Controller
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Batch approve multiple pendaftaran
+     */
+    public function batchApprove(Request $request)
+    {
+        $request->validate([
+            'pendaftaran_ids' => 'required|array|min:1',
+            'pendaftaran_ids.*' => 'exists:pendaftaran,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $successCount = 0;
+            $failedCount = 0;
+            $errors = [];
+
+            foreach ($request->pendaftaran_ids as $pendaftaranId) {
+                try {
+                    $pendaftaran = Pendaftaran::with('user', 'jadwal')->findOrFail($pendaftaranId);
+
+                    // Update status pendaftaran ke Menunggu Pembayaran
+                    $pendaftaran->update([
+                        'status' => 8, // Menunggu Pembayaran
+                        'kelayakan_status' => 1, // Layak
+                        'kelayakan_verified_at' => now(),
+                        'kelayakan_verified_by' => auth()->id(),
+                    ]);
+
+                    // Buat pembayaran baru
+                    $pembayaran = Pembayaran::create([
+                        'user_id' => $pendaftaran->user_id,
+                        'jadwal_id' => $pendaftaran->jadwal_id,
+                        'status' => 1, // Belum Bayar
+                        'keterangan' => 'Pembayaran Ujikom',
+                    ]);
+
+                    // Send email ke asesi
+                    try {
+                        Mail::to($pendaftaran->user->email)
+                            ->send(new MenungguPembayaranMail($pendaftaran, $pembayaran));
+                    } catch (\Exception $e) {
+                        Log::error('Error sending email for pendaftaran ' . $pendaftaranId . ': ' . $e->getMessage());
+                    }
+
+                    $successCount++;
+
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    $errors[] = "Pendaftaran ID {$pendaftaranId}: " . $e->getMessage();
+                    Log::error('Error batch approve pendaftaran ' . $pendaftaranId . ': ' . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            $message = "Berhasil approve {$successCount} pendaftaran.";
+            if ($failedCount > 0) {
+                $message .= " {$failedCount} gagal diproses.";
+            }
+
+            return redirect()->route('admin.kelayakan.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error batch approve kelayakan: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Batch reject multiple pendaftaran
+     */
+    public function batchReject(Request $request)
+    {
+        $request->validate([
+            'pendaftaran_ids' => 'required|array|min:1',
+            'pendaftaran_ids.*' => 'exists:pendaftaran,id',
+            'keterangan' => 'required|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($request->pendaftaran_ids as $pendaftaranId) {
+                try {
+                    $pendaftaran = Pendaftaran::with('user')->findOrFail($pendaftaranId);
+
+                    // Update status ke Tidak Lolos
+                    $pendaftaran->update([
+                        'status' => 7, // Tidak Lolos Kelayakan
+                        'kelayakan_status' => 2, // Tidak Layak
+                        'kelayakan_catatan' => $request->keterangan,
+                        'kelayakan_verified_at' => now(),
+                        'kelayakan_verified_by' => auth()->id(),
+                    ]);
+
+                    // Send email ke asesi
+                    try {
+                        Mail::to($pendaftaran->user->email)
+                            ->send(new \App\Mail\KelayankanDitolakMail($pendaftaran, $request->keterangan));
+                    } catch (\Exception $e) {
+                        Log::error('Error sending email for pendaftaran ' . $pendaftaranId . ': ' . $e->getMessage());
+                    }
+
+                    $successCount++;
+
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    Log::error('Error batch reject pendaftaran ' . $pendaftaranId . ': ' . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            $message = "Berhasil menolak {$successCount} pendaftaran.";
+            if ($failedCount > 0) {
+                $message .= " {$failedCount} gagal diproses.";
+            }
+
+            return redirect()->route('admin.kelayakan.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error batch reject kelayakan: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }
 

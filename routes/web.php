@@ -91,6 +91,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::post('user/aktifkan/{id}', [UserController::class, 'aktifkan'])->name('admin.user.aktifkan');
     Route::post('user/toggle-asesor-status/{id}', [UserController::class, 'toggleAsesorStatus'])->name('admin.user.toggle-asesor-status');
     Route::resource('pendaftaran', PendaftaranController::class)->names('admin.pendaftaran');
+    Route::resource('verifikasi-pendaftaran', \App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController::class)->names('admin.verifikasi-pendaftaran');
+    Route::get('verifikasi-pendaftaran/{id}/preview-apl1', [\App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController::class, 'previewApl1'])->name('admin.verifikasi-pendaftaran.preview-apl1');
+    Route::get('verifikasi-pendaftaran/{id}/preview-apl2', [\App\Http\Controllers\Kaprodi\VerifikasiPendaftaranController::class, 'previewApl2'])->name('admin.verifikasi-pendaftaran.preview-apl2');
     Route::resource('pembayaran-asesi', PembayaranController::class)->names('admin.pembayaran-asesi');
     Route::resource('pembayaran-asesor', PembayaranAsesorController::class)->names('admin.pembayaran-asesor');
     Route::get('pembayaran-asesor/{id}/download', [PembayaranAsesorController::class, 'download'])->name('admin.pembayaran-asesor.download');
@@ -157,6 +160,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'user.type'], function () {
     Route::get('kelayakan', [KelayankanController::class, 'index'])->name('admin.kelayakan.index');
     Route::post('kelayakan/{id}/approve', [KelayankanController::class, 'approve'])->name('admin.kelayakan.approve');
     Route::post('kelayakan/{id}/reject', [KelayankanController::class, 'reject'])->name('admin.kelayakan.reject');
+    Route::post('kelayakan/batch-approve', [KelayankanController::class, 'batchApprove'])->name('admin.kelayakan.batch-approve');
+    Route::post('kelayakan/batch-reject', [KelayankanController::class, 'batchReject'])->name('admin.kelayakan.batch-reject');
 });
 
 Route::group(['prefix' => 'asesi', 'middleware' => 'user.type'], function () {
@@ -211,6 +216,8 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('review/apl2/{pendaftaranId}', [ReviewController::class, 'reviewApl2'])->name('asesor.review.apl2');
     Route::post('review/apl2/{pendaftaranId}', [ReviewController::class, 'storeReviewApl2'])->name('asesor.review.store-apl2');
     Route::get('review/apl2/{pendaftaranId}/generate', [ReviewController::class, 'generateApl2'])->name('asesor.review.generate-apl2');
+    Route::post('review/kelayakan/{pendaftaran}/approve', [ReviewController::class, 'approveKelayakan'])->name('asesor.review.kelayakan.approve');
+    Route::post('review/kelayakan/{pendaftaran}/reject', [ReviewController::class, 'rejectKelayakan'])->name('asesor.review.kelayakan.reject');
 
     // OLD routes (can be deprecated later)
     Route::resource('verifikasi-peserta', VerifikasiPesertaController::class)->names('asesor.verifikasi-peserta');
@@ -239,9 +246,10 @@ Route::group(['prefix' => 'asesor', 'middleware' => 'user.type'], function () {
     Route::get('pemeriksaan/jadwal/{jadwalId}/asesi/{asesiId}/formulir/{bankSoalId}/generate', [PemeriksaanController::class, 'generateTemplate'])->name('asesor.pemeriksaan.generate-template');
 
     // Verifikasi Kelayakan routes
-    Route::get('verifikasi-kelayakan', [VerifikasiKelayankanController::class, 'index'])->name('asesor.verifikasi-kelayakan.index');
-    Route::get('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'show'])->name('asesor.verifikasi-kelayakan.show');
-    Route::post('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'store'])->name('asesor.verifikasi-kelayakan.store');
+    // Disabled: Verifikasi Kelayakan sekarang gabung dengan Review & Verifikasi
+    // Route::get('verifikasi-kelayakan', [VerifikasiKelayankanController::class, 'index'])->name('asesor.verifikasi-kelayakan.index');
+    // Route::get('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'show'])->name('asesor.verifikasi-kelayakan.show');
+    // Route::post('verifikasi-kelayakan/{pendaftaranId}', [VerifikasiKelayankanController::class, 'store'])->name('asesor.verifikasi-kelayakan.store');
 });
 
 Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
@@ -253,6 +261,8 @@ Route::group(['prefix' => 'kaprodi', 'middleware' => 'user.type'], function () {
     Route::get('report-hasil-uji/list-nama-tidak-kompeten/{id}/export-excel', [ReportHasilUjiController::class, 'exportNamaTidakKompetenExcel'])->name('kaprodi.report-hasil-uji.list-nama-tidak-kompeten.export-excel');
     Route::get('report-hasil-uji/export-excel', [ReportHasilUjiController::class, 'exportExcel'])->name('kaprodi.report-hasil-uji.export-excel');
     Route::resource('verifikasi-pendaftaran', VerifikasiPendaftaranController::class)->names('kaprodi.verifikasi-pendaftaran');
+    Route::get('verifikasi-pendaftaran/{id}/preview-apl1', [VerifikasiPendaftaranController::class, 'previewApl1'])->name('kaprodi.verifikasi-pendaftaran.preview-apl1');
+    Route::get('verifikasi-pendaftaran/{id}/preview-apl2', [VerifikasiPendaftaranController::class, 'previewApl2'])->name('kaprodi.verifikasi-pendaftaran.preview-apl2');
     Route::resource('profil-kaprodi', ProfilKaprodiController::class)->names('kaprodi.profil-kaprodi');
 
     // Analytics routes

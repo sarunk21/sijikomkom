@@ -120,7 +120,7 @@ class PemeriksaanController extends Controller
         // Asesor perlu melihat semua formulir untuk review jawaban asesi
         $bankSoals = BankSoal::where('skema_id', $jadwal->skema_id)
             ->where('is_active', true)
-            ->orderBy('nama', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
 
         // Get responses dari asesi

@@ -56,10 +56,31 @@
             </div>
         </form>
 
+        <!-- Batch Actions -->
+        @if($pendaftaranList->count() > 0)
+        <div class="mb-3">
+            <button type="button" class="btn btn-success" id="batchApproveBtn" disabled>
+                <i class="fas fa-check-double mr-2"></i>Approve Terpilih (<span id="selectedCount">0</span>)
+            </button>
+            <button type="button" class="btn btn-danger" id="batchRejectBtn" data-toggle="modal" data-target="#batchRejectModal" disabled>
+                <i class="fas fa-times-circle mr-2"></i>Tolak Terpilih
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="selectAllBtn">
+                <i class="fas fa-check-square mr-1"></i>Pilih Semua
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="deselectAllBtn">
+                <i class="fas fa-square mr-1"></i>Batal Pilih
+            </button>
+        </div>
+        @endif
+
         <div class="table-responsive">
             <table class="table table-hover" id="kelayakanTable">
                 <thead class="thead-light">
                     <tr>
+                        <th width="3%">
+                            <input type="checkbox" id="checkAll" title="Pilih Semua">
+                        </th>
                         <th>Tanggal Pendaftaran</th>
                         <th>Nama Asesi</th>
                         <th>Skema</th>
@@ -76,6 +97,10 @@
                             $verifikasi = $pendaftaran->kelayankanVerifikasi->first();
                         @endphp
                         <tr>
+                            <td>
+                                <input type="checkbox" class="pendaftaran-checkbox" value="{{ $pendaftaran->id }}" 
+                                       data-name="{{ $pendaftaran->user->name }}">
+                            </td>
                             <td>{{ $pendaftaran->created_at->format('d-m-Y H:i') }}</td>
                             <td>
                                 <strong>{{ $pendaftaran->user->name }}</strong><br>
@@ -147,7 +172,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
+                            <td colspan="9" class="text-center text-muted py-4">
                                 <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                 Tidak ada pendaftaran yang menunggu approval kelayakan.
                             </td>
@@ -159,15 +184,164 @@
     </div>
 </div>
 
+<!-- Batch Reject Modal -->
+<div class="modal fade" id="batchRejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="batchRejectForm" method="POST" action="{{ route('admin.kelayakan.batch-reject') }}">
+                @csrf
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Tolak Kelayakan Batch</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Yakin ingin menolak <strong id="batchRejectCount">0</strong> pendaftaran yang dipilih?</p>
+                    <div id="batchRejectList" class="mb-3 small"></div>
+                    <div class="form-group">
+                        <label>Alasan Penolakan <span class="text-danger">*</span></label>
+                        <textarea name="keterangan" class="form-control" rows="3" required 
+                                  placeholder="Masukkan alasan penolakan untuk semua pendaftaran yang dipilih..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger">Tolak Semua Pendaftaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Initialize DataTable
     $('#kelayakanTable').DataTable({
         "pageLength": 25,
         "ordering": false,
+        "columnDefs": [
+            { "orderable": false, "targets": 0 } // Disable sorting on checkbox column
+        ],
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
         }
+    });
+
+    // Update selected count and enable/disable batch buttons
+    function updateBatchButtons() {
+        const selectedCount = $('.pendaftaran-checkbox:checked').length;
+        $('#selectedCount').text(selectedCount);
+        
+        if (selectedCount > 0) {
+            $('#batchApproveBtn').prop('disabled', false);
+            $('#batchRejectBtn').prop('disabled', false);
+        } else {
+            $('#batchApproveBtn').prop('disabled', true);
+            $('#batchRejectBtn').prop('disabled', true);
+        }
+    }
+
+    // Check/uncheck all
+    $('#checkAll').on('change', function() {
+        $('.pendaftaran-checkbox').prop('checked', $(this).prop('checked'));
+        updateBatchButtons();
+    });
+
+    // Individual checkbox change
+    $('.pendaftaran-checkbox').on('change', function() {
+        const totalCheckboxes = $('.pendaftaran-checkbox').length;
+        const checkedCheckboxes = $('.pendaftaran-checkbox:checked').length;
+        $('#checkAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+        updateBatchButtons();
+    });
+
+    // Select all button
+    $('#selectAllBtn').on('click', function() {
+        $('.pendaftaran-checkbox').prop('checked', true);
+        $('#checkAll').prop('checked', true);
+        updateBatchButtons();
+    });
+
+    // Deselect all button
+    $('#deselectAllBtn').on('click', function() {
+        $('.pendaftaran-checkbox').prop('checked', false);
+        $('#checkAll').prop('checked', false);
+        updateBatchButtons();
+    });
+
+    // Batch approve
+    $('#batchApproveBtn').on('click', function() {
+        const selectedIds = [];
+        const selectedNames = [];
+        
+        $('.pendaftaran-checkbox:checked').each(function() {
+            selectedIds.push($(this).val());
+            selectedNames.push($(this).data('name'));
+        });
+
+        if (selectedIds.length === 0) {
+            alert('Pilih minimal 1 pendaftaran untuk diapprove');
+            return;
+        }
+
+        const namesList = selectedNames.map(name => '- ' + name).join('\n');
+        const confirmMsg = 'Yakin ingin approve ' + selectedIds.length + ' pendaftaran berikut?\n\n' + namesList;
+        
+        if (confirm(confirmMsg)) {
+            // Create form and submit
+            const form = $('<form>', {
+                'method': 'POST',
+                'action': '{{ route("admin.kelayakan.batch-approve") }}'
+            });
+
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': '_token',
+                'value': '{{ csrf_token() }}'
+            }));
+
+            selectedIds.forEach(function(id) {
+                form.append($('<input>', {
+                    'type': 'hidden',
+                    'name': 'pendaftaran_ids[]',
+                    'value': id
+                }));
+            });
+
+            $('body').append(form);
+            form.submit();
+        }
+    });
+
+    // Show batch reject modal with selected items
+    $('#batchRejectBtn').on('click', function() {
+        const selectedIds = [];
+        const selectedNames = [];
+        
+        $('.pendaftaran-checkbox:checked').each(function() {
+            selectedIds.push($(this).val());
+            selectedNames.push($(this).data('name'));
+        });
+
+        $('#batchRejectCount').text(selectedIds.length);
+        
+        // Update list
+        const listHtml = '<ul class="list-unstyled">' + 
+            selectedNames.map(name => '<li><i class="fas fa-user mr-2"></i>' + name + '</li>').join('') + 
+            '</ul>';
+        $('#batchRejectList').html(listHtml);
+
+        // Clear previous hidden inputs
+        $('#batchRejectForm input[name="pendaftaran_ids[]"]').remove();
+
+        // Add hidden inputs for selected IDs
+        selectedIds.forEach(function(id) {
+            $('#batchRejectForm').append($('<input>', {
+                'type': 'hidden',
+                'name': 'pendaftaran_ids[]',
+                'value': id
+            }));
+        });
     });
 });
 </script>

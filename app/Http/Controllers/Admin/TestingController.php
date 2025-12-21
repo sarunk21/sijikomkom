@@ -52,7 +52,9 @@ class TestingController extends Controller
         $pendaftaranUjikomBerlangsung = PendaftaranUjikom::where('status', 2)->count();
         $pendaftaranUjikomSelesai = PendaftaranUjikom::where('status', 3)->count();
 
-        $pembayaranAsesorMenunggu = PembayaranAsesor::where('status', 1)->count();
+        // Pembayaran asesor tidak digunakan lagi
+        // $pembayaranAsesorMenunggu = PembayaranAsesor::where('status', 1)->count();
+        $pembayaranAsesorMenunggu = 0;
         $sertifikatAktif = Sertif::where('status', 'aktif')->count();
 
         // Count stuck distributions (status 12 = Asesor Tidak Dapat Hadir)
@@ -89,8 +91,8 @@ class TestingController extends Controller
     public function triggerDistribusi()
     {
         try {
-            // Ambil pendaftaran dengan status 4 (Menunggu Distribusi Asesor)
-            $pendaftaran = Pendaftaran::where('status', 4)
+            // Ambil pendaftaran dengan status 1 (Menunggu Distribusi Asesor)
+            $pendaftaran = Pendaftaran::where('status', 1)
                 ->with(['jadwal', 'user'])
                 ->get();
 
@@ -349,10 +351,10 @@ class TestingController extends Controller
                 // Update jadwal ke status 3 (Ujian Berlangsung)
                 $jadwal->update(['status' => 3]);
                 
-                // Update status Pendaftaran dari 4 (Menunggu Ujian) ke 5 (Ujian Berlangsung)
+                // Update status Pendaftaran dari 9 (Menunggu Ujian) ke 10 (Ujian Berlangsung)
                 Pendaftaran::where('jadwal_id', $jadwal->id)
-                    ->where('status', 4)
-                    ->update(['status' => 5]);
+                    ->where('status', 9)
+                    ->update(['status' => 10]);
                 
                 // Update semua PendaftaranUjikom di jadwal ini langsung ke status 2 (Ujikom Berlangsung)
                 PendaftaranUjikom::where('jadwal_id', $jadwal->id)

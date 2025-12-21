@@ -38,7 +38,7 @@ class VerifikasiKelayankanController extends Controller
                 'pendaftaran.tuk'
             ])
             ->whereHas('pendaftaran', function($q) {
-                $q->where('status', 5); // Status 5: Menunggu Verifikasi Asesor
+                $q->where('status', 6); // Status 6: Menunggu Verifikasi Kelayakan (after doc verification)
             });
 
         // Filter by jadwal
@@ -52,7 +52,7 @@ class VerifikasiKelayankanController extends Controller
         $jadwalList = PendaftaranUjikom::where('asesor_id', Auth::id())
             ->with('jadwal', 'jadwal.skema')
             ->whereHas('pendaftaran', function($q) {
-                $q->where('status', 5);
+                $q->where('status', 6);
             })
             ->get()
             ->pluck('jadwal')
@@ -127,21 +127,31 @@ class VerifikasiKelayankanController extends Controller
 
             // Update status pendaftaran
             if ($request->status == 1) {
-                // Layak - lanjut ke approval admin
+                // Layak - langsung ke pembayaran (no admin approval needed)
                 $pendaftaran->update([
-                    'status' => 6, // Menunggu Approval Kelayakan
-                    'kelayakan_status' => 0, // Reset untuk approval admin
+                    'status' => 8, // Menunggu Pembayaran
+                    'kelayakan_status' => 1, // Layak
+                    'kelayakan_catatan' => $request->catatan,
+                    'kelayakan_verified_at' => now(),
+                    'kelayakan_verified_by' => Auth::id(),
                 ]);
 
-                // Send email notifikasi ke admin
+                // Create Pembayaran record
+                \App\Models\Pembayaran::create([
+                    'user_id' => $pendaftaran->user_id,
+                    'jadwal_id' => $pendaftaran->jadwal_id,
+                    'status' => 1, // Belum Bayar
+                ]);
+
+                // Send email notifikasi ke asesi untuk pembayaran
                 try {
-                    Mail::to(config('mail.admin_email', 'admin@sijikomkom.com'))
-                        ->send(new VerifikasiKelayankanMail($pendaftaran, $verifikasi));
+                    $emailService = new \App\Services\EmailService();
+                    $emailService->sendMenungguPembayaranNotification($pendaftaran);
                 } catch (\Exception $e) {
                     Log::error('Error sending email: ' . $e->getMessage());
                 }
 
-                $message = 'Verifikasi kelayakan berhasil! Pendaftaran dinyatakan LAYAK dan menunggu approval admin.';
+                $message = 'Verifikasi kelayakan berhasil! Pendaftaran dinyatakan LAYAK. Asesi dapat melakukan pembayaran.';
             } else {
                 // Tidak Layak
                 $pendaftaran->update([

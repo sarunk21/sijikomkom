@@ -43,8 +43,8 @@ class DistributeUjikomCommand extends Command
     {
         $this->info('Memulai distribusi ujikom...');
 
-        // Ambil pendaftaran dengan status 4 dan tanggal maksimal pendaftaran sama dengan hari ini
-        $pendaftaran = Pendaftaran::where('status', 4)
+        // Ambil pendaftaran dengan status 1 (Menunggu Distribusi Asesor) dan tanggal maksimal pendaftaran sama dengan hari ini
+        $pendaftaran = Pendaftaran::where('status', 1)
             ->whereHas('jadwal', function ($query) {
                 $query->whereDate('tanggal_maksimal_pendaftaran', Carbon::today());
             })
@@ -141,6 +141,9 @@ class DistributeUjikomCommand extends Command
                     'asesor_id' => $asesorId,
                     'status' => 6, // Menunggu Konfirmasi Asesor
                 ]);
+
+                // Update status pendaftaran ke 5 (Menunggu Verifikasi Dokumen)
+                $pendaftar->update(['status' => 5]);
 
                 // Track jadwal untuk asesor ini
                 if (!isset($asesorWithJadwal[$asesorId])) {

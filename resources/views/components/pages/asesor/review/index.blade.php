@@ -150,11 +150,81 @@
         </div>
     </div>
 
-    <!-- Jadwal List Card -->
+    <!-- Jadwal Butuh Verifikasi Kelayakan -->
+    @if(isset($jadwalKelayakan) && $jadwalKelayakan->count() > 0)
+    <div class="card shadow-sm mb-4 border-left-warning">
+        <div class="card-header bg-gradient-warning text-white">
+            <h6 class="m-0 font-weight-bold">
+                <i class="fas fa-clipboard-check mr-2"></i> Jadwal Butuh Verifikasi Kelayakan Asesi
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning mb-3">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Perhatian:</strong> Terdapat <strong>{{ $jadwalKelayakan->count() }} jadwal</strong> yang memiliki asesi menunggu verifikasi kelayakan Anda.
+                Silakan klik "Lihat Asesi" untuk melakukan verifikasi APL 1 & APL 2 dan memberikan keputusan Layak/Tidak Layak.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="jadwalKelayankanTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Skema</th>
+                            <th>TUK</th>
+                            <th>Tanggal Ujian</th>
+                            <th>Waktu</th>
+                            <th>Jumlah Asesi</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($jadwalKelayakan as $item)
+                            @php
+                                $jadwal = $item->jadwal;
+                                // Count total asesi with status 6 for this jadwal
+                                $totalAsesi = \App\Models\PendaftaranUjikom::where('jadwal_id', $jadwal->id)
+                                    ->where('asesor_id', Auth::id())
+                                    ->whereHas('pendaftaran', function($q) {
+                                        $q->where('status', 6);
+                                    })
+                                    ->count();
+                            @endphp
+                            <tr>
+                                <td>
+                                    <strong>{{ $jadwal->skema->nama }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ $jadwal->skema->kode }}</small>
+                                </td>
+                                <td>{{ $jadwal->tuk->nama }}</td>
+                                <td>{{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d M Y') }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($jadwal->waktu_mulai)->format('H:i') }} -
+                                    {{ \Carbon\Carbon::parse($jadwal->waktu_selesai)->format('H:i') }}
+                                </td>
+                                <td>
+                                    <span class="badge badge-warning badge-pill" style="font-size: 0.9rem;">
+                                        {{ $totalAsesi }} Asesi Menunggu
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('asesor.review.show-asesi', $jadwal->id) }}"
+                                       class="btn btn-sm btn-warning">
+                                        <i class="fas fa-clipboard-check mr-1"></i> Lihat Asesi & Verifikasi
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Jadwal Review & Ujian -->
     <div class="card shadow-sm">
         <div class="card-header bg-white">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-calendar-check mr-2"></i> Daftar Jadwal Ujian Kompetensi
+                <i class="fas fa-calendar-check mr-2"></i> Daftar Jadwal Review & Ujian
             </h6>
         </div>
         <div class="card-body">
@@ -234,12 +304,52 @@
         .card-header.bg-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         }
+
+        .border-left-warning {
+            border-left: 0.25rem solid #f6c23e !important;
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #f6c23e 0%, #f39c12 100%) !important;
+        }
+
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #36b9cc 0%, #258391 100%) !important;
+        }
     </style>
 
     @push('scripts')
         <script>
             $(document).ready(function() {
-                // Initialize DataTable only if there's data
+                // Initialize DataTable untuk Jadwal Kelayakan
+                @if(isset($jadwalKelayakan) && $jadwalKelayakan->count() > 0)
+                    $('#jadwalKelayankanTable').DataTable({
+                        responsive: true,
+                        ordering: false,
+                        language: {
+                            searchPlaceholder: "Cari jadwal...",
+                            search: "",
+                            lengthMenu: "_MENU_ jadwal per halaman",
+                            zeroRecords: "Jadwal tidak ditemukan",
+                            info: "Menampilkan _START_ - _END_ dari _TOTAL_ jadwal",
+                            infoEmpty: "Tidak ada data",
+                            paginate: {
+                                previous: "Sebelumnya",
+                                next: "Berikutnya"
+                            }
+                        },
+                        columnDefs: [{
+                            targets: -1,
+                            orderable: false
+                        }]
+                    });
+                @endif
+
+                // Initialize DataTable untuk Jadwal Review
                 @if($jadwalList->count() > 0)
                     $('#jadwalTable').DataTable({
                         responsive: true,
@@ -259,6 +369,21 @@
                         },
                         columnDefs: [{
                             targets: -1, // Last column (actions)
+                            orderable: false
+                        }]
+                    });
+                @endif
+
+                // Initialize DataTable untuk Pending Confirmation
+                @if(isset($pendingConfirmations) && $pendingConfirmations->count() > 0)
+                    $('#pendingConfirmationTable').DataTable({
+                        responsive: true,
+                        ordering: false,
+                        paging: false,
+                        searching: false,
+                        info: false,
+                        columnDefs: [{
+                            targets: -1,
                             orderable: false
                         }]
                     });

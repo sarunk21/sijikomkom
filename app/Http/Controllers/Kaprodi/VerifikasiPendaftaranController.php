@@ -16,9 +16,18 @@ class VerifikasiPendaftaranController extends Controller
      */
     public function index(Request $request)
     {
-        $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
+        // Detect user type for menu
+        $userType = auth()->user()->user_type;
+        if ($userType === 'kaprodi') {
+            $lists = $this->getMenuListKaprodi('verifikasi-pendaftaran');
+            $viewPath = 'components.pages.kaprodi.verifikasi-pendaftaran.list';
+        } else {
+            $lists = $this->getMenuListAdmin('verifikasi-pendaftaran');
+            $viewPath = 'components.pages.admin.verifikasi-pendaftaran.list';
+        }
 
         // Load user with file fields for displaying uploaded documents
+        // Only show pendaftaran with status 5 (Menunggu Verifikasi Dokumen - after distribution)
         $query = Pendaftaran::with([
             'jadwal',
             'jadwal.skema',
@@ -26,7 +35,7 @@ class VerifikasiPendaftaranController extends Controller
             'user', // Load all user fields including uploaded files
             'skema',
             'pendaftaranUjikom'
-        ]);
+        ])->where('status', 5);
 
         // Apply filters
         if ($request->filled('start_date')) {
@@ -41,10 +50,6 @@ class VerifikasiPendaftaranController extends Controller
             $query->where('pendaftaran.skema_id', $request->skema_id);
         }
 
-        if ($request->filled('status')) {
-            $query->where('pendaftaran.status', $request->status);
-        }
-
         // Sort by created_at descending (latest first), then by id descending
         $verfikasiPendaftaran = $query->orderBy('pendaftaran.created_at', 'desc')
             ->orderBy('pendaftaran.id', 'desc')
@@ -53,7 +58,7 @@ class VerifikasiPendaftaranController extends Controller
         // Get all skema for filter dropdown
         $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
 
-        return view('components.pages.kaprodi.verifikasi-pendaftaran.list', compact('lists', 'verfikasiPendaftaran', 'skemas'));
+        return view($viewPath, compact('lists', 'verfikasiPendaftaran', 'skemas'));
     }
 
     /**
@@ -94,31 +99,104 @@ class VerifikasiPendaftaranController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'status' => 'required|in:1,2,3',
+            'status' => 'required|in:2,6',
             'keterangan' => 'nullable|string|max:500',
         ]);
 
         $pendaftaran = Pendaftaran::findOrFail($id);
+        
+        // Status 6: Approve (Menunggu Verifikasi Kelayakan Asesor)
+        // Status 2: Reject (Tidak Lolos Verifikasi Dokumen)
         $pendaftaran->status = $request->status;
 
-        // Jika status adalah 2 (verifikasi dengan keterangan), simpan keterangan
+        // Jika status adalah 2 (ditolak), simpan keterangan
         if ($request->status == 2) {
             $pendaftaran->keterangan = $request->keterangan;
+            
+            // Kirim email notifikasi jika ditolak
+            $emailService = new EmailService();
+            $emailService->sendPendaftaranDitolakNotification($pendaftaran);
         } else {
-            // Jika status bukan 2, hapus keterangan
+            // Jika status 6 (disetujui), hapus keterangan
             $pendaftaran->keterangan = null;
         }
 
         $pendaftaran->save();
 
-        // Kirim email notifikasi jika status berubah menjadi ditolak (status 2)
-        if ($request->status == 2) {
-            $emailService = new EmailService();
-            $emailService->sendPendaftaranDitolakNotification($pendaftaran);
+        // Redirect based on user type
+        $userType = auth()->user()->user_type;
+        if ($userType === 'kaprodi') {
+            return redirect()->route('kaprodi.verifikasi-pendaftaran.index')
+                ->with('success', "Status pendaftaran berhasil diubah");
+        } else {
+            return redirect()->route('admin.verifikasi-pendaftaran.index')
+                ->with('success', "Status pendaftaran berhasil diubah");
         }
+    }
 
-        return redirect()->route('kaprodi.verifikasi-pendaftaran.index')
-            ->with('success', "Status pendaftaran berhasil diubah");
+    /**
+     * Download APL 1 DOCX (for Kaprodi/Admin)
+     */
+    public function previewApl1($pendaftaranId)
+    {
+        try {
+            $pendaftaran = Pendaftaran::with(['user', 'skema', 'jadwal.tuk'])->findOrFail($pendaftaranId);
+            
+            // Generate DOCX
+            $templateGenerator = new \App\Services\TemplateGeneratorService();
+            if (!$templateGenerator->checkTemplateExists('APL1', $pendaftaran->skema_id)) {
+                return redirect()->back()->with('error', 'Template APL 1 untuk skema ini belum tersedia.');
+            }
+            
+            $result = $templateGenerator->generateApl1($pendaftaran, []);
+            
+            if (!$result['success']) {
+                return redirect()->back()->with('error', 'Gagal generate APL 1: ' . $result['error']);
+            }
+            
+            // Download DOCX langsung (format asli, tidak di-convert)
+            return response()->download(
+                storage_path('app/public/' . $result['file_path']),
+                'APL1_' . $pendaftaran->user->name . '.docx'
+            );
+            
+        } catch (\Exception $e) {
+            \Log::error('Download APL1 Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download APL 2 DOCX (for Kaprodi/Admin)
+     */
+    public function previewApl2($pendaftaranId)
+    {
+        try {
+            $pendaftaran = Pendaftaran::with(['user', 'skema'])->findOrFail($pendaftaranId);
+            
+            // Cek apakah APL2 sudah diisi
+            if (empty($pendaftaran->custom_variables)) {
+                return redirect()->back()->with('error', 'APL2 belum diisi oleh asesi.');
+            }
+            
+            // Generate DOCX
+            $templateGenerator = new \App\Services\TemplateGeneratorService();
+            $result = $templateGenerator->generateApl2($pendaftaran, false);
+            
+            if (!$result['success']) {
+                return redirect()->back()->with('error', 'Gagal generate APL 2: ' . ($result['message'] ?? 'Unknown error'));
+            }
+            
+            // Download DOCX langsung (format asli, tidak di-convert)
+            return response()->download(
+                $result['file_path'],
+                'APL2_' . $pendaftaran->user->name . '.docx'
+            );
+            
+        } catch (\Exception $e) {
+            \Log::error('Download APL2 Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -188,11 +188,11 @@ trait MenuTrait
                 'url' => 'asesor.review.index',
                 'key' => 'review'
             ],
-            [
-                'title' => 'Verifikasi Kelayakan',
-                'url' => 'asesor.verifikasi-kelayakan.index',
-                'key' => 'verifikasi-kelayakan'
-            ],
+            // [
+            //     'title' => 'Verifikasi Kelayakan',
+            //     'url' => 'asesor.verifikasi-kelayakan.index',
+            //     'key' => 'verifikasi-kelayakan'
+            // ],
             [
                 'title' => 'Hasil Ujikom',
                 'url' => 'asesor.hasil-ujikom.index',

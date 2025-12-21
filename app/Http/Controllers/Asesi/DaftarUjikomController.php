@@ -33,19 +33,13 @@ class DaftarUjikomController extends Controller
             return redirect()->route('asesi.profil-asesi.index')->with('error', 'Asesi harus melengkapi profil');
         }
 
-        // Cek apakah ini pendaftaran kedua
-        $isSecondRegistration = $request->has('second_registration');
-        $registrationInfo = $this->secondRegistrationService->getSecondRegistrationInfo();
+        // NEW FLOW: Cek apakah sudah pernah mendaftar (untuk info saja)
+        $hasPreviousRegistration = Pendaftaran::where('user_id', Auth::id())->exists();
+        $registrationInfo = [
+            'has_previous_registration' => $hasPreviousRegistration
+        ];
 
-        // Cek apakah user bisa mendaftar lagi
-        if (!$this->secondRegistrationService->canRegisterAgain()) {
-            $lastPayment = $registrationInfo['last_payment'];
-            if ($lastPayment && in_array($lastPayment->status, [1, 2])) {
-                return redirect()->route('asesi.informasi-pembayaran.index')
-                    ->with('warning', 'Anda memiliki pembayaran yang belum diselesaikan. Silakan selesaikan pembayaran terlebih dahulu.');
-            }
-        }
-
+        // Ambil jadwal yang tersedia sesuai jurusan asesi
         $jadwal = Jadwal::with('skema', 'tuk')
             ->whereHas('skema', function ($query) use ($asesi) {
                 $query->where('bidang', $asesi->jurusan);
@@ -56,7 +50,7 @@ class DaftarUjikomController extends Controller
             ->get();
 
         $lists = $this->getMenuListAsesi('daftar-ujikom');
-        return view('components.pages.asesi.daftar-ujikom.index', compact('lists', 'jadwal', 'registrationInfo', 'isSecondRegistration'));
+        return view('components.pages.asesi.daftar-ujikom.index', compact('lists', 'jadwal', 'registrationInfo'));
     }
 
     /**
@@ -108,21 +102,45 @@ class DaftarUjikomController extends Controller
             $user->update($updateData);
         }
 
-        // Gunakan service untuk membuat pembayaran
+        // NEW FLOW: Langsung buat pendaftaran tanpa pembayaran dulu
+        // Pembayaran dibuat setelah kelayakan diapprove
         try {
-            $pembayaran = $this->secondRegistrationService->createSecondRegistrationPayment($request->jadwal_id);
+            $jadwal = Jadwal::findOrFail($request->jadwal_id);
+            
+            // Cek apakah sudah ada pendaftaran untuk jadwal ini
+            $existingRegistration = Pendaftaran::where('user_id', $user->id)
+                ->where('jadwal_id', $request->jadwal_id)
+                ->first();
 
-            // Set session untuk menampilkan informasi pembayaran
-            session()->flash('payment_status_message', 'Pendaftaran berhasil! Silakan lakukan pembayaran dan upload bukti pembayaran.');
-            session()->flash('payment_status_type', 'success');
+            if ($existingRegistration) {
+                // Jika ada pendaftaran yang ditolak (status 2 atau 7), hapus dan buat baru
+                if (in_array($existingRegistration->status, [2, 7])) {
+                    $existingRegistration->delete();
+                } else {
+                    return redirect()->back()
+                        ->with('error', 'Anda sudah mendaftar untuk jadwal ini.');
+                }
+            }
+
+            // Buat pendaftaran baru
+            $pendaftaran = Pendaftaran::create([
+                'user_id' => $user->id,
+                'jadwal_id' => $request->jadwal_id,
+                'skema_id' => $jadwal->skema_id,
+                'tuk_id' => $jadwal->tuk_id,
+                'status' => 1, // Menunggu Verifikasi Kaprodi
+                'keterangan' => 'Pendaftaran baru - menunggu verifikasi'
+            ]);
+
+            session()->flash('success', 'Pendaftaran berhasil! Silakan lengkapi formulir APL dan tunggu proses verifikasi.');
 
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error saat membuat pembayaran: ' . $e->getMessage());
+                ->with('error', 'Error saat membuat pendaftaran: ' . $e->getMessage());
         }
 
-        return redirect()->route('asesi.informasi-pembayaran.index')->with('success', 'Berhasil daftar ujikom');
+        return redirect()->route('asesi.sertifikasi.index')->with('success', 'Berhasil daftar ujikom! Silakan lengkapi formulir APL.');
     }
 
     /**

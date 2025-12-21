@@ -116,7 +116,7 @@ class SystemAnalystJuliSeeder extends Seeder
                 'user_id' => $asesi->id,
                 'skema_id' => $skema->id,
                 'tuk_id' => $tuk->id,
-                'status' => 6, // Selesai
+                'status' => 11, // Selesai
                 'keterangan' => 'Ujian telah selesai dilaksanakan',
                 'custom_variables' => null,
                 'ttd_asesi_path' => null,

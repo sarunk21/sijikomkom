@@ -20,6 +20,18 @@
                         <strong>Sudah Diverifikasi</strong><br>
                         Anda telah memberikan verifikasi untuk pendaftaran ini pada {{ $existingVerifikasi->verified_at->format('d M Y H:i') }}.
                     </div>
+                @else
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading"><i class="fas fa-clipboard-check mr-2"></i>Checklist Verifikasi Kelayakan</h6>
+                        <p class="mb-2">Sebelum memberikan verifikasi, pastikan Anda sudah memeriksa:</p>
+                        <ul class="mb-0">
+                            <li>✅ <strong>Dokumen Administrasi</strong> yang sudah diverifikasi Kaprodi</li>
+                            <li>✅ <strong>APL 1</strong> - Data lengkap asesi</li>
+                            <li>✅ <strong>APL 2</strong> - Self assessment kompetensi</li>
+                        </ul>
+                        <hr>
+                        <small class="text-muted"><i class="fas fa-arrow-right mr-1"></i>Lihat formulir APL di panel sebelah kanan</small>
+                    </div>
                 @endif
 
                 <form method="POST" action="{{ route('asesor.verifikasi-kelayakan.store', $pendaftaran->id) }}">
@@ -130,12 +142,13 @@
             </div>
         </div>
 
-        <!-- Dokumen -->
-        <div class="card shadow-sm">
+        <!-- Dokumen Administrasi -->
+        <div class="card shadow-sm mb-3">
             <div class="card-header bg-warning text-white">
-                <h6 class="mb-0"><i class="fas fa-file mr-2"></i>Dokumen Persyaratan</h6>
+                <h6 class="mb-0"><i class="fas fa-file mr-2"></i>Dokumen Administrasi</h6>
             </div>
             <div class="card-body">
+                <p class="text-muted small mb-2"><i class="fas fa-info-circle mr-1"></i>Dokumen yang sudah diverifikasi Kaprodi</p>
                 <ul class="list-unstyled mb-0">
                     <li class="mb-2">
                         <i class="fas fa-file-pdf text-danger mr-2"></i>
@@ -148,9 +161,9 @@
                     <li class="mb-2">
                         <i class="fas fa-file-pdf text-danger mr-2"></i>
                         @if($pendaftaran->user->photo_sertifikat)
-                            <a href="{{ asset('storage/' . $pendaftaran->user->photo_sertifikat) }}" target="_blank">Sertifikat</a>
+                            <a href="{{ asset('storage/' . $pendaftaran->user->photo_sertifikat) }}" target="_blank">Surat Rekomendasi</a>
                         @else
-                            <span class="text-muted">Sertifikat (Belum Upload)</span>
+                            <span class="text-muted">Surat Rekomendasi (Belum Upload)</span>
                         @endif
                     </li>
                     <li class="mb-2">
@@ -170,6 +183,35 @@
                         @endif
                     </li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- Formulir APL -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-file-alt mr-2"></i>Formulir APL Asesi</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3"><i class="fas fa-info-circle mr-1"></i>Formulir yang diisi oleh asesi</p>
+                
+                <div class="d-grid gap-2 mb-2">
+                    <a href="{{ route('asesi.template.preview-apl1-data', $pendaftaran->id) }}" 
+                       class="btn btn-outline-primary btn-block" target="_blank">
+                        <i class="fas fa-file-alt mr-2"></i>Lihat APL 1 (Data Asesi)
+                    </a>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ route('asesor.apl2.show', $pendaftaran->id) }}" 
+                       class="btn btn-outline-success btn-block" target="_blank">
+                        <i class="fas fa-clipboard-check mr-2"></i>Lihat APL 2 (Self Assessment)
+                    </a>
+                </div>
+
+                <div class="alert alert-info mt-3 mb-0 small">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    <strong>Tips:</strong> Periksa kelengkapan dan kesesuaian data APL 1 & APL 2 sebelum memberikan verifikasi kelayakan.
+                </div>
             </div>
         </div>
     </div>

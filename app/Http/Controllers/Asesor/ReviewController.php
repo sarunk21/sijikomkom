@@ -54,12 +54,16 @@ class ReviewController extends Controller
             ->sortBy('jadwal.tanggal_ujian')
             ->values();
 
-        // Build query - hanya jadwal yang sudah confirmed atau sudah dimulai
-        $query = PendaftaranUjikom::where('asesor_id', Auth::id())
+        // Query 1: Jadwal dengan asesi yang butuh verifikasi kelayakan (status 6)
+        $queryKelayakan = PendaftaranUjikom::where('asesor_id', Auth::id())
+            ->whereHas('pendaftaran', function($q) {
+                $q->where('status', 6); // Menunggu Verifikasi Kelayakan
+            })
+            ->with(['jadwal.skema', 'jadwal.tuk']);
+
+        // Query 2: Jadwal yang sudah confirmed atau sudah dimulai (untuk review biasa)
+        $queryReview = PendaftaranUjikom::where('asesor_id', Auth::id())
             ->where(function($q) {
-                // Tampilkan jadwal yang:
-                // 1. Sudah confirmed oleh asesor, ATAU
-                // 2. Jadwal sudah dimulai/berlangsung (status >= 2)
                 $q->where('asesor_confirmed', true)
                   ->orWhereHas('jadwal', function($subQuery) {
                       $subQuery->where('status', '>=', 2); // Status 2 = Pendaftaran, 3 = Berlangsung, 4 = Selesai
@@ -67,28 +71,49 @@ class ReviewController extends Controller
             })
             ->with(['jadwal.skema', 'jadwal.tuk']);
 
-        // Filter by date range
+        // Apply filters untuk kedua query
         if ($request->filled('tanggal_dari')) {
-            $query->whereHas('jadwal', function($q) use ($request) {
+            $queryKelayakan->whereHas('jadwal', function($q) use ($request) {
+                $q->where('tanggal_ujian', '>=', $request->tanggal_dari);
+            });
+            $queryReview->whereHas('jadwal', function($q) use ($request) {
                 $q->where('tanggal_ujian', '>=', $request->tanggal_dari);
             });
         }
 
         if ($request->filled('tanggal_sampai')) {
-            $query->whereHas('jadwal', function($q) use ($request) {
+            $queryKelayakan->whereHas('jadwal', function($q) use ($request) {
+                $q->where('tanggal_ujian', '<=', $request->tanggal_sampai);
+            });
+            $queryReview->whereHas('jadwal', function($q) use ($request) {
                 $q->where('tanggal_ujian', '<=', $request->tanggal_sampai);
             });
         }
 
-        // Filter by skema
         if ($request->filled('skema_id')) {
-            $query->whereHas('jadwal.skema', function($q) use ($request) {
+            $queryKelayakan->whereHas('jadwal.skema', function($q) use ($request) {
+                $q->where('id', $request->skema_id);
+            });
+            $queryReview->whereHas('jadwal.skema', function($q) use ($request) {
                 $q->where('id', $request->skema_id);
             });
         }
 
-        // Get distinct jadwal
-        $jadwalList = $query->select('jadwal_id')
+        // Get distinct jadwal untuk kelayakan
+        $jadwalKelayakan = $queryKelayakan->select('jadwal_id')
+            ->distinct()
+            ->get()
+            ->map(function($item) {
+                return PendaftaranUjikom::where('jadwal_id', $item->jadwal_id)
+                    ->where('asesor_id', Auth::id())
+                    ->with(['jadwal.skema', 'jadwal.tuk'])
+                    ->first();
+            })
+            ->filter()
+            ->sortByDesc('jadwal_id');
+
+        // Get distinct jadwal untuk review
+        $jadwalList = $queryReview->select('jadwal_id')
             ->distinct()
             ->get()
             ->map(function($item) {
@@ -113,7 +138,7 @@ class ReviewController extends Controller
             })
             ->get();
 
-        return view('components.pages.asesor.review.index', compact('lists', 'jadwalList', 'skemas', 'pendingConfirmations'));
+        return view('components.pages.asesor.review.index', compact('lists', 'jadwalList', 'jadwalKelayakan', 'skemas', 'pendingConfirmations'));
     }
 
     /**
@@ -148,6 +173,9 @@ class ReviewController extends Controller
                 $item->has_apl1 = $pendaftaran && !empty($pendaftaran->custom_variables);
                 $item->has_apl2 = $pendaftaran && !empty($pendaftaran->custom_variables);
                 $item->pendaftaran_id = $pendaftaran->id ?? null;
+                $item->pendaftaran_status = $pendaftaran->status ?? null;
+                $item->kelayakan_status = $pendaftaran->kelayakan_status ?? 0;
+                $item->kelayakan_catatan = $pendaftaran->kelayakan_catatan ?? null;
 
                 return $item;
             });
@@ -390,6 +418,107 @@ class ReviewController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat generate: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Approve kelayakan (quick action from asesi list)
+     */
+    public function approveKelayakan($pendaftaranId)
+    {
+        try {
+            DB::beginTransaction();
+
+            $pendaftaran = Pendaftaran::with(['user', 'jadwal'])->findOrFail($pendaftaranId);
+
+            // Cek apakah pendaftaran dalam status yang tepat (status 6: Menunggu Verifikasi Kelayakan)
+            if ($pendaftaran->status != 6) {
+                return redirect()->back()->with('error', 'Pendaftaran tidak dalam status yang tepat untuk verifikasi kelayakan.');
+            }
+
+            // Update status ke Menunggu Pembayaran
+            $pendaftaran->update([
+                'status' => 8, // Menunggu Pembayaran
+                'kelayakan_status' => 1, // Layak
+                'kelayakan_verified_at' => now(),
+                'kelayakan_verified_by' => Auth::id(),
+            ]);
+
+            // Create Pembayaran record
+            \App\Models\Pembayaran::create([
+                'user_id' => $pendaftaran->user_id,
+                'jadwal_id' => $pendaftaran->jadwal_id,
+                'status' => 1, // Belum Bayar
+            ]);
+
+            DB::commit();
+
+            // Send email (optional) - TODO: Implement sendMenungguPembayaranNotification method
+            // try {
+            //     $emailService = new \App\Services\EmailService();
+            //     $emailService->sendMenungguPembayaranNotification($pendaftaran);
+            // } catch (\Exception $e) {
+            //     \Log::error('Error sending email: ' . $e->getMessage());
+            // }
+
+            return redirect()->back()->with('success', 'Kelayakan disetujui! Asesi dapat melakukan pembayaran.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Approve Kelayakan Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject kelayakan (quick action from asesi list)
+     */
+    public function rejectKelayakan(Request $request, $pendaftaranId)
+    {
+        $request->validate([
+            'catatan' => 'required|string|max:1000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $pendaftaran = Pendaftaran::with('user')->findOrFail($pendaftaranId);
+
+            // Cek apakah pendaftaran dalam status yang tepat
+            if ($pendaftaran->status != 6) {
+                return redirect()->back()->with('error', 'Pendaftaran tidak dalam status yang tepat untuk verifikasi kelayakan.');
+            }
+
+            // Update status ke Tidak Lolos Kelayakan
+            $pendaftaran->update([
+                'status' => 7, // Tidak Lolos Kelayakan
+                'kelayakan_status' => 2, // Tidak Layak
+                'kelayakan_catatan' => $request->catatan,
+                'kelayakan_verified_at' => now(),
+                'kelayakan_verified_by' => Auth::id(),
+            ]);
+
+            // Delete PendaftaranUjikom
+            PendaftaranUjikom::where('pendaftaran_id', $pendaftaranId)
+                ->where('asesor_id', Auth::id())
+                ->delete();
+
+            DB::commit();
+
+            // Send email (optional) - TODO: Implement sendKelayankanDitolakNotification method
+            // try {
+            //     $emailService = new \App\Services\EmailService();
+            //     $emailService->sendKelayankanDitolakNotification($pendaftaran);
+            // } catch (\Exception $e) {
+            //     \Log::error('Error sending email: ' . $e->getMessage());
+            // }
+
+            return redirect()->back()->with('success', 'Kelayakan ditolak. Asesi telah diberitahu.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Reject Kelayakan Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

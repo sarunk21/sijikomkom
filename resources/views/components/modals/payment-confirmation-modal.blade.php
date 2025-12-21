@@ -45,15 +45,19 @@
 
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card border-left-warning">
+                        <div class="card border-left-info">
                             <div class="card-body">
-                                <h6 class="text-warning"><i class="fas fa-exclamation-triangle"></i> Ketentuan Pendaftaran Kedua</h6>
-                                <ul class="mb-0">
-                                    <li>Biaya pendaftaran kedua akan dikenakan sesuai ketentuan yang berlaku</li>
-                                    <li>Pembayaran harus dilakukan sebelum batas waktu yang ditentukan</li>
-                                    <li>Bukti pembayaran harus diupload untuk verifikasi</li>
-                                    <li>Status pembayaran akan dikonfirmasi oleh admin dalam 1-3 hari kerja</li>
-                                </ul>
+                                <h6 class="text-info"><i class="fas fa-info-circle"></i> Flow Pendaftaran Baru</h6>
+                                <ol class="mb-0">
+                                    <li><strong>Daftar</strong> - Upload dokumen persyaratan</li>
+                                    <li><strong>Verifikasi</strong> - Kaprodi → Admin → Asesor</li>
+                                    <li><strong>Kelayakan</strong> - Verifikasi kelayakan oleh asesor & admin</li>
+                                    <li><strong>Pembayaran</strong> - Setelah kelayakan disetujui, lakukan pembayaran</li>
+                                    <li><strong>Ujikom</strong> - Pelaksanaan ujian kompetensi</li>
+                                </ol>
+                                <div class="alert alert-success mt-2 mb-0">
+                                    <i class="fas fa-check-circle"></i> <strong>Pembayaran dilakukan SETELAH kelayakan disetujui</strong>
+                                </div>
                             </div>
                         </div>
                     </div>

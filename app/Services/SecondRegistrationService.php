@@ -164,9 +164,22 @@ class SecondRegistrationService
                 'keterangan' => $keterangan
             ]);
 
-            // Jika pembayaran dikonfirmasi, buat pendaftaran
+            // Jika pembayaran dikonfirmasi, update atau buat pendaftaran
             if ($status == 4) {
-                $this->createRegistrationFromPayment($payment);
+                // Cek apakah sudah ada pendaftaran dengan status 8 (Menunggu Pembayaran)
+                $existingPendaftaran = Pendaftaran::where('user_id', $payment->user_id)
+                    ->where('jadwal_id', $payment->jadwal_id)
+                    ->first();
+
+                if ($existingPendaftaran) {
+                    // Update status pendaftaran ke 9 (Menunggu Ujian)
+                    if ($existingPendaftaran->status == 8) {
+                        $existingPendaftaran->update(['status' => 9]);
+                    }
+                } else {
+                    // Jika belum ada pendaftaran (old flow), create new
+                    $this->createRegistrationFromPayment($payment);
+                }
             }
 
             return $payment;

@@ -28,7 +28,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
                 'tipe' => 'FR IA 03',
             ],
             [
-                'nama' => 'System Analyst FR IA 03',
                 'target' => 'asesi',
                 'is_active' => true,
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
@@ -101,7 +100,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
                 'tipe' => 'FR IA 06',
             ],
             [
-                'nama' => 'System Analyst FR IA 06',
                 'target' => 'asesi',
                 'is_active' => true,
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
@@ -225,7 +223,6 @@ class SystemAnalystBankSoalSeeder extends Seeder
                 'tipe' => 'FR IA 07',
             ],
             [
-                'nama' => 'System Analyst FR IA 07',
                 'target' => 'asesor',
                 'is_active' => true,
                 'keterangan' => 'FR IA 07 - Ceklis observasi asesor',

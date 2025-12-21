@@ -28,7 +28,6 @@ class SystemAnalystTemplateSeeder extends Seeder
                 'skema_id' => $skemaSystemAnalyst->id,
             ],
             [
-                'nama_template' => 'System Analyst APL1',
                 'deskripsi' => 'Template APL 1 (Asesmen Mandiri) untuk Skema System Analyst',
                 'file_path' => 'templates/system-analyst-apl1.docx', // TODO: Upload file manual
                 'is_active' => true,
@@ -65,7 +64,6 @@ class SystemAnalystTemplateSeeder extends Seeder
                 'skema_id' => $skemaSystemAnalyst->id,
             ],
             [
-                'nama_template' => 'System Analyst APL2',
                 'deskripsi' => 'Template APL 2 (Portofolio) untuk Skema System Analyst',
                 'file_path' => 'templates/system-analyst-apl2.docx', // Placeholder, nanti akan diupdate
                 'is_active' => true,
@@ -577,7 +575,6 @@ class SystemAnalystTemplateSeeder extends Seeder
                 'skema_id' => $skemaSystemAnalyst->id,
             ],
             [
-                'nama_template' => 'System Analyst FR AK 05',
                 'deskripsi' => 'Template FR AK 05 (Form Asesmen Asesor) untuk Skema System Analyst',
                 'file_path' => 'templates/system-analyst-fr-ak-05.docx', // TODO: Upload file manual
                 'is_active' => true,

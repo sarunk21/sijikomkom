@@ -56,6 +56,7 @@
                 </div>
             </div>
         </div>
+        {{-- Pembayaran Asesor tidak digunakan lagi
         <div class="col-md-3 mb-3">
             <div class="card border-left-danger shadow-sm">
                 <div class="card-body py-2">
@@ -64,6 +65,7 @@
                 </div>
             </div>
         </div>
+        --}}
     </div>
 
     <!-- Row 2: NEW FLOW Stats -->
@@ -299,6 +301,7 @@
                     </div>
                 </div>
 
+                {{-- Pembayaran Asesor tidak digunakan lagi
                 <!-- Step 9 -->
                 <div class="col-md-6 mb-3">
                     <div class="card border-danger h-100">
@@ -314,12 +317,13 @@
                         </div>
                     </div>
                 </div>
+                --}}
 
-                <!-- Step 8 -->
+                <!-- Step 9 -->
                 <div class="col-md-6 mb-3">
                     <div class="card border-purple h-100">
                         <div class="card-body">
-                            <h6 class="text-purple"><span class="badge badge-purple">8</span> Upload Sertifikat</h6>
+                            <h6 class="text-purple"><span class="badge badge-purple">9</span> Upload Sertifikat</h6>
                             <p class="small text-muted mb-2">Simulasi upload sertifikat bertanda tangan untuk asesi yang lulus</p>
                             <form action="{{ route('admin.testing.upload-sertifikat') }}" method="POST" onsubmit="return confirm('Upload sertifikat untuk asesi yang lulus?')">
                                 @csrf
@@ -394,9 +398,7 @@
                 <i class="fas fa-arrow-right text-muted"></i>
                 <span class="badge badge-dark p-2 m-1">6. Finish Jadwal</span>
                 <i class="fas fa-arrow-right text-muted"></i>
-                <span class="badge badge-danger p-2 m-1">7. Pembayaran</span>
-                <i class="fas fa-arrow-right text-muted"></i>
-                <span class="badge badge-purple p-2 m-1">8. Sertifikat</span>
+                <span class="badge badge-purple p-2 m-1">7. Sertifikat</span>
             </div>
             <hr>
             <p class="small text-muted mb-0">
