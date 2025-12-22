@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             AsesorSeeder::class,
             SystemAnalystUjikomSeeder::class,
             SystemAnalystJuliSeeder::class,
+            AnalisProgramDesemberSeeder::class,
+            AsistenPemrogramanDesemberSeeder::class,
         ]);
     }
 }
