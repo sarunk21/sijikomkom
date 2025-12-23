@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Traits\MenuTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -24,7 +25,7 @@ class LaporanIKUController extends Controller
         $lists = $this->getMenuListPimpinan('laporan-iku');
 
         $query = Report::where('status', 1)
-            ->with(['user', 'skema']);
+            ->with(['user', 'skema', 'pendaftaran.pendaftaranUjikom.asesor']);
 
         // Apply filters
         if ($request->filled('start_date')) {
@@ -39,12 +40,31 @@ class LaporanIKUController extends Controller
             $query->where('skema_id', $request->skema_id);
         }
 
+        if ($request->filled('asesor_id')) {
+            $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                $q->where('asesor_id', $request->asesor_id);
+            });
+        }
+
         $reports = $query->orderBy('created_at', 'desc')->get();
 
         // Get all skema for filter dropdown
         $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
 
-        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports', 'skemas'));
+        // Get all asesor yang pernah mengases (dari pendaftaran_ujikom yang memiliki report status 1)
+        $asesorIds = \App\Models\PendaftaranUjikom::whereHas('pendaftaran.report', function($q) {
+                $q->where('status', 1);
+            })
+            ->distinct()
+            ->pluck('asesor_id')
+            ->filter();
+
+        $asesors = \App\Models\User::where('user_type', 'asesor')
+            ->whereIn('id', $asesorIds)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('components.pages.pimpinan.laporan-iku.list', compact('lists', 'reports', 'skemas', 'asesors'));
     }
 
     /**
@@ -54,7 +74,7 @@ class LaporanIKUController extends Controller
     {
         try {
             $query = Report::where('status', 1)
-                ->with(['user', 'skema']);
+                ->with(['user', 'skema', 'pendaftaran.pendaftaranUjikom.asesor']);
 
             if ($request->filled('start_date')) {
                 $query->whereDate('created_at', '>=', $request->start_date);
@@ -68,6 +88,12 @@ class LaporanIKUController extends Controller
                 $query->where('skema_id', $request->skema_id);
             }
 
+            if ($request->filled('asesor_id')) {
+                $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                    $q->where('asesor_id', $request->asesor_id);
+                });
+            }
+
             $reports = $query->orderBy('created_at', 'desc')->get();
 
             $spreadsheet = new Spreadsheet();
@@ -75,7 +101,7 @@ class LaporanIKUController extends Controller
 
             // Set title
             $sheet->setCellValue('A1', 'LAPORAN IKU');
-            $sheet->mergeCells('A1:E1');
+            $sheet->mergeCells('A1:F1');
             $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
             $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -83,7 +109,7 @@ class LaporanIKUController extends Controller
             $sheet->setCellValue('A2', 'Periode: ' . ($request->start_date ?? '-') . ' s/d ' . ($request->end_date ?? '-'));
 
             // Set headers
-            $headers = ['No', 'NIM', 'Nama', 'Skema', 'Prodi'];
+            $headers = ['No', 'NIM', 'Nama', 'Skema', 'Prodi', 'Asesor'];
             $col = 'A';
             foreach ($headers as $header) {
                 $sheet->setCellValue($col . '4', $header);
@@ -91,7 +117,7 @@ class LaporanIKUController extends Controller
             }
 
             // Style headers
-            $headerRange = 'A4:E4';
+            $headerRange = 'A4:F4';
             $sheet->getStyle($headerRange)->getFont()->setBold(true);
             $sheet->getStyle($headerRange)->getFill()
                 ->setFillType(Fill::FILL_SOLID)
@@ -105,14 +131,20 @@ class LaporanIKUController extends Controller
             $row = 5;
             $no = 1;
             foreach ($reports as $item) {
+                $asesorName = '';
+                if ($item->pendaftaran && $item->pendaftaran->pendaftaranUjikom && $item->pendaftaran->pendaftaranUjikom->asesor) {
+                    $asesorName = $item->pendaftaran->pendaftaranUjikom->asesor->name ?? '';
+                }
+
                 $sheet->setCellValue('A' . $row, $no);
                 $sheet->setCellValue('B' . $row, $item->user ? ($item->user->nim ?? '') : '');
                 $sheet->setCellValue('C' . $row, $item->user ? ($item->user->name ?? '') : '');
                 $sheet->setCellValue('D' . $row, $item->skema ? ($item->skema->nama ?? '') : '');
                 $sheet->setCellValue('E' . $row, $item->user ? ($item->user->jurusan ?? '') : '');
+                $sheet->setCellValue('F' . $row, $asesorName);
 
                 // Style data rows
-                $sheet->getStyle('A' . $row . ':E' . $row)->getBorders()->getAllBorders()
+                $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
                 $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -121,7 +153,7 @@ class LaporanIKUController extends Controller
             }
 
             // Auto size columns
-            foreach (range('A', 'E') as $col) {
+            foreach (range('A', 'F') as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
@@ -145,8 +177,8 @@ class LaporanIKUController extends Controller
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ])->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            \Log::error('Export Excel Laporan IKU 2 Error: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Export Excel Laporan IKU 2 Error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
         }
     }

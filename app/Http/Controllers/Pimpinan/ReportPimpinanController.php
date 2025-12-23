@@ -197,55 +197,116 @@ class ReportPimpinanController extends Controller
     /**
      * Display list of competent asesi for a specific jadwal.
      */
-    public function listNamaKompeten(string $id)
+    public function listNamaKompeten(string $id, Request $request)
     {
         $lists = $this->getMenuListPimpinan('report-pimpinan');
 
-        $reports = Jadwal::find($id)->jumlah_kompeten()->get();
+        $query = Jadwal::find($id)->jumlah_kompeten()->with(['pendaftaran.pendaftaranUjikom.asesor', 'skema', 'user']);
+
+        // Apply filter asesor
+        if ($request->filled('asesor_id')) {
+            $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                $q->where('asesor_id', $request->asesor_id);
+            });
+        }
+
+        $reports = $query->get();
         $reports = $reports->map(function ($report) {
+            $asesorName = '';
+            if ($report->pendaftaran && $report->pendaftaran->pendaftaranUjikom && $report->pendaftaran->pendaftaranUjikom->asesor) {
+                $asesorName = $report->pendaftaran->pendaftaranUjikom->asesor->name ?? '';
+            }
+
             return [
                 'skema' => $report->skema->nama,
                 'nama' => $report->user->name,
                 'nim' => $report->user->nim,
+                'asesor' => $asesorName,
+                'asesor_id' => $report->pendaftaran && $report->pendaftaran->pendaftaranUjikom ? $report->pendaftaran->pendaftaranUjikom->asesor_id : null,
             ];
         });
 
-        return view('components.pages.pimpinan.report-pimpinan.list-nama-kompeten', compact('lists', 'reports'));
+        // Get asesor yang ada di jadwal ini untuk filter dropdown
+        $asesorIds = \App\Models\PendaftaranUjikom::where('jadwal_id', $id)
+            ->distinct()
+            ->pluck('asesor_id')
+            ->filter();
+
+        $asesors = \App\Models\User::whereIn('id', $asesorIds)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('components.pages.pimpinan.report-pimpinan.list-nama-kompeten', compact('lists', 'reports', 'asesors', 'id'));
     }
 
     /**
      * Display list of incompetent asesi for a specific jadwal.
      */
-    public function listNamaTidakKompeten(string $id)
+    public function listNamaTidakKompeten(string $id, Request $request)
     {
         $lists = $this->getMenuListPimpinan('report-pimpinan');
 
-        $reports = Jadwal::find($id)->jumlah_tidak_kompeten()->get();
+        $query = Jadwal::find($id)->jumlah_tidak_kompeten()->with(['pendaftaran.pendaftaranUjikom.asesor', 'skema', 'user']);
+
+        // Apply filter asesor
+        if ($request->filled('asesor_id')) {
+            $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                $q->where('asesor_id', $request->asesor_id);
+            });
+        }
+
+        $reports = $query->get();
         $reports = $reports->map(function ($report) {
+            $asesorName = '';
+            if ($report->pendaftaran && $report->pendaftaran->pendaftaranUjikom && $report->pendaftaran->pendaftaranUjikom->asesor) {
+                $asesorName = $report->pendaftaran->pendaftaranUjikom->asesor->name ?? '';
+            }
+
             return [
                 'skema' => $report->skema->nama,
                 'nama' => $report->user->name,
                 'nim' => $report->user->nim,
+                'asesor' => $asesorName,
+                'asesor_id' => $report->pendaftaran && $report->pendaftaran->pendaftaranUjikom ? $report->pendaftaran->pendaftaranUjikom->asesor_id : null,
             ];
         });
 
-        return view('components.pages.pimpinan.report-pimpinan.list-nama-tidak-kompeten', compact('lists', 'reports'));
+        // Get asesor yang ada di jadwal ini untuk filter dropdown
+        $asesorIds = \App\Models\PendaftaranUjikom::where('jadwal_id', $id)
+            ->distinct()
+            ->pluck('asesor_id')
+            ->filter();
+
+        $asesors = \App\Models\User::whereIn('id', $asesorIds)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('components.pages.pimpinan.report-pimpinan.list-nama-tidak-kompeten', compact('lists', 'reports', 'asesors', 'id'));
     }
 
     /**
      * Export daftar asesi kompeten ke Excel untuk satu jadwal.
      */
-    public function exportNamaKompetenExcel(string $id)
+    public function exportNamaKompetenExcel(string $id, Request $request)
     {
         $jadwal = Jadwal::findOrFail($id);
-        $reports = $jadwal->jumlah_kompeten()->get();
+        $query = $jadwal->jumlah_kompeten()->with(['pendaftaran.pendaftaranUjikom.asesor', 'skema', 'user']);
+
+        // Apply filter asesor
+        if ($request->filled('asesor_id')) {
+            $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                $q->where('asesor_id', $request->asesor_id);
+            });
+        }
+
+        $reports = $query->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Judul
         $sheet->setCellValue('A1', 'DAFTAR ASESİ KOMPETEN');
-        $sheet->mergeCells('A1:D1');
+        $sheet->mergeCells('A1:E1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -254,14 +315,14 @@ class ReportPimpinanController extends Controller
         $sheet->setCellValue('C2', 'Tanggal Ujian: ' . $jadwal->tanggal_ujian);
 
         // Header
-        $headers = ['No', 'Skema', 'Nama', 'NIM'];
+        $headers = ['No', 'Skema', 'Nama', 'NIM', 'Asesor'];
         $col = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($col . '4', $header);
             $col++;
         }
 
-        $headerRange = 'A4:D4';
+        $headerRange = 'A4:E4';
         $sheet->getStyle($headerRange)->getFont()->setBold(true);
         $sheet->getStyle($headerRange)->getFill()
             ->setFillType(Fill::FILL_SOLID)
@@ -275,12 +336,18 @@ class ReportPimpinanController extends Controller
         $row = 5;
         $no = 1;
         foreach ($reports as $report) {
+            $asesorName = '';
+            if ($report->pendaftaran && $report->pendaftaran->pendaftaranUjikom && $report->pendaftaran->pendaftaranUjikom->asesor) {
+                $asesorName = $report->pendaftaran->pendaftaranUjikom->asesor->name ?? '';
+            }
+
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $report->skema->nama ?? '');
             $sheet->setCellValue('C' . $row, $report->user->name ?? '');
             $sheet->setCellValue('D' . $row, $report->user->nim ?? '');
+            $sheet->setCellValue('E' . $row, $asesorName);
 
-            $sheet->getStyle('A' . $row . ':D' . $row)->getBorders()->getAllBorders()
+            $sheet->getStyle('A' . $row . ':E' . $row)->getBorders()->getAllBorders()
                 ->setBorderStyle(Border::BORDER_THIN);
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -288,7 +355,7 @@ class ReportPimpinanController extends Controller
             $no++;
         }
 
-        foreach (range('A', 'D') as $col) {
+        foreach (range('A', 'E') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -308,17 +375,26 @@ class ReportPimpinanController extends Controller
     /**
      * Export daftar asesi tidak kompeten ke Excel untuk satu jadwal.
      */
-    public function exportNamaTidakKompetenExcel(string $id)
+    public function exportNamaTidakKompetenExcel(string $id, Request $request)
     {
         $jadwal = Jadwal::findOrFail($id);
-        $reports = $jadwal->jumlah_tidak_kompeten()->get();
+        $query = $jadwal->jumlah_tidak_kompeten()->with(['pendaftaran.pendaftaranUjikom.asesor', 'skema', 'user']);
+
+        // Apply filter asesor
+        if ($request->filled('asesor_id')) {
+            $query->whereHas('pendaftaran.pendaftaranUjikom', function($q) use ($request) {
+                $q->where('asesor_id', $request->asesor_id);
+            });
+        }
+
+        $reports = $query->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Judul
         $sheet->setCellValue('A1', 'DAFTAR ASESİ TIDAK KOMPETEN');
-        $sheet->mergeCells('A1:D1');
+        $sheet->mergeCells('A1:E1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -327,14 +403,14 @@ class ReportPimpinanController extends Controller
         $sheet->setCellValue('C2', 'Tanggal Ujian: ' . $jadwal->tanggal_ujian);
 
         // Header
-        $headers = ['No', 'Skema', 'Nama', 'NIM'];
+        $headers = ['No', 'Skema', 'Nama', 'NIM', 'Asesor'];
         $col = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($col . '4', $header);
             $col++;
         }
 
-        $headerRange = 'A4:D4';
+        $headerRange = 'A4:E4';
         $sheet->getStyle($headerRange)->getFont()->setBold(true);
         $sheet->getStyle($headerRange)->getFill()
             ->setFillType(Fill::FILL_SOLID)
@@ -348,12 +424,18 @@ class ReportPimpinanController extends Controller
         $row = 5;
         $no = 1;
         foreach ($reports as $report) {
+            $asesorName = '';
+            if ($report->pendaftaran && $report->pendaftaran->pendaftaranUjikom && $report->pendaftaran->pendaftaranUjikom->asesor) {
+                $asesorName = $report->pendaftaran->pendaftaranUjikom->asesor->name ?? '';
+            }
+
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $report->skema->nama ?? '');
             $sheet->setCellValue('C' . $row, $report->user->name ?? '');
             $sheet->setCellValue('D' . $row, $report->user->nim ?? '');
+            $sheet->setCellValue('E' . $row, $asesorName);
 
-            $sheet->getStyle('A' . $row . ':D' . $row)->getBorders()->getAllBorders()
+            $sheet->getStyle('A' . $row . ':E' . $row)->getBorders()->getAllBorders()
                 ->setBorderStyle(Border::BORDER_THIN);
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -361,7 +443,7 @@ class ReportPimpinanController extends Controller
             $no++;
         }
 
-        foreach (range('A', 'D') as $col) {
+        foreach (range('A', 'E') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

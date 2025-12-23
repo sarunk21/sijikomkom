@@ -12,19 +12,19 @@
         <div class="card-body">
             <form method="GET" action="{{ route('pimpinan.laporan-iku.index') }}">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="start_date">Tanggal Mulai</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request('start_date') }}">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="end_date">Tanggal Akhir</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request('end_date') }}">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="skema_id">Skema</label>
                             <select class="form-control" id="skema_id" name="skema_id">
@@ -32,6 +32,19 @@
                                 @foreach($skemas as $skema)
                                     <option value="{{ $skema->id }}" {{ request('skema_id') == $skema->id ? 'selected' : '' }}>
                                         {{ $skema->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="asesor_id">Asesor</label>
+                            <select class="form-control" id="asesor_id" name="asesor_id">
+                                <option value="">Semua Asesor</option>
+                                @foreach($asesors as $asesor)
+                                    <option value="{{ $asesor->id }}" {{ request('asesor_id') == $asesor->id ? 'selected' : '' }}>
+                                        {{ $asesor->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -66,6 +79,7 @@
                             <th>Nama</th>
                             <th>Skema</th>
                             <th>Prodi</th>
+                            <th>Asesor</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,6 +89,7 @@
                                 <td>{{ $item->user->name }}</td>
                                 <td>{{ $item->skema->nama }}</td>
                                 <td>{{ $item->user->jurusan }}</td>
+                                <td>{{ $item->pendaftaran && $item->pendaftaran->pendaftaranUjikom && $item->pendaftaran->pendaftaranUjikom->asesor ? $item->pendaftaran->pendaftaranUjikom->asesor->name : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

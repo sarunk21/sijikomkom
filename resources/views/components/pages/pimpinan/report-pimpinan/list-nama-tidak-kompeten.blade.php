@@ -4,11 +4,47 @@
 @section('page-title', 'Report - Asesi Tidak Kompeten')
 
 @section('content')
+    {{-- Filter Card --}}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white">
+            <h6 class="mb-0">Filter Data</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('pimpinan.report-pimpinan.list-nama-tidak-kompeten', $id) }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="asesor_id">Asesor</label>
+                            <select class="form-control" id="asesor_id" name="asesor_id">
+                                <option value="">Semua Asesor</option>
+                                @foreach($asesors as $asesor)
+                                    <option value="{{ $asesor->id }}" {{ request('asesor_id') == $asesor->id ? 'selected' : '' }}>
+                                        {{ $asesor->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter mr-1"></i> Terapkan Filter
+                        </button>
+                        <a href="{{ route('pimpinan.report-pimpinan.list-nama-tidak-kompeten', $id) }}" class="btn btn-secondary">
+                            <i class="fas fa-redo mr-1"></i> Reset Filter
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0">Daftar Asesi Tidak Kompeten</h6>
-                <a href="{{ route('pimpinan.report-pimpinan.list-nama-tidak-kompeten.export-excel', request()->route('id')) }}" class="btn btn-success">
+                <a href="{{ route('pimpinan.report-pimpinan.list-nama-tidak-kompeten.export-excel', $id) . (request('asesor_id') ? '?asesor_id=' . request('asesor_id') : '') }}" class="btn btn-success">
                     <i class="fas fa-file-excel mr-1"></i> Export Excel
                 </a>
             </div>
@@ -19,6 +55,7 @@
                             <th>Skema</th>
                             <th>Nama</th>
                             <th>NIM</th>
+                            <th>Asesor</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,6 +64,7 @@
                                 <td>{{ $item['skema'] }}</td>
                                 <td>{{ $item['nama'] }}</td>
                                 <td>{{ $item['nim'] }}</td>
+                                <td>{{ $item['asesor'] ?: '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
