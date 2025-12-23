@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Pendaftaran;
 use App\Models\Skema;
+use Illuminate\Support\Facades\DB;
 
 class PembayaranController extends Controller
 {
@@ -95,24 +96,45 @@ class PembayaranController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+            
             $pembayaran = Pembayaran::findOrFail($id);
 
             if ($request->status == 1) {
                 // Approve pembayaran
-                Pendaftaran::create([
-                    'jadwal_id' => $pembayaran->jadwal_id,
-                    'user_id' => $pembayaran->user_id,
-                    'skema_id' => $pembayaran->jadwal->skema_id,
-                    'tuk_id' => $pembayaran->jadwal->tuk_id,
-                    'status' => 1,
-                ]);
+                // Update SEMUA pendaftaran dengan status 8 (Menunggu Pembayaran) untuk user dan jadwal ini ke status 9 (Menunggu Ujian)
+                $updatedCount = Pendaftaran::where('user_id', $pembayaran->user_id)
+                    ->where('jadwal_id', $pembayaran->jadwal_id)
+                    ->where('status', 8)
+                    ->update(['status' => 9]);
 
+                // Jika tidak ada pendaftaran dengan status 8, cek apakah ada pendaftaran lain
+                if ($updatedCount == 0) {
+                    $existingPendaftaran = Pendaftaran::where('user_id', $pembayaran->user_id)
+                        ->where('jadwal_id', $pembayaran->jadwal_id)
+                        ->first();
+
+                    // Jika belum ada pendaftaran sama sekali (old flow), create new dengan status 1
+                    if (!$existingPendaftaran) {
+                        Pendaftaran::create([
+                            'jadwal_id' => $pembayaran->jadwal_id,
+                            'user_id' => $pembayaran->user_id,
+                            'skema_id' => $pembayaran->jadwal->skema_id,
+                            'tuk_id' => $pembayaran->jadwal->tuk_id,
+                            'status' => 1,
+                        ]);
+                    }
+                }
+
+                // Update status pembayaran ke 4 (Dikonfirmasi)
                 $pembayaran->status = 4;
                 $pembayaran->keterangan = null; // Hapus keterangan jika ada
                 $pembayaran->save();
 
+                DB::commit();
+
                 return redirect()->route('admin.pembayaran-asesi.index')
-                    ->with('success', 'Pembayaran berhasil dikonfirmasi dan pendaftaran telah dibuat');
+                    ->with('success', 'Pembayaran berhasil dikonfirmasi dan status pendaftaran telah diupdate');
             }
 
             if ($request->status == 2) {
@@ -134,6 +156,7 @@ class PembayaranController extends Controller
                 ->with('error', 'Status tidak valid');
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->route('admin.pembayaran-asesi.index')
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

@@ -101,7 +101,9 @@ class FormulirController extends Controller
         );
 
         // Get custom fields untuk asesi (role = asesi atau both)
-        $customFields = collect($bankSoal->field_configurations ?? [])
+        // Gunakan field_configurations jika ada, jika tidak gunakan custom_variables sebagai fallback
+        $fieldSource = $bankSoal->field_configurations ?? $bankSoal->custom_variables ?? [];
+        $customFields = collect($fieldSource)
             ->filter(function ($field) {
                 return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
             });
@@ -162,7 +164,9 @@ class FormulirController extends Controller
         $bankSoal = BankSoal::findOrFail($bankSoalId);
 
         // Validasi required fields
-        $customFields = collect($bankSoal->field_configurations ?? [])
+        // Gunakan field_configurations jika ada, jika tidak gunakan custom_variables sebagai fallback
+        $fieldSource = $bankSoal->field_configurations ?? $bankSoal->custom_variables ?? [];
+        $customFields = collect($fieldSource)
             ->filter(function ($field) {
                 return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
             });
@@ -210,7 +214,9 @@ class FormulirController extends Controller
             ->where('bank_soal_id', $bankSoalId)
             ->firstOrFail();
 
-        $customFields = collect($bankSoal->field_configurations ?? [])
+        // Gunakan field_configurations jika ada, jika tidak gunakan custom_variables sebagai fallback
+        $fieldSource = $bankSoal->field_configurations ?? $bankSoal->custom_variables ?? [];
+        $customFields = collect($fieldSource)
             ->filter(function ($field) {
                 return in_array($field['role'] ?? 'asesi', ['asesi', 'both']);
             });

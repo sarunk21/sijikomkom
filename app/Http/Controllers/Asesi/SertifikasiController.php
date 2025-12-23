@@ -28,10 +28,23 @@ class SertifikasiController extends Controller
     public function index()
     {
         $asesi = Auth::user();
+        // Ambil semua pendaftaran untuk user ini, diurutkan dari yang terbaru
         $pendaftaran = Pendaftaran::where('user_id', $asesi->id)
-            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk'])
+            ->with(['jadwal', 'jadwal.skema', 'jadwal.tuk', 'skema', 'tuk', 'pendaftaranUjikom'])
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        // Hapus duplikat berdasarkan kombinasi skema_id + jadwal_id, ambil yang terbaru
+        // Gunakan groupBy untuk memastikan hanya mengambil satu pendaftaran per kombinasi
+        $grouped = $pendaftaran->groupBy(function ($item) {
+            return ($item->skema_id ?? '') . '-' . ($item->jadwal_id ?? '');
+        });
+        
+        // Ambil pendaftaran terbaru dari setiap grup
+        $pendaftaran = $grouped->map(function ($group) {
+            return $group->first(); // Ambil yang pertama (karena sudah diurutkan desc)
+        })->values(); // Reset key
+        
         $lists = $this->getMenuListAsesi('sertifikasi');
 
         return view('components.pages.asesi.sertifikasi.list', compact('pendaftaran', 'lists'));

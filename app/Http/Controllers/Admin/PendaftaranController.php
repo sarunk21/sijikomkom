@@ -19,28 +19,35 @@ class PendaftaranController extends Controller
     {
         $lists = $this->getMenuListAdmin('pendaftaran');
 
-        $query = Pendaftaran::with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user');
+        $query = Pendaftaran::select('pendaftaran.*')
+            ->with('jadwal', 'jadwal.skema', 'jadwal.tuk', 'user', 'skema', 'tuk');
 
         // Filter by date range
         if ($request->filled('tanggal_dari')) {
-            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+            $query->whereDate('pendaftaran.created_at', '>=', $request->tanggal_dari);
         }
 
         if ($request->filled('tanggal_sampai')) {
-            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+            $query->whereDate('pendaftaran.created_at', '<=', $request->tanggal_sampai);
         }
 
         // Filter by skema
         if ($request->filled('skema_id')) {
-            $query->where('skema_id', $request->skema_id);
+            $query->where('pendaftaran.skema_id', $request->skema_id);
         }
 
         // Filter by status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('pendaftaran.status', $request->status);
         }
 
-        $pendaftaran = $query->orderBy('created_at', 'desc')->get();
+        // Get all pendaftaran ordered by created_at desc
+        $pendaftaran = $query->orderBy('pendaftaran.created_at', 'desc')->get();
+        
+        // Remove duplicates based on user_id + skema_id combination, keep the latest one
+        $pendaftaran = $pendaftaran->unique(function ($item) {
+            return $item->user_id . '-' . $item->skema_id;
+        });
         $skemas = Skema::orderBy('nama', 'asc')->get();
 
         return view('components.pages.admin.pendaftaran.list', compact('lists', 'pendaftaran', 'skemas'));

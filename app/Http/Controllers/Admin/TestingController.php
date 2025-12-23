@@ -45,7 +45,17 @@ class TestingController extends Controller
         $pendaftaranMenungguVerifAsesor = Pendaftaran::where('status', 5)->count();
         $pendaftaranMenungguApprovalKelayakan = Pendaftaran::where('status', 6)->count();
         $pendaftaranTidakLulus = Pendaftaran::where('status', 7)->count();
-        $pendaftaranMenungguPembayaran = Pendaftaran::where('status', 8)->count();
+        // Hitung pendaftaran yang menunggu pembayaran (status 8)
+        // TAPI tidak memiliki pembayaran yang sudah dikonfirmasi (status 4) untuk user dan jadwal yang sama
+        $pendaftaranMenungguPembayaran = Pendaftaran::where('status', 8)
+            ->whereNotExists(function($query) {
+                $query->select(\DB::raw(1))
+                    ->from('pembayaran')
+                    ->whereColumn('pembayaran.jadwal_id', 'pendaftaran.jadwal_id')
+                    ->whereColumn('pembayaran.user_id', 'pendaftaran.user_id')
+                    ->where('pembayaran.status', 4); // Dikonfirmasi
+            })
+            ->count();
         $pendaftaranMenungguUjian = Pendaftaran::where('status', 9)->count();
 
         $pendaftaranUjikomMenunggu = PendaftaranUjikom::where('status', 6)->count();

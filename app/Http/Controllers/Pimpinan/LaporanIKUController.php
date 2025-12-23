@@ -24,20 +24,21 @@ class LaporanIKUController extends Controller
     {
         $lists = $this->getMenuListPimpinan('laporan-iku');
 
-        $query = Report::where('status', 1)
+        $query = Report::select('report.*')
+            ->where('report.status', 1)
             ->with(['user', 'skema', 'pendaftaran.pendaftaranUjikom.asesor']);
 
         // Apply filters
         if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+            $query->whereDate('report.created_at', '>=', $request->start_date);
         }
 
         if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+            $query->whereDate('report.created_at', '<=', $request->end_date);
         }
 
         if ($request->filled('skema_id')) {
-            $query->where('skema_id', $request->skema_id);
+            $query->where('report.skema_id', $request->skema_id);
         }
 
         if ($request->filled('asesor_id')) {
@@ -46,7 +47,13 @@ class LaporanIKUController extends Controller
             });
         }
 
-        $reports = $query->orderBy('created_at', 'desc')->get();
+        // Get all reports ordered by created_at desc
+        $reports = $query->orderBy('report.created_at', 'desc')->get();
+
+        // Remove duplicates based on user_id + skema_id combination, keep the latest one
+        $reports = $reports->unique(function ($item) {
+            return $item->user_id . '-' . $item->skema_id;
+        });
 
         // Get all skema for filter dropdown
         $skemas = \App\Models\Skema::orderBy('nama', 'asc')->get();
@@ -73,19 +80,20 @@ class LaporanIKUController extends Controller
     public function exportExcel(Request $request)
     {
         try {
-            $query = Report::where('status', 1)
+            $query = Report::select('report.*')
+                ->where('report.status', 1)
                 ->with(['user', 'skema', 'pendaftaran.pendaftaranUjikom.asesor']);
 
             if ($request->filled('start_date')) {
-                $query->whereDate('created_at', '>=', $request->start_date);
+                $query->whereDate('report.created_at', '>=', $request->start_date);
             }
 
             if ($request->filled('end_date')) {
-                $query->whereDate('created_at', '<=', $request->end_date);
+                $query->whereDate('report.created_at', '<=', $request->end_date);
             }
 
             if ($request->filled('skema_id')) {
-                $query->where('skema_id', $request->skema_id);
+                $query->where('report.skema_id', $request->skema_id);
             }
 
             if ($request->filled('asesor_id')) {
@@ -94,7 +102,13 @@ class LaporanIKUController extends Controller
                 });
             }
 
-            $reports = $query->orderBy('created_at', 'desc')->get();
+            // Get all reports ordered by created_at desc
+            $reports = $query->orderBy('report.created_at', 'desc')->get();
+
+            // Remove duplicates based on user_id + skema_id combination, keep the latest one
+            $reports = $reports->unique(function ($item) {
+                return $item->user_id . '-' . $item->skema_id;
+            });
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
