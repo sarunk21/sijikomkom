@@ -73,6 +73,24 @@ class TukSeeder extends Seeder
                 'kategori' => 'Lab',
                 'alamat' => 'Jalan RS. Fatmawati Raya, Pd. Labu, Kec. Cilandak, Kota Jakarta Selatan',
             ],
+            [
+                'nama' => 'Laboratorium Data Science dan Data Mining',
+                'kode' => 'TUK11',
+                'kategori' => 'Lab',
+                'alamat' => 'Jalan RS. Fatmawati Raya, Pd. Labu, Kec. Cilandak, Kota Jakarta Selatan',
+            ],
+            [
+                'nama' => 'Laboratorium Artificial Intelligence Lt 4 FIKLAB UPNVJ',
+                'kode' => 'TUK12',
+                'kategori' => 'Lab',
+                'alamat' => 'Jalan RS. Fatmawati Raya, Pd. Labu, Kec. Cilandak, Kota Jakarta Selatan',
+            ],
+            [
+                'nama' => 'FIKLAB-401',
+                'kode' => 'TUK13',
+                'kategori' => 'Lab',
+                'alamat' => 'Jalan RS. Fatmawati Raya, Pd. Labu, Kec. Cilandak, Kota Jakarta Selatan',
+            ],
         ];
 
         foreach ($tukData as $data) {

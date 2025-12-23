@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
             SystemAnalystJuliSeeder::class,
             AnalisProgramDesemberSeeder::class,
             AsistenPemrogramanDesemberSeeder::class,
+            JuniorWebProgrammerJuliSeeder::class,
+            JuniorAssociateDataScientistDesemberSeeder::class,
+            CyberSecurityAnalystDesemberSeeder::class,
+            JuniorAssociateDataEngineerDesemberSeeder::class,
         ]);
     }
 }
