@@ -43,11 +43,6 @@ trait MenuTrait
                 'key' => 'pendaftaran'
             ],
             [
-                'title' => 'Approval Kelayakan',
-                'url' => 'admin.kelayakan.index',
-                'key' => 'kelayakan'
-            ],
-            [
                 'title' => 'Report Hasil Ujikom',
                 'url' => null,
                 'key' => 'report',

@@ -167,7 +167,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -227,7 +227,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -262,7 +262,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -317,7 +317,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -337,7 +337,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -384,7 +384,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -416,7 +416,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -499,7 +499,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -519,7 +519,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -610,7 +610,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -634,7 +634,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -683,7 +683,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 07' => [
                 'target' => 'asesor',
                 'keterangan' => 'FR IA 07 - Daftar Pertanyaan Lisan',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -733,7 +733,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -757,7 +757,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -804,7 +804,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 03' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 03 - Pertanyaan untuk mendukung observasi',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'asesor.name',
@@ -828,7 +828,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
             'FR IA 06' => [
                 'target' => 'asesi',
                 'keterangan' => 'FR IA 06 - Pertanyaan tulis essai',
-                'question_format' => 'checkbox_ya_tdk', // Format checkbox Ya/Tdk terpisah
+                'question_format' => 'textarea', // Format checkbox Ya/Tdk terpisah
                 'variables' => [
                     'user.name',
                     'jadwal.tanggal_ujian',
@@ -941,61 +941,18 @@ class SystemAnalystBankSoalSeeder extends Seeder
         $variables = array_merge($baseVariables, []);
         $customVariables = [];
 
-        if ($questionFormat === 'checkbox_ya_tdk') {
-            // Format checkbox Ya/Tdk terpisah untuk FR IA 03 Asisten Pemrograman
-            foreach ($questions as $question) {
-                $questionName = $question['name'];
-
-                // Tambahkan variabel untuk textarea tanggapan
-                $variables[] = $questionName;
-                $customVariables[] = [
-                    'name' => $questionName,
-                    'role' => $target,
-                    'type' => 'textarea',
-                    'label' => "{$question['label']} - Tanggapan",
-                    'mapping' => null,
-                    'options' => null,
-                    'required' => '0'
-                ];
-
-                // Tambahkan variabel untuk checkbox Ya
-                $variables[] = "{$questionName}_ya";
-                $customVariables[] = [
-                    'name' => "{$questionName}_ya",
-                    'role' => $target,
-                    'type' => 'checkbox',
-                    'label' => "{$question['label']} - Ya",
-                    'mapping' => null,
-                    'options' => null,
-                    'required' => '0'
-                ];
-
-                // Tambahkan variabel untuk checkbox Tdk
-                $variables[] = "{$questionName}_tdk";
-                $customVariables[] = [
-                    'name' => "{$questionName}_tdk",
-                    'role' => $target,
-                    'type' => 'checkbox',
-                    'label' => "{$question['label']} - Tdk",
-                    'mapping' => null,
-                    'options' => null,
-                    'required' => '0'
-                ];
-            }
-        } else {
-            // Format textarea standar untuk System Analyst dan skema lainnya
-            foreach ($questions as $question) {
-                $variables[] = $question['name'];
-                $customVariables[] = [
-                    'name' => $question['name'],
-                    'role' => $target,
-                    'type' => 'textarea',
-                    'label' => $question['label'],
-                    'mapping' => null,
-                    'options' => null,
-                    'required' => '1'
-                ];
-            }
+        // Format textarea standar untuk System Analyst dan skema lainnya
+        foreach ($questions as $question) {
+            $variables[] = $question['name'];
+            $customVariables[] = [
+                'name' => $question['name'],
+                'role' => $target,
+                'type' => 'textarea',
+                'label' => $question['label'],
+                'mapping' => null,
+                'options' => null,
+                'required' => '1'
+            ];
         }
 
         // Tambahkan TTD sesuai target
@@ -1049,8 +1006,7 @@ class SystemAnalystBankSoalSeeder extends Seeder
         );
 
         $questionCount = count($questions);
-        $formatInfo = $questionFormat === 'checkbox_ya_tdk' ? 'format checkbox Ya/Tdk terpisah' : 'format textarea';
         $ttdInfo = $target === 'asesi' ? '2 TTD (Asesi & Asesor)' : '1 TTD (Asesor)';
-        $this->command->info("✓ Bank Soal {$skema->nama} {$tipe} berhasil dibuat/diperbarui dengan {$questionCount} pertanyaan ({$formatInfo}) + {$ttdInfo}!");
+        $this->command->info("✓ Bank Soal {$skema->nama} {$tipe} berhasil dibuat/diperbarui dengan {$questionCount} pertanyaan ({$ttdInfo}!");
     }
 }

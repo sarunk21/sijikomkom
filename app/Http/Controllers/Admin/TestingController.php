@@ -10,6 +10,7 @@ use App\Models\PembayaranAsesor;
 use App\Models\Pembayaran;
 use App\Models\Jadwal;
 use App\Models\Sertif;
+use App\Models\AsesorRejectionHistory;
 use App\Services\EmailService;
 use App\Services\SecondRegistrationService;
 use App\Traits\MenuTrait;
@@ -117,8 +118,10 @@ class TestingController extends Controller
             $asesorWithJadwal = [];
 
             foreach ($pendaftaranBySkema as $skemaId => $pendaftaranSkema) {
-                // Ambil asesor AKTIF yang memiliki skema ini
-                $asesorSkema = User::where('user_type', 'asesor')
+                Log::info("Memproses skema ID: {$skemaId}");
+
+                // Ambil asesor AKTIF yang memiliki skema ini melalui relasi many-to-many
+                $asesorSkema = User::where('user_type', 'asesor') // Hanya asesor aktif, bukan asesor_nonaktif
                     ->whereHas('skemas', function ($query) use ($skemaId) {
                         $query->where('skema_id', $skemaId);
                     })
@@ -133,17 +136,49 @@ class TestingController extends Controller
                 $jumlahAsesor = $asesorSkema->count();
                 $pendaftaranPerAsesor = ceil($jumlahPendaftaran / $jumlahAsesor);
 
+                Log::info("Skema {$skemaId}: {$jumlahPendaftaran} pendaftaran akan dibagi ke {$jumlahAsesor} asesor ({$pendaftaranPerAsesor} per asesor)");
+
+                // Distribusikan pendaftaran ke asesor
                 $asesorArray = $asesorSkema->toArray();
                 $asesorIndex = 0;
 
                 foreach ($pendaftaranSkema as $index => $pendaftar) {
-                    $asesorId = $asesorArray[$asesorIndex]['id'];
-
-                    // Cek apakah sudah ada pendaftaran ujikom
+                    // Cek apakah sudah ada pendaftaran ujikom untuk pendaftar ini
                     $existingUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftar->id)->first();
 
                     if ($existingUjikom) {
                         Log::info("Pendaftaran ID {$pendaftar->id} sudah memiliki ujikom, dilewati.");
+                        continue;
+                    }
+
+                    // Cari asesor yang belum pernah menolak pendaftaran ini
+                    $asesorId = null;
+                    $attempts = 0;
+                    $maxAttempts = count($asesorArray);
+
+                    while ($attempts < $maxAttempts) {
+                        $candidateAsesorId = $asesorArray[$asesorIndex]['id'];
+
+                        // Cek apakah asesor ini pernah menolak pendaftaran ini
+                        $hasRejected = AsesorRejectionHistory::where('pendaftaran_id', $pendaftar->id)
+                            ->where('asesor_id', $candidateAsesorId)
+                            ->exists();
+
+                        if (!$hasRejected) {
+                            // Asesor ini belum pernah menolak, gunakan
+                            $asesorId = $candidateAsesorId;
+                            break;
+                        }
+
+                        // Asesor ini sudah pernah menolak, coba asesor berikutnya
+                        Log::info("Asesor ID {$candidateAsesorId} pernah menolak pendaftaran ID {$pendaftar->id}, mencari asesor lain...");
+                        $asesorIndex = ($asesorIndex + 1) % count($asesorArray);
+                        $attempts++;
+                    }
+
+                    if ($asesorId === null) {
+                        // Semua asesor sudah menolak, skip pendaftaran ini
+                        Log::warning("Semua asesor sudah menolak pendaftaran ID {$pendaftar->id}, tidak bisa didistribusikan.");
                         continue;
                     }
 
@@ -156,10 +191,10 @@ class TestingController extends Controller
                         'status' => 6, // Menunggu Konfirmasi Asesor
                     ]);
 
-                    // Update status pendaftaran ke 5 (Menunggu Verifikasi Asesor)
+                    // Update status pendaftaran ke 5 (Menunggu Verifikasi Dokumen)
                     $pendaftar->update(['status' => 5]);
 
-                    // Track jadwal untuk asesor
+                    // Track jadwal untuk asesor ini
                     if (!isset($asesorWithJadwal[$asesorId])) {
                         $asesorWithJadwal[$asesorId] = [];
                     }
@@ -167,7 +202,7 @@ class TestingController extends Controller
 
                     $totalInserted++;
 
-                    // Pindah ke asesor berikutnya
+                    // Pindah ke asesor berikutnya jika sudah mencapai batas per asesor
                     if (($index + 1) % $pendaftaranPerAsesor == 0 && $asesorIndex < count($asesorArray) - 1) {
                         $asesorIndex++;
                     }
@@ -230,20 +265,22 @@ class TestingController extends Controller
     }
 
     /**
-     * Update status pendaftaran untuk testing (lolos verifikasi)
+     * Update status pendaftaran untuk testing (lolos verifikasi dokumen)
+     * Flow baru: Update dari status 5 (Menunggu Verifikasi Dokumen) ke 6 (Menunggu Verifikasi Kelayakan)
      */
     public function updateStatusPendaftaran()
     {
         try {
-            // Update semua pendaftaran dengan status 1 atau 3 menjadi status 4 (Menunggu Distribusi Asesor)
-            $updated = Pendaftaran::whereIn('status', [1, 3])
-                ->update(['status' => 4]);
+            // Update semua pendaftaran dengan status 5 menjadi status 6 (Menunggu Verifikasi Kelayakan)
+            // Ini adalah flow baru: setelah distribusi (status 1 → 5), verifikasi dokumen (status 5 → 6)
+            $updated = Pendaftaran::where('status', 5)
+                ->update(['status' => 6]);
 
             if ($updated === 0) {
-                return redirect()->back()->with('info', 'Tidak ada pendaftaran yang perlu diupdate.');
+                return redirect()->back()->with('info', 'Tidak ada pendaftaran dengan status 5 (Menunggu Verifikasi Dokumen) yang perlu diupdate.');
             }
 
-            return redirect()->back()->with('success', "Berhasil! {$updated} pendaftaran diupdate ke status 'Menunggu Distribusi Asesor'.");
+            return redirect()->back()->with('success', "Berhasil! {$updated} pendaftaran diupdate dari status 'Menunggu Verifikasi Dokumen' (5) ke 'Menunggu Verifikasi Kelayakan' (6).");
         } catch (\Exception $e) {
             Log::error('Error saat update status pendaftaran: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -269,7 +306,7 @@ class TestingController extends Controller
             foreach ($pendaftaranList as $pendaftaran) {
                 // Auto approve oleh asesor - set ke status 6
                 $pendaftaran->update(['status' => 6]);
-                
+
                 // Simpan verifikasi kelayakan otomatis
                 $pendaftaranUjikom = PendaftaranUjikom::where('pendaftaran_id', $pendaftaran->id)->first();
                 if ($pendaftaranUjikom) {
@@ -360,17 +397,17 @@ class TestingController extends Controller
             foreach ($jadwals as $jadwal) {
                 // Update jadwal ke status 3 (Ujian Berlangsung)
                 $jadwal->update(['status' => 3]);
-                
+
                 // Update status Pendaftaran dari 9 (Menunggu Ujian) ke 10 (Ujian Berlangsung)
                 Pendaftaran::where('jadwal_id', $jadwal->id)
                     ->where('status', 9)
                     ->update(['status' => 10]);
-                
+
                 // Update semua PendaftaranUjikom di jadwal ini langsung ke status 2 (Ujikom Berlangsung)
                 PendaftaranUjikom::where('jadwal_id', $jadwal->id)
                     ->whereIn('status', [1, 6]) // Dari Belum Ujikom atau Menunggu Konfirmasi
                     ->update(['status' => 2]); // Ke Ujikom Berlangsung
-                
+
                 $updated++;
             }
 
@@ -440,12 +477,12 @@ class TestingController extends Controller
             foreach ($jadwals as $jadwal) {
                 // Update jadwal ke status 4 (Selesai)
                 $jadwal->update(['status' => 4]);
-                
+
                 // Update semua PendaftaranUjikom di jadwal ini ke status selesai jika masih berlangsung
                 PendaftaranUjikom::where('jadwal_id', $jadwal->id)
                     ->where('status', 2) // Masih Ujikom Berlangsung
                     ->update(['status' => 3]); // Ke Ujikom Selesai
-                
+
                 $updated++;
             }
 

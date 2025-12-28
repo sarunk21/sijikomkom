@@ -241,7 +241,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'AP' => [
             'file_slug' => 'analis-program',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -451,7 +451,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'ASP' => [
             'file_slug' => 'asisten-pemrograman',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -609,7 +609,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'JADE' => [
             'file_slug' => 'data-engineer',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -723,7 +723,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'JADS' => [
             'file_slug' => 'data-scientist',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -813,7 +813,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'CSA' => [
             'file_slug' => 'cyber-security-analyst',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -915,7 +915,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'DMM' => [
             'file_slug' => 'designer-multimedia-madya',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -1009,7 +1009,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'JWP' => [
             'file_slug' => 'junior-web-programmer',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
@@ -1115,7 +1115,7 @@ class SystemAnalystTemplateSeeder extends Seeder
         ],
         'PB' => [
             'file_slug' => 'pemrograman-basisdata',
-            'question_format' => 'checkbox_separate', // Format checkbox K/BK terpisah
+            'question_format' => 'radio', // Format checkbox K/BK terpisah
             'questions' => [
                 [
                     'name' => 'pertanyaan_1',
