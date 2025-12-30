@@ -88,9 +88,8 @@ class DashboardController extends Controller
             ->distinct('skema_id')
             ->count('skema_id');
 
-        // Ujian yang Sudah Selesai
-        $ujianSelesai = Pendaftaran::where('user_id', $user->id)
-            ->where('status', 6) // Selesai
+        // Ujian yang Sudah Selesai (berdasarkan Report - karena Report hanya dibuat setelah ujian selesai)
+        $ujianSelesai = Report::where('user_id', $user->id)
             ->when($startDate, function($q) use ($startDate) {
                 return $q->whereDate('created_at', '>=', $startDate);
             })

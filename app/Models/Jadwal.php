@@ -39,9 +39,7 @@ class Jadwal extends Model
 
     public function jumlah_asesi()
     {
-        return $this->hasMany(Pendaftaran::class, 'jadwal_id', 'id')
-            ->where('jadwal_id', $this->id)
-            ->whereIn('status', [4, 5, 6]);
+        return $this->hasMany(Pendaftaran::class, 'jadwal_id', 'id');
     }
 
     public function jumlah_kompeten()

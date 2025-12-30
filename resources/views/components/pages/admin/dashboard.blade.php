@@ -243,8 +243,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Menunggu Verifikasi</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $statusStats['menunggu_verifikasi'] }}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Menunggu Distribusi</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $statusStats['menunggu_distribusi'] }}</div>
                             <small class="text-muted">Perlu Action</small>
                         </div>
                         <div class="col-auto">
@@ -475,16 +475,28 @@
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-md py-3 border-right">
-                            <h4 class="text-info">{{ $statusStats['menunggu_verifikasi'] }}</h4>
-                            <p class="text-muted mb-0 small">Menunggu Verifikasi</p>
+                            <h4 class="text-primary">{{ $statusStats['menunggu_distribusi'] }}</h4>
+                            <p class="text-muted mb-0 small">Menunggu Distribusi</p>
                         </div>
                         <div class="col-md py-3 border-right">
-                            <h4 class="text-danger">{{ $statusStats['ditolak'] }}</h4>
-                            <p class="text-muted mb-0 small">Ditolak</p>
+                            <h4 class="text-danger">{{ $statusStats['ditolak_verifikasi'] }}</h4>
+                            <p class="text-muted mb-0 small">Ditolak Verifikasi</p>
                         </div>
                         <div class="col-md py-3 border-right">
-                            <h4 class="text-success">{{ $statusStats['diverifikasi'] }}</h4>
-                            <p class="text-muted mb-0 small">Diverifikasi</p>
+                            <h4 class="text-info">{{ $statusStats['menunggu_verifikasi_dokumen'] }}</h4>
+                            <p class="text-muted mb-0 small">Menunggu Verifikasi Dokumen</p>
+                        </div>
+                        <div class="col-md py-3 border-right">
+                            <h4 class="text-purple" style="color: #6f42c1;">{{ $statusStats['menunggu_verifikasi_kelayakan'] }}</h4>
+                            <p class="text-muted mb-0 small">Menunggu Verifikasi Kelayakan</p>
+                        </div>
+                        <div class="col-md py-3 border-right">
+                            <h4 class="text-danger">{{ $statusStats['tidak_lolos_kelayakan'] }}</h4>
+                            <p class="text-muted mb-0 small">Tidak Lolos Kelayakan</p>
+                        </div>
+                        <div class="col-md py-3 border-right">
+                            <h4 class="text-warning">{{ $statusStats['menunggu_pembayaran'] }}</h4>
+                            <p class="text-muted mb-0 small">Menunggu Pembayaran</p>
                         </div>
                         <div class="col-md py-3 border-right">
                             <h4 class="text-warning">{{ $statusStats['menunggu_ujian'] }}</h4>

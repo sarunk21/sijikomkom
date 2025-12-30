@@ -42,15 +42,15 @@
                     <table class="table table-sm table-borderless">
                         <tr>
                             <td class="font-weight-bold" style="width: 150px;">Skema</td>
-                            <td>: {{ $jadwal->jadwal->skema->nama }}</td>
+                            <td>: {{ $jadwal->skema->nama }}</td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">Kode Skema</td>
-                            <td>: {{ $jadwal->jadwal->skema->kode }}</td>
+                            <td>: {{ $jadwal->skema->kode }}</td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">TUK</td>
-                            <td>: {{ $jadwal->jadwal->tuk->nama }}</td>
+                            <td>: {{ $jadwal->tuk->nama }}</td>
                         </tr>
                     </table>
                 </div>
@@ -58,11 +58,11 @@
                     <table class="table table-sm table-borderless">
                         <tr>
                             <td class="font-weight-bold" style="width: 150px;">Tanggal Ujian</td>
-                            <td>: {{ \Carbon\Carbon::parse($jadwal->jadwal->tanggal_ujian)->format('d F Y') }}</td>
+                            <td>: {{ \Carbon\Carbon::parse($jadwal->tanggal_ujian)->format('d F Y') }}</td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">Waktu</td>
-                            <td>: {{ \Carbon\Carbon::parse($jadwal->jadwal->waktu_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->jadwal->waktu_selesai)->format('H:i') }}</td>
+                            <td>: {{ \Carbon\Carbon::parse($jadwal->waktu_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->waktu_selesai)->format('H:i') }}</td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">Jumlah Asesi</td>

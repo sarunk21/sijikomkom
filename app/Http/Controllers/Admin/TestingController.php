@@ -41,8 +41,7 @@ class TestingController extends Controller
         $jadwalUjianBerlangsung = Jadwal::where('status', 3)->count();
         $jadwalSelesai = Jadwal::where('status', 4)->count();
 
-        $pendaftaranVerifikasi = Pendaftaran::whereIn('status', [1, 3])->count();
-        $pendaftaranMenungguDistribusi = Pendaftaran::where('status', 4)->count();
+        $pendaftaranMenungguDistribusi = Pendaftaran::where('status', 1)->count();
         $pendaftaranMenungguVerifAsesor = Pendaftaran::where('status', 5)->count();
         $pendaftaranMenungguApprovalKelayakan = Pendaftaran::where('status', 6)->count();
         $pendaftaranTidakLulus = Pendaftaran::where('status', 7)->count();
@@ -79,7 +78,6 @@ class TestingController extends Controller
             'jadwalAktif',
             'jadwalUjianBerlangsung',
             'jadwalSelesai',
-            'pendaftaranVerifikasi',
             'pendaftaranMenungguDistribusi',
             'pendaftaranMenungguVerifAsesor',
             'pendaftaranMenungguApprovalKelayakan',

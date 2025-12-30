@@ -122,9 +122,9 @@ class DashboardController extends Controller
         // 2. VERIFIKASI PERFORMANCE METRICS
         // ==========================================
 
-        // Statistik Status Pendaftaran
+        // Statistik Status Pendaftaran (Kaprodi fokus pada verifikasi dokumen - status 5)
         $statusStats = [
-            'menunggu_verifikasi' => Pendaftaran::where('status', 1)
+            'menunggu_distribusi' => Pendaftaran::where('status', 1) // Menunggu Distribusi Asesor
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })
@@ -135,7 +135,7 @@ class DashboardController extends Controller
                     return $q->where('skema_id', $skemaId);
                 })
                 ->count(),
-            'ditolak' => Pendaftaran::where('status', 2)
+            'ditolak_verifikasi' => Pendaftaran::where('status', 2) // Tidak Lolos Verifikasi Dokumen
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })
@@ -146,7 +146,7 @@ class DashboardController extends Controller
                     return $q->where('skema_id', $skemaId);
                 })
                 ->count(),
-            'diverifikasi' => Pendaftaran::where('status', 3)
+            'menunggu_verifikasi_dokumen' => Pendaftaran::where('status', 5) // Menunggu Verifikasi Dokumen - FOKUS KAPRODI
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })
@@ -157,7 +157,7 @@ class DashboardController extends Controller
                     return $q->where('skema_id', $skemaId);
                 })
                 ->count(),
-            'menunggu_ujian' => Pendaftaran::where('status', 4)
+            'menunggu_verifikasi_kelayakan' => Pendaftaran::where('status', 6) // Menunggu Verifikasi Kelayakan
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })
@@ -168,7 +168,7 @@ class DashboardController extends Controller
                     return $q->where('skema_id', $skemaId);
                 })
                 ->count(),
-            'ujian_berlangsung' => Pendaftaran::where('status', 5)
+            'menunggu_ujian' => Pendaftaran::where('status', 9) // Menunggu Ujian
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })
@@ -179,7 +179,18 @@ class DashboardController extends Controller
                     return $q->where('skema_id', $skemaId);
                 })
                 ->count(),
-            'selesai' => Pendaftaran::where('status', 6)
+            'ujian_berlangsung' => Pendaftaran::where('status', 10) // Ujian Berlangsung
+                ->when($startDate, function($q) use ($startDate) {
+                    return $q->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($q) use ($endDate) {
+                    return $q->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($skemaId, function($q) use ($skemaId) {
+                    return $q->where('skema_id', $skemaId);
+                })
+                ->count(),
+            'selesai' => Pendaftaran::where('status', 11) // Selesai
                 ->when($startDate, function($q) use ($startDate) {
                     return $q->whereDate('created_at', '>=', $startDate);
                 })

@@ -380,20 +380,26 @@
                 <div class="row text-center">
                     <div class="col-md-2 mb-3">
                         <div class="status-metric">
-                            <h3 class="text-warning">{{ $statusStats['menunggu_verifikasi'] }}</h3>
-                            <p>Menunggu Verifikasi</p>
+                            <h3 class="text-primary">{{ $statusStats['menunggu_distribusi'] }}</h3>
+                            <p>Menunggu Distribusi</p>
                         </div>
                     </div>
                     <div class="col-md-2 mb-3">
                         <div class="status-metric">
-                            <h3 class="text-danger">{{ $statusStats['ditolak'] }}</h3>
-                            <p>Ditolak</p>
+                            <h3 class="text-danger">{{ $statusStats['ditolak_verifikasi'] }}</h3>
+                            <p>Ditolak Verifikasi</p>
                         </div>
                     </div>
                     <div class="col-md-2 mb-3">
                         <div class="status-metric">
-                            <h3 class="text-success">{{ $statusStats['diverifikasi'] }}</h3>
-                            <p>Diverifikasi</p>
+                            <h3 class="text-warning">{{ $statusStats['menunggu_verifikasi_dokumen'] }}</h3>
+                            <p>Menunggu Verifikasi Dokumen</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="status-metric">
+                            <h3 class="text-purple" style="color: #6f42c1;">{{ $statusStats['menunggu_verifikasi_kelayakan'] }}</h3>
+                            <p>Menunggu Verifikasi Kelayakan</p>
                         </div>
                     </div>
                     <div class="col-md-2 mb-3">
@@ -410,7 +416,7 @@
                     </div>
                     <div class="col-md-2 mb-3">
                         <div class="status-metric">
-                            <h3 class="text-secondary">{{ $statusStats['selesai'] }}</h3>
+                            <h3 class="text-success">{{ $statusStats['selesai'] }}</h3>
                             <p>Selesai</p>
                         </div>
                     </div>

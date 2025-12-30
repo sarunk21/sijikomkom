@@ -53,11 +53,11 @@ class TemplateGeneratorService
                 if (in_array($key, $imageVariables)) {
                     continue; // Skip, sudah di-insert sebagai gambar
                 }
-                
+
                 // Ensure value is string
                 $stringValue = is_array($value) ? json_encode($value) : (string)$value;
-                
-                // PhpWord TemplateProcessor menggunakan nama variable tanpa ${} 
+
+                // PhpWord TemplateProcessor menggunakan nama variable tanpa ${}
                 // karena sudah ditambahkan secara internal
                 try {
                     $templateProcessor->setValue($key, $stringValue);
@@ -65,7 +65,7 @@ class TemplateGeneratorService
                     // Log jika gagal, tapi lanjutkan
                     \Illuminate\Support\Facades\Log::debug("Failed to set variable {$key}: " . $e->getMessage());
                 }
-                
+
                 \Illuminate\Support\Facades\Log::info("Set template variable: {$key} = " . substr($stringValue, 0, 100));
             }
 
@@ -149,7 +149,7 @@ class TemplateGeneratorService
                 try {
                     // Collect all signature_pad field names dari template
                     $signaturePadFields = ['ttd_digital']; // Default
-                    
+
                     if ($template->field_configurations) {
                         foreach ($template->field_configurations as $fieldConfig) {
                             if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
@@ -157,7 +157,7 @@ class TemplateGeneratorService
                             }
                         }
                     }
-                    
+
                     // Juga check custom_variables
                     if (isset($template->custom_variables) && is_array($template->custom_variables)) {
                         foreach ($template->custom_variables as $customVar) {
@@ -166,15 +166,15 @@ class TemplateGeneratorService
                             }
                         }
                     }
-                    
+
                     // Remove duplicates
                     $signaturePadFields = array_unique($signaturePadFields);
-                    
+
                     // Try to insert TTD for each signature pad field
                     foreach ($signaturePadFields as $fieldName) {
                         // Coba berbagai format placeholder untuk setiap field
                         $placeholders = [$fieldName, '${' . $fieldName . '}', $fieldName . '}', '{' . $fieldName];
-                        
+
                         foreach ($placeholders as $placeholder) {
                             try {
                                 $templateProcessor->setImageValue(
@@ -207,14 +207,14 @@ class TemplateGeneratorService
                 $skipFields = array_merge($skipFields, $signaturePadFields);
             }
             $skipFields = array_unique($skipFields);
-            
+
             // Replace variables dalam template
             foreach ($data as $key => $value) {
                 // Skip signature_pad fields karena sudah di-handle sebagai image
                 if (in_array($key, $skipFields)) {
                     continue;
                 }
-                
+
                 // Convert key to template format dengan dollar sign (e.g., 'nama_asesi' -> '${nama_asesi}')
                 $templateKey = '${' . $key . '}';
                 $templateProcessor->setValue($templateKey, $value);
@@ -295,7 +295,7 @@ class TemplateGeneratorService
         $data['no_hp'] = $data['telephone_asesi'];
         $data['alamat'] = $data['alamat_asesi'];
         $data['nik'] = $data['nik_asesi'];
-        
+
         // Mapping untuk format user.xxx
         $data['user.name'] = $data['nama_asesi'];
         $data['user_name'] = $data['nama_asesi'];
@@ -307,7 +307,7 @@ class TemplateGeneratorService
         $data['user_alamat'] = $data['alamat_asesi'];
         $data['user.nik'] = $data['nik_asesi'];
         $data['user_nik'] = $data['nik_asesi'];
-        
+
         // Mapping untuk skema
         $data['skema.nama'] = $data['nama_skema'];
         $data['skema_nama'] = $data['nama_skema'];
@@ -333,7 +333,7 @@ class TemplateGeneratorService
         // Nama asesi harus selalu muncul di bagian asesi
         $asesiName = $asesi ? ($asesi->name ?? '') : '';
         $data['nama_asesi_display'] = $asesiName;
-        
+
         // Tambahkan data asesor jika asesorView = true
         if ($asesorView && $pendaftaran->asesor_data) {
             foreach ($pendaftaran->asesor_data as $key => $value) {
@@ -345,16 +345,16 @@ class TemplateGeneratorService
         if ($asesorView) {
             // Ambil data asesor dari jadwal
             $asesor = null;
-            
+
             if ($pendaftaran->jadwal) {
                 // Load relasi asesorSkema jika belum loaded
                 if (!$pendaftaran->jadwal->relationLoaded('asesorSkema')) {
                     $pendaftaran->jadwal->load('asesorSkema.asesor');
                 }
-                
+
                 $asesor = $pendaftaran->jadwal->asesorSkema->first();
             }
-            
+
             if ($asesor && $asesor->asesor) {
                 $asesorName = $asesor->asesor->name ?? '';
                 $asesorNik = $asesor->asesor->nik ?? '';
@@ -434,7 +434,7 @@ class TemplateGeneratorService
 
                 // Set jawaban untuk variable itu sendiri
                 $data[$variableName] = $answer; // pertanyaan_1 = "K"
-                
+
                 // Generate checkbox individual per pertanyaan untuk flexible placement
                 // Format: ${nama_variable_k} dan ${nama_variable_bk}
                 if ($answer === 'K') {
@@ -549,7 +549,7 @@ class TemplateGeneratorService
                 }
             }
         }
-        
+
         // Mapping tambahan untuk tanda tangan digital asesi
         // Ini akan di-replace dengan gambar sebenarnya di insertApl2Signatures
         $data['ttd_digital_asesi'] = $asesiName; // Untuk ditampilkan sebagai text jika gambar gagal
@@ -570,19 +570,19 @@ class TemplateGeneratorService
             if ($pendaftaran->ttd_asesi_path && file_exists(storage_path('app/public/' . $pendaftaran->ttd_asesi_path))) {
                 $ttdAsesiPath = storage_path('app/public/' . $pendaftaran->ttd_asesi_path);
                 \Illuminate\Support\Facades\Log::info('Inserting TTD Asesi from: ' . $ttdAsesiPath);
-                
+
                 // Try multiple placeholder formats - PhpWord tidak pakai ${}
                 // Tambahkan lebih banyak variasi untuk memastikan TTD bisa diinsert
                 $placeholders = [
-                    'ttd_digital_asesi', 
-                    'ttd_asesi', 
+                    'ttd_digital_asesi',
+                    'ttd_asesi',
                     'tanda_tangan_asesi',
                     'signature_asesi',
                     'ttd_digital',
                     'tanggal_tangan_asesi' // typo yang mungkin ada di template
                 ];
                 $insertedCount = 0;
-                
+
                 foreach ($placeholders as $placeholder) {
                     try {
                         $templateProcessor->setImageValue(
@@ -602,7 +602,7 @@ class TemplateGeneratorService
                         continue;
                     }
                 }
-                
+
                 if ($insertedCount === 0) {
                     \Illuminate\Support\Facades\Log::warning('TTD Asesi tidak bisa diinsert ke template dengan semua placeholder yang dicoba');
                 } else {
@@ -615,19 +615,19 @@ class TemplateGeneratorService
             // TTD Asesor (jika ada dan asesorView = true)
             if ($asesorView) {
                 $ttdAsesorPath = null;
-                
+
                 // Cari TTD Asesor dari pendaftaran
                 if ($pendaftaran->ttd_asesor_path && file_exists(storage_path('app/public/' . $pendaftaran->ttd_asesor_path))) {
                     $ttdAsesorPath = storage_path('app/public/' . $pendaftaran->ttd_asesor_path);
                     \Illuminate\Support\Facades\Log::info('TTD Asesor found from pendaftaran: ' . $ttdAsesorPath);
                 }
-                
+
                 // Jika belum ada, coba cari dari relasi asesor di jadwal
                 if (!$ttdAsesorPath && $pendaftaran->jadwal) {
                     if (!$pendaftaran->jadwal->relationLoaded('asesorSkema')) {
                         $pendaftaran->jadwal->load('asesorSkema.asesor');
                     }
-                    
+
                     $asesor = $pendaftaran->jadwal->asesorSkema->first();
                     if ($asesor && $asesor->asesor && $asesor->asesor->ttd_path) {
                         $ttdAsesorPath = storage_path('app/public/' . $asesor->asesor->ttd_path);
@@ -638,18 +638,18 @@ class TemplateGeneratorService
                         }
                     }
                 }
-                
+
                 if ($ttdAsesorPath) {
                     // Try multiple placeholder formats
                     $placeholders = [
-                        'ttd_digital_asesor', 
-                        'ttd_asesor', 
+                        'ttd_digital_asesor',
+                        'ttd_asesor',
                         'tanda_tangan_asesor',
                         'signature_asesor',
                         'tanggal_tangan_asesor' // typo yang mungkin ada di template
                     ];
                     $insertedCount = 0;
-                    
+
                     foreach ($placeholders as $placeholder) {
                         try {
                             $templateProcessor->setImageValue(
@@ -669,7 +669,7 @@ class TemplateGeneratorService
                             continue;
                         }
                     }
-                    
+
                     if ($insertedCount === 0) {
                         \Illuminate\Support\Facades\Log::warning('TTD Asesor tidak bisa diinsert ke template dengan semua placeholder yang dicoba');
                     } else {
@@ -734,21 +734,45 @@ class TemplateGeneratorService
                     }
                 }
             }
-            
+
             // Prepare data berdasarkan variables yang dipilih di template
             $data = [];
+
+            // PERTAMA: Ambil SEMUA data dari custom_variables pendaftaran (ini yang paling penting)
+            // Karena data yang diinput user disimpan di sini, baik dari custom_variables maupun dynamic_fields
+            if ($pendaftaran->custom_variables && is_array($pendaftaran->custom_variables)) {
+                foreach ($pendaftaran->custom_variables as $key => $value) {
+                    // Skip signature_pad fields - akan di-handle sebagai image
+                    if (in_array($key, $signaturePadFields)) {
+                        continue;
+                    }
+
+                    // Handle array values (checkbox)
+                    if (is_array($value)) {
+                        $value = implode(', ', $value);
+                    }
+
+                    $data[$key] = $value;
+                }
+            }
+
+            // KEDUA: Loop melalui template->variables untuk field yang belum ada di custom_variables
+            // Ambil dari database fields (user, skema, jadwal, dll)
             foreach ($template->variables as $variable) {
                 // Skip signature_pad fields - akan di-handle sebagai image, bukan text
                 if (in_array($variable, $signaturePadFields)) {
                     continue;
                 }
-                
-                // Cek apakah ini custom variable dari asesi
-                if ($pendaftaran->custom_variables && isset($pendaftaran->custom_variables[$variable])) {
-                    $data[$variable] = $pendaftaran->custom_variables[$variable];
-                } else {
-                    $value = $this->getFieldValue($variable, $pendaftaran, $asesi, $skema, $jadwal);
-                    $data[$variable] = $value ?: '';
+
+                // Jika sudah ada di data (dari custom_variables), skip
+                if (isset($data[$variable])) {
+                    continue;
+                }
+
+                // Ambil dari database fields
+                $value = $this->getFieldValue($variable, $pendaftaran, $asesi, $skema, $jadwal);
+                if ($value) {
+                    $data[$variable] = $value;
                 }
             }
 
@@ -758,6 +782,36 @@ class TemplateGeneratorService
                     $data['ttd_digital'] = '[Tanda Tangan Digital Tersimpan - Lihat file asli di sistem]';
                 } else {
                     $data['ttd_digital'] = '[Belum Ada Tanda Tangan Digital]';
+                }
+            }
+
+            // KETIGA: Pastikan field dari field_configurations juga diambil (untuk memastikan tidak ada yang terlewat)
+            if ($template->field_configurations && is_array($template->field_configurations)) {
+                foreach ($template->field_configurations as $fieldConfig) {
+                    $fieldName = $fieldConfig['name'] ?? null;
+                    if (!$fieldName) {
+                        continue;
+                    }
+
+                    // Skip signature_pad fields karena sudah di-handle sebagai image
+                    if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
+                        continue;
+                    }
+
+                    // Jika data sudah ada, skip (jangan overwrite)
+                    if (isset($data[$fieldName])) {
+                        continue;
+                    }
+
+                    // Ambil data dari custom_variables pendaftaran (fallback)
+                    if ($pendaftaran->custom_variables && isset($pendaftaran->custom_variables[$fieldName])) {
+                        $fieldValue = $pendaftaran->custom_variables[$fieldName];
+                        // Handle array values (checkbox)
+                        if (is_array($fieldValue)) {
+                            $fieldValue = implode(', ', $fieldValue);
+                        }
+                        $data[$fieldName] = $fieldValue;
+                    }
                 }
             }
 

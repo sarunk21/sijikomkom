@@ -148,37 +148,59 @@ class ReviewController extends Controller
     {
         $lists = $this->getMenuListAsesor('review');
 
-        // Validate jadwal
-        $jadwal = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+        // Validate jadwal - ambil dari PendaftaranUjikom atau dari Jadwal langsung
+        $pendaftaranUjikom = PendaftaranUjikom::where('jadwal_id', $jadwalId)
             ->where('asesor_id', Auth::id())
             ->with(['jadwal.skema', 'jadwal.tuk'])
             ->first();
+        
+        if ($pendaftaranUjikom) {
+            $jadwal = $pendaftaranUjikom->jadwal;
+        } else {
+            // Jika tidak ada PendaftaranUjikom, ambil jadwal langsung
+            $jadwal = \App\Models\Jadwal::with(['skema', 'tuk'])->find($jadwalId);
+        }
 
         if (!$jadwal) {
             return redirect()->route('asesor.review.index')
                 ->with('error', 'Jadwal tidak ditemukan');
         }
 
-        // Get asesi list with pendaftaran data
-        $asesiList = PendaftaranUjikom::where('jadwal_id', $jadwalId)
+        // Get asesi list - ambil dari PendaftaranUjikom yang masih ada, atau dari Pendaftaran yang pernah diverifikasi oleh asesor ini (termasuk yang ditolak)
+        $pendaftaranUjikomIds = PendaftaranUjikom::where('jadwal_id', $jadwalId)
             ->where('asesor_id', Auth::id())
-            ->with(['asesi', 'pendaftaran'])
-            ->get()
-            ->map(function($item) {
-                // Check if APL1 and APL2 are filled
-                $pendaftaran = Pendaftaran::where('user_id', $item->asesi_id)
-                    ->where('jadwal_id', $item->jadwal_id)
-                    ->first();
-
-                $item->has_apl1 = $pendaftaran && !empty($pendaftaran->custom_variables);
-                $item->has_apl2 = $pendaftaran && !empty($pendaftaran->custom_variables);
-                $item->pendaftaran_id = $pendaftaran->id ?? null;
-                $item->pendaftaran_status = $pendaftaran->status ?? null;
-                $item->kelayakan_status = $pendaftaran->kelayakan_status ?? 0;
-                $item->kelayakan_catatan = $pendaftaran->kelayakan_catatan ?? null;
-
-                return $item;
-            });
+            ->pluck('pendaftaran_id');
+        
+        // Juga ambil pendaftaran yang status 7 (Tidak Lolos Kelayakan) yang pernah diverifikasi oleh asesor ini
+        // Ini untuk backward compatibility jika ada yang sudah dihapus PendaftaranUjikom-nya sebelumnya
+        $pendaftaranTolakIds = Pendaftaran::where('jadwal_id', $jadwalId)
+            ->where('status', 7) // Tidak Lolos Kelayakan
+            ->where('kelayakan_verified_by', Auth::id())
+            ->whereNotIn('id', $pendaftaranUjikomIds) // Hanya ambil yang tidak ada di PendaftaranUjikom
+            ->pluck('id');
+        
+        $allPendaftaranIds = $pendaftaranUjikomIds->merge($pendaftaranTolakIds)->unique();
+        
+        // Get pendaftaran data
+        $pendaftaranList = Pendaftaran::whereIn('id', $allPendaftaranIds)
+            ->with(['user'])
+            ->get();
+        
+        $asesiList = $pendaftaranList->map(function($pendaftaran) use ($jadwalId) {
+            $item = (object) [
+                'asesi_id' => $pendaftaran->user_id,
+                'pendaftaran_id' => $pendaftaran->id,
+                'pendaftaran_status' => $pendaftaran->status,
+                'kelayakan_status' => $pendaftaran->kelayakan_status ?? 0,
+                'kelayakan_catatan' => $pendaftaran->kelayakan_catatan ?? null,
+                'asesi' => $pendaftaran->user,
+                'pendaftaran' => $pendaftaran,
+                'has_apl1' => !empty($pendaftaran->custom_variables),
+                'has_apl2' => !empty($pendaftaran->custom_variables),
+            ];
+            
+            return $item;
+        });
 
         return view('components.pages.asesor.review.asesi-list', compact('lists', 'jadwal', 'asesiList'));
     }
@@ -498,10 +520,8 @@ class ReviewController extends Controller
                 'kelayakan_verified_by' => Auth::id(),
             ]);
 
-            // Delete PendaftaranUjikom
-            PendaftaranUjikom::where('pendaftaran_id', $pendaftaranId)
-                ->where('asesor_id', Auth::id())
-                ->delete();
+            // JANGAN hapus PendaftaranUjikom untuk tetap menampilkan di list dengan status "Tidak Layak"
+            // PendaftaranUjikom tetap ada untuk tracking history
 
             DB::commit();
 

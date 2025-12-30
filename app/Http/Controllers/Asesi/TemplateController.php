@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class TemplateController extends Controller
 {
     use MenuTrait;
-    
+
     protected $templateGenerator;
 
     public function __construct(TemplateGeneratorService $templateGenerator)
@@ -72,7 +72,7 @@ class TemplateController extends Controller
             $customVariables = [];
             $existingData = [];
             $dynamicFields = [];
-            
+
             // Collect all signature_pad field names dari field_configurations
             $signaturePadFields = [];
             if ($template->field_configurations && is_array($template->field_configurations)) {
@@ -82,7 +82,7 @@ class TemplateController extends Controller
                     }
                 }
             }
-            
+
             // Juga collect dari custom_variables template jika ada
             if (isset($template->custom_variables) && is_array($template->custom_variables)) {
                 foreach ($template->custom_variables as $customVar) {
@@ -98,12 +98,12 @@ class TemplateController extends Controller
                     if (in_array($variable, $databaseFields)) {
                         continue;
                     }
-                    
+
                     // Skip signature_pad fields yang ada di field_configurations
                     if (in_array($variable, $signaturePadFields)) {
                         continue;
                     }
-                    
+
                     // Cek apakah data sudah ada di custom_variables pendaftaran
                     if ($pendaftaran->custom_variables && isset($pendaftaran->custom_variables[$variable])) {
                         $existingData[$variable] = $pendaftaran->custom_variables[$variable];
@@ -117,12 +117,12 @@ class TemplateController extends Controller
             if ($template->field_configurations && is_array($template->field_configurations)) {
                 foreach ($template->field_configurations as $fieldConfig) {
                     $fieldName = $fieldConfig['name'];
-                    
+
                     // Skip signature_pad fields karena sudah ditangani di section terpisah
                     if (isset($fieldConfig['type']) && $fieldConfig['type'] === 'signature_pad') {
                         continue;
                     }
-                    
+
                     // Cek apakah field sudah diisi di custom_variables
                     if ($pendaftaran->custom_variables && isset($pendaftaran->custom_variables[$fieldName])) {
                         $existingData[$fieldName] = $pendaftaran->custom_variables[$fieldName];
@@ -169,7 +169,7 @@ class TemplateController extends Controller
             return redirect()->back()->with('error', 'Pendaftaran tidak ditemukan atau bukan milik Anda.');
         }
 
-        if (!in_array($pendaftaran->status, [3, 4, 5])) {
+        if (!in_array($pendaftaran->status, [1, 3, 4, 5, 6])) {
             return redirect()->back()->with('error', 'Pendaftaran belum dalam status yang tepat.');
         }
 
@@ -212,9 +212,9 @@ class TemplateController extends Controller
         try {
             // Ambil custom variables yang sudah ada
             $existingCustomVariables = $pendaftaran->custom_variables ?? [];
-            
+
             $customVariables = $existingCustomVariables;
-            
+
             if ($request->custom_variables) {
                 foreach ($request->custom_variables as $key => $value) {
                     if (!empty(trim($value))) {
