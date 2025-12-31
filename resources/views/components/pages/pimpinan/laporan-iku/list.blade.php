@@ -1,7 +1,7 @@
 @extends('components.templates.master-layout')
 
-@section('title', 'Laporan IKU 2')
-@section('page-title', 'Laporan IKU 2')
+@section('title', 'Laporan IKU 3')
+@section('page-title', 'Laporan IKU 3')
 
 @section('content')
     {{-- Filter Card --}}
@@ -121,7 +121,7 @@
                     responsive: true,
                     ordering: false,
                     language: {
-                        searchPlaceholder: "Cari Laporan IKU 2...",
+                        searchPlaceholder: "Cari Laporan IKU 3...",
                         search: "",
                         lengthMenu: "_MENU_ data per halaman",
                         zeroRecords: "Data tidak ditemukan",
